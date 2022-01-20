@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const db = require('./app/Backend/database')
+const db = require('./database')
 const port = 3000
 const passport = require('passport')
 
