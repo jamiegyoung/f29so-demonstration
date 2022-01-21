@@ -2,9 +2,8 @@ const sqlite3 = require("sqlite3").verbose();
 const express = require("express");
 // const http = require("http");
 
-const db = new sqlite3.Database(
-    "./database.db",
-    sqlite3.OPEN_READWRITE,
+const db = new sqlite3.Database("./database.db",
+    sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
     (err) => {
         if (err) return console.error(err.message);
 
@@ -46,4 +45,19 @@ db.run(sql_create3, (err) => {
         return console.error(err.message);
     }
     console.log("Canvas Table successfully created");
+});
+
+
+db.exec('INSERT INTO canvas (canvas_ID, owner, width, height) VALUES(1, "Ralf", 32, 32)', function (err, row) {
+    if (err) {
+        console.log(err.message)
+    }
+    console.log("entry added")
+});
+
+db.close((err) => {
+    if (err) {
+        return console.error(err.message);
+    }
+    console.log('Close the database connection.');
 });
