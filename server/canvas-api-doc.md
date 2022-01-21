@@ -11,3 +11,6 @@
 
 ### Set Pixel
 `/api/v1/set-pixel/{canvas-id}/{x}/{y}/{hex-colour}/{user}`
+
+### Get Canvas Preview
+`/api/v1/get-preview/{canvas-id}`
