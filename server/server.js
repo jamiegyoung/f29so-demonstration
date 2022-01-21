@@ -23,8 +23,20 @@ app.post("/users", (req, res) => {
 });
 
 // CRUD Canvas table api
-app.get("/canvas", (req, res) => {
+app.get("/api/canvas/canvas_id", (req, res) => {
   res.render("database.db");
+  var sql = "SELECT * FROM canvas WHERE canvas_id = ?"
+  var params = [req.params.canvas_id]
+  db.get(sql, params, (err, row) => {
+    if (err) {
+      res.status(400).json({ "error": err.message });
+      return;
+    }
+    res.json({
+      "message": "success",
+      "data": row
+    })
+  });
 });
 
 app.post("/canvas", (req, res) => {
@@ -32,7 +44,6 @@ app.post("/canvas", (req, res) => {
 })
 
 app.delete("/canvas/:canvas_ID", (req, res) => {
-
 })
 
 // CRUD Pixels table api
