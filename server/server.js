@@ -1,137 +1,133 @@
 // CONSTANTS
-
-const server_port = 2000;
-const api_version_string = 'v1';
-
+const port = 2000;
+const apiVersionString = 'v1';
 
 // CALCULATED CONSTANTS
 
-const url_prefix = `/api/${api_version_string}`;
-
+const urlPrefix = `/api/${apiVersionString}`;
 
 // IMPORTS
-
 const express = require('express');
+
 const app = express();
 const server = require('http').Server(app);
 const path = require('path');
-const fs = require('fs');
 
-const db = require('./db.js');
-const { genPreview } = require('./preview-gen.js');
-
-const pngjs = require('pngjs');
-
+// const pngjs = require('pngjs');
+const debug = require('debug')('server');
+const db = require('./db');
+const { genPreview } = require('./preview-gen');
 
 // EXPRESS STUFF
 
 app.use('/static', express.static(path.join(__dirname, './static/')));
 
-app.get(`${url_prefix}/get-canvas/:cid`, (req, res) => {
-	let cid = req.params.cid;
+app.get(`${urlPrefix}/get-canvas/:canvasId`, (req, res) => {
+  const { canvasId } = req.params;
 
-	let data = db.getCanvasMetadata(cid);
-	let pixels = db.getCanvasPixels(cid);
+  const data = db.getCanvasMetadata(canvasId);
+  const pixels = db.getCanvasPixels(canvasId);
 
-	if (!data) {
-		res.writeHead(400, {'Content-Type': 'text/plain'});
-		res.end("Canvas does not exist");
-		return;
-	}
+  if (!data) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Canvas does not exist');
+    return;
+  }
 
-	data['Pixels'] = pixels;
+  data.Pixels = pixels;
 
-	res.writeHead(200, {'Content-Type': 'application/json'});
-	res.end(JSON.stringify(data));
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
 });
 
-app.get(`${url_prefix}/create-canvas/:owner/:width/:height`, (req, res) => {
-	// TODO: add validation
-	let succ = db.createCanvas(req.params.owner, req.params.width, req.params.height);
+app.get(`${urlPrefix}/create-canvas/:owner/:width/:height`, (req, res) => {
+  // TODO: add validation
+  // const succ = db.createCanvas(
+  //   req.params.owner,
+  //   req.params.width,
+  //   req.params.height,
+  // );
 
-	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.end("done");
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('done');
 });
 
-app.get(`${url_prefix}/get-pixel/:cid/:x/:y`, (req, res) => {
-	let cid = req.params.cid;
-	let x = parseInt(req.params.x);
-	let y = parseInt(req.params.y);
+app.get(`${urlPrefix}/get-pixel/:canvasId/:x/:y`, (req, res) => {
+  const { canvasId } = req.params;
+  const x = parseInt(req.params.x, 10);
+  const y = parseInt(req.params.y, 10);
 
-	let meta = db.getCanvasMetadata(cid);
+  const meta = db.getCanvasMetadata(canvasId);
 
-	// Verify coordinates are within the canvas
-	if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
-		res.writeHead(400, {'Content-Type': 'text/plain'});
-		res.end("Invalid coordinates");
-		return;
-	}
+  // Verify coordinates are within the canvas
+  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Invalid coordinates');
+    return;
+  }
 
-	let pixel = db.getPixel(cid, x, y);
+  const pixel = db.getPixel(canvasId, x, y);
 
-	if (pixel) {
-		// Write coordinates back
-		pixel['x'] = x;
-		pixel['y'] = y;
+  if (pixel) {
+    // Write coordinates back
+    pixel.x = x;
+    pixel.y = y;
 
-		res.writeHead(200, {'Content-Type': 'application/json'});
-		res.end(JSON.stringify(pixel));
-	} else {
-		res.writeHead(500, {'Content-Type': 'text/plain'});
-		res.end("Pixel does not exist");
-	}
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(pixel));
+  } else {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Pixel does not exist');
+  }
 });
 
-app.get(`${url_prefix}/set-pixel/:cid/:x/:y/:col/:user`, (req, res) => {
-	let cid = req.params.cid;
-	let x = parseInt(req.params.x);
-	let y = parseInt(req.params.y);
-	var col = req.params.col;
+app.get(`${urlPrefix}/set-pixel/:canvasId/:x/:y/:color/:user`, (req, res) => {
+  const { canvasId } = req.params;
+  const x = parseInt(req.params.x, 10);
+  const y = parseInt(req.params.y, 10);
+  let { color } = req.params;
 
-	let meta = db.getCanvasMetadata(cid);
+  const meta = db.getCanvasMetadata(canvasId);
 
-	// Verify coordinates are within the canvas
-	if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
-		res.writeHead(400, {'Content-Type': 'text/plain'});
-		res.end("Invalid coordinates");
-		return;
-	}
+  // Verify coordinates are within the canvas
+  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Invalid coordinates');
+    return;
+  }
 
-	col = col.toString(); // Just to make sure
+  color = color.toString(); // Just to make sure
 
-	if (col.length != 8) {
-		res.writeHead(400, {'Content-Type': 'text/plain'});
-		res.end("Invalid colour format");
-		return;
-	}
+  if (color.length !== 8) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Invalid colour format');
+    return;
+  }
 
-	db.setPixel(cid, x, y, col, req.params.user);
+  db.setPixel(canvasId, x, y, color, req.params.user);
 
-	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.end("done");
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('done');
 });
 
-app.get(`${url_prefix}/get-preview/:cid`, (req, res) => {
-	let pre = db.getCanvasPreview(req.params.cid);
+app.get(`${urlPrefix}/get-preview/:canvasId`, (req, res) => {
+  const pre = db.getCanvasPreview(req.params.canvasId);
 
-	if (pre) {
-		res.writeHead(200, {'Content-Type': 'image/png'});
-		res.end(pre);
-	}
-	else {
-		res.writeHead(200, {'Content-Type': 'text/plain'});
-		res.end("Preview not found");
-	}
+  if (pre) {
+    res.writeHead(200, { 'Content-Type': 'image/png' });
+    res.end(pre);
+  } else {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Preview not found');
+  }
 });
-
 
 // INIT
 
-server.listen(server_port);
-console.log(`Started server on port ${server_port}`);
+server.listen(port);
+debug(`Started server on port ${port}`);
 
 db.init();
-
 
 // OTHER FUNCTIONS
 
@@ -139,27 +135,27 @@ db.init();
  * Generate preview PNGs for all canvases
  */
 function genPreviews() {
-	let cids = db.getAllCanvasIDs();
+  const canvasIds = db.getAllCanvasIDs();
+  debug('Generating previews for %d canvases', canvasIds.length);
+  debug(canvasIds);
 
-	console.debug("Started generating previews...");
-	for (asdf in cids) {
-		let cid = cids[asdf];
-		console.debug("Preview for ID " + cid);
+  debug('Started generating previews...');
+  canvasIds.forEach((canvasId) => {
+    debug(`Preview for ID ${canvasId}`);
 
-		let meta = db.getCanvasMetadata(cid);
-		let pixels = db.getCanvasPixels(cid);
+    const meta = db.getCanvasMetadata(canvasId);
+    const pixels = db.getCanvasPixels(canvasId);
 
-		let preview = genPreview(pixels, meta.Width, meta.Height);
+    const preview = genPreview(pixels, meta.Width, meta.Height);
 
-		//fs.writeFileSync(`previews/${cid}.png`, preview); // test
+    // fs.writeFileSync(`previews/${canvasId}.png`, preview); // test
 
-		db.setCanvasPreview(cid, preview);
-	}
-	console.debug("Done generating previews");
+    db.setCanvasPreview(canvasId, preview);
+  });
+  debug('Done generating previews');
 }
 
-
 // TEST STUFF
-//genPreview(db.getCanvasPixels(1), 4, 2);
+// genPreview(db.getCanvasPixels(1), 4, 2);
 
 genPreviews();

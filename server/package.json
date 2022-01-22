@@ -4,12 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express:* && set NODE_ENV=development&& node server.js"
   },
   "author": "Blast1113",
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^7.5.0",
+    "debug": "^4.3.3",
     "express": "^4.17.2",
     "jimp": "^0.16.1",
     "nodemon": "^2.0.15",
