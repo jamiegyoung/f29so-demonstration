@@ -22,12 +22,12 @@ function genPreview(pixelArray, width, height) {
   // Copy image into buffer
   pixelArray.forEach((pixel) => {
     // for (var i=0; i<4; i++) {
-    // dataBuf[(pixel.Y * width + pixel.X) * 4 + i] = parseInt(pixel.Colour.substr(i * 2, 2));
+    // dataBuf[(pixel.y * width + pixel.x) * 4 + i] = parseInt(pixel.color.substr(i * 2, 2));
     // }
 
-    const x = pixel.X;
-    const y = pixel.Y;
-    const c = pixel.Colour;
+    const x = pixel.x;
+    const y = pixel.y;
+    const c = pixel.color;
 
     const r = parseInt(c.substr(0, 2), 16);
     const g = parseInt(c.substr(2, 2), 16);

@@ -84,7 +84,7 @@ exports.createWall = createWall;
  */
 function getPixel(cid, x, y) {
   const getPixelQr = db.prepare(
-    'SELECT Colour,HistoryID FROM WallPixel WHERE WallID=? AND X=? AND Y=?;',
+    'SELECT color,HistoryID FROM WallPixel WHERE wallID=? AND color=? AND y=?;',
   );
   return getPixelQr.get(cid, x, y);
 }
@@ -108,14 +108,14 @@ function setPixel(wallID, x, y, color, _user) {
 
   if (existing) {
     const updateExisting = db.prepare(
-      'UPDATE WallPixel SET Colour=? WHERE WallID=? AND X=? AND Y=?;',
+      'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
     );
     updateExisting.run(colorString, wallID, x, y);
 
     // Something about history here
   } else {
     const createNew = db.prepare(
-      'INSERT INTO WallPixel(WallID,X,Y,Colour) VALUES (?,?,?,?);',
+      'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
     );
     createNew.run(wallID, x, y, colorString);
 
@@ -129,8 +129,8 @@ exports.setPixel = setPixel;
  * @returns {number[]}
  */
 function getAllWallIDs() {
-  const qr = db.prepare('SELECT WallID FROM Wall;');
-  return qr.all().map((v) => v.WallID);
+  const qr = db.prepare('SELECT wallID FROM Wall;');
+  return qr.all().map((v) => v.wallID);
 }
 
 exports.getAllWallIDs = getAllWallIDs;
@@ -141,7 +141,7 @@ exports.getAllWallIDs = getAllWallIDs;
  * @returns
  */
 function getWallPreview(cid) {
-  const qr = db.prepare('SELECT Preview FROM Wall WHERE WallID=?');
+  const qr = db.prepare('SELECT preview FROM Wall WHERE wallID=?');
   const res = qr.get(cid);
   return res ? res.Preview : undefined;
 }
@@ -153,7 +153,7 @@ exports.getWallPreview = getWallPreview;
  * @param {Buffer} preview
  */
 function setWallPreview(cid, preview) {
-  const qr = db.prepare('UPDATE Wall SET Preview=? WHERE WallID=?');
+  const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
   qr.run(preview, cid);
 }
 exports.setWallPreview = setWallPreview;

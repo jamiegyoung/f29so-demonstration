@@ -58,7 +58,7 @@ function genPreviews() {
     const meta = db.getWallMetadata(wallID);
     const pixels = db.getWallPixels(wallID);
 
-    const preview = genPreview(pixels, meta.Width, meta.Height);
+    const preview = genPreview(pixels, meta.width, meta.height);
 
     // fs.writeFileSync(`previews/${wallID}.png`, preview); // test
 

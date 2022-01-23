@@ -53,7 +53,7 @@ router.get('/get-pixel/:wallID/:x/:y', (req, res) => {
   const meta = db.getWallMetadata(wallID);
 
   // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
+  if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid coordinates');
     return;
@@ -83,7 +83,7 @@ router.get('/set-pixel/:wallID/:x/:y/:color/:user', (req, res) => {
   const meta = db.getWallMetadata(wallID);
 
   // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
+  if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid coordinates');
     return;
