@@ -8,12 +8,14 @@ const getApiUrl = (): string => {
 
 export const fetchWallById = (wallID: number): Promise<Wall> =>
   new Promise((resolve, reject) => {
-    fetch(`${getApiUrl()}/get-wall/${wallID}`).then((res) => {
-      if (res.status === 200) {
-        resolve(res.json());
-      }
-      reject(res.statusText);
-    });
+    fetch(`${getApiUrl()}/get-wall/${wallID}`)
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.json());
+        }
+        reject(res.statusText);
+      })
+      .catch((err) => reject(err));
   });
 
 export async function setWallPixelById(
