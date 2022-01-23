@@ -28,7 +28,7 @@ describe('wall reducer', () => {
   it('should handle initial state', () => {
     expect(wallReducer(undefined, { type: 'unknown' })).toEqual({
       id: null,
-      wallName: null,
+      owner: null,
       width: null,
       height: null,
       pixels: [],
@@ -66,7 +66,7 @@ describe('wall reducer', () => {
 
     expect(actual).toEqual({
       id: null,
-      wallName: null,
+      owner: null,
       width: null,
       height: null,
       pixels: [],

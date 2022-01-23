@@ -24,7 +24,7 @@ type SetPixelInfo = {
 
 export const setWallPixel = createAsyncThunk(
   'wall/setWallPixel',
-  async ({ wallID: wallID, pixel }: SetPixelInfo): Promise<Wall> =>
+  async ({ wallID, pixel }: SetPixelInfo): Promise<Wall> =>
     setWallPixelById(wallID, pixel),
 );
 
@@ -59,9 +59,15 @@ export const wallSlice = createSlice({
       fetchWall.fulfilled,
       (state, action: PayloadAction<Wall>) => {
         // set state to the action
-        const { id: wallID, owner: wallName, width, height, pixels } = action.payload;
+        const {
+          id: wallID,
+          owner,
+          width,
+          height,
+          pixels,
+        } = action.payload;
         state.id = wallID;
-        state.owner = wallName;
+        state.owner = owner;
         state.width = width;
         state.height = height;
         state.pixels = pixels;
