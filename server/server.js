@@ -1,130 +1,41 @@
 // CONSTANTS
 const port = 2000;
-const apiVersionString = 'v1';
-
-// CALCULATED CONSTANTS
-
-const urlPrefix = `/api/${apiVersionString}`;
-
 // IMPORTS
 const express = require('express');
-
-const app = express();
-const server = require('http').Server(app);
 const path = require('path');
-
-// const pngjs = require('pngjs');
+const helmet = require('helmet');
 const debug = require('debug')('server');
-const db = require('./db');
-const { genPreview } = require('./preview-gen');
+// const csurf = require('csurf');
+const db = require('./src/db');
+const { genPreview } = require('./src/preview-gen');
 
 // EXPRESS STUFF
+const app = express();
+
+// CSRF (add later when implemented into front-end)
+// const csrfMiddleware = csurf({
+//   cookie: {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === 'production',
+//   },
+// });
+
+// app.use(csrfMiddleware);
+
+app.use(helmet());
 
 app.use('/static', express.static(path.join(__dirname, './static/')));
 
-app.get(`${urlPrefix}/get-wall/:wallId`, (req, res) => {
-  const { wallId } = req.params;
+app.use('/api', require('./src/routes/api'));
 
-  const data = db.getWallMetadata(wallId);
-  const pixels = db.getWallPixels(wallId);
-
-  if (!data) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Wall does not exist');
-    return;
-  }
-
-  data.Pixels = pixels;
-
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
-});
-
-app.get(`${urlPrefix}/create-wall/:owner/:width/:height`, (req, res) => {
-  // TODO: add validation
-  // const succ = db.createWall(
-  //   req.params.owner,
-  //   req.params.width,
-  //   req.params.height,
-  // );
-
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('done');
-});
-
-app.get(`${urlPrefix}/get-pixel/:wallId/:x/:y`, (req, res) => {
-  const { wallId } = req.params;
-  const x = parseInt(req.params.x, 10);
-  const y = parseInt(req.params.y, 10);
-
-  const meta = db.getWallMetadata(wallId);
-
-  // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid coordinates');
-    return;
-  }
-
-  const pixel = db.getPixel(wallId, x, y);
-
-  if (pixel) {
-    // Write coordinates back
-    pixel.x = x;
-    pixel.y = y;
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(pixel));
-  } else {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end('Pixel does not exist');
-  }
-});
-
-app.get(`${urlPrefix}/set-pixel/:wallId/:x/:y/:color/:user`, (req, res) => {
-  const { wallId } = req.params;
-  const x = parseInt(req.params.x, 10);
-  const y = parseInt(req.params.y, 10);
-  let { color } = req.params;
-
-  const meta = db.getWallMetadata(wallId);
-
-  // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid coordinates');
-    return;
-  }
-
-  color = color.toString(); // Just to make sure
-
-  if (color.length !== 8) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid colour format');
-    return;
-  }
-
-  db.setPixel(wallId, x, y, color, req.params.user);
-
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('done');
-});
-
-app.get(`${urlPrefix}/get-preview/:wallId`, (req, res) => {
-  const pre = db.getWallPreview(req.params.wallId);
-
-  if (pre) {
-    res.writeHead(200, { 'Content-Type': 'image/png' });
-    res.end(pre);
-  } else {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Preview not found');
-  }
+app.get('/', (req, res) => {
+  debug('GET /');
+  // res.cookie('CSRF-Token', req.csrfToken());
+  res.sendFile(path.join(__dirname, './static/index.html'));
 });
 
 // INIT
-
-server.listen(port);
+app.listen(port);
 debug(`Started server on port ${port}`);
 
 db.init();

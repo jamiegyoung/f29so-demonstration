@@ -11,8 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^7.5.0",
+    "csurf": "^1.11.0",
     "debug": "^4.3.3",
     "express": "^4.17.2",
+    "express-rate-limit": "^6.2.0",
+    "helmet": "^5.0.2",
     "jimp": "^0.16.1",
     "nodemon": "^2.0.15",
     "pngjs": "^6.0.0"
