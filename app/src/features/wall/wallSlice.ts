@@ -1,15 +1,12 @@
 // import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 // import { RootState } from "../../app/store";
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Wall, Pixel } from '../../types';
+import { Wall, Pixel, WallState } from '../../types';
 import { fetchWallById, setWallPixelById } from './wallApi';
 
-const initialState: Wall = {
-  id: null,
-  owner: null,
-  width: null,
-  height: null,
-  pixels: [],
+const initialState: WallState = {
+  wall: null,
+  status: 'idle',
 };
 
 export const fetchWall = createAsyncThunk(
@@ -36,8 +33,14 @@ export const wallSlice = createSlice({
     setPixel: (state, action: PayloadAction<Pixel>) => {
       const { x, y, color, history } = action.payload;
       // check there is a width and height and see if the pixel is within the wall
-      if (state.width && state.height && state.width > x && state.height > y) {
-        const pixel = state.pixels.find((p) => p.x === x && p.y === y);
+      if (
+        state.wall &&
+        state.wall.width &&
+        state.wall.height &&
+        state.wall.width > x &&
+        state.wall.height > y
+      ) {
+        const pixel = state.wall.pixels.find((p) => p.x === x && p.y === y);
         if (pixel) {
           pixel.color = color;
           pixel.history = [...history, ...pixel.history];
@@ -47,32 +50,24 @@ export const wallSlice = createSlice({
     },
     // clears the wall from the state
     clearWall: (state) => {
-      state.id = null;
-      state.owner = null;
-      state.width = null;
-      state.height = null;
-      state.pixels = [];
+      state.wall = null;
+      state.status = 'idle';
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       fetchWall.fulfilled,
       (state, action: PayloadAction<Wall>) => {
-        // set state to the action
-        const {
-          id: wallID,
-          owner,
-          width,
-          height,
-          pixels,
-        } = action.payload;
-        state.id = wallID;
-        state.owner = owner;
-        state.width = width;
-        state.height = height;
-        state.pixels = pixels;
+        state.wall = action.payload;
+        state.status = 'success';
       },
     );
+    builder.addCase(fetchWall.rejected, (state) => {
+      state.status = 'error';
+    });
+    builder.addCase(fetchWall.pending, (state) => {
+      state.status = 'pending';
+    });
   },
 });
 

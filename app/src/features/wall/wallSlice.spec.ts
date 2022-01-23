@@ -1,6 +1,5 @@
 import wallReducer, { setPixel, clearWall } from './wallSlice';
-
-import { Pixel, Wall } from '../../types';
+import { Pixel, WallState } from '../../types';
 
 describe('wall reducer', () => {
   const initialHistory = [
@@ -11,27 +10,27 @@ describe('wall reducer', () => {
     },
   ];
 
-  const initialState: Wall = {
-    id: 3,
-    owner: "bob's wall",
-    width: 32,
-    height: 32,
-    pixels: [
-      {
-        x: 0,
-        y: 0,
-        color: '#FFFFFF',
-        history: initialHistory,
-      },
-    ],
+  const initialState: WallState = {
+    wall: {
+      wallID: 3,
+      owner: "bob's wall",
+      width: 32,
+      height: 32,
+      pixels: [
+        {
+          x: 0,
+          y: 0,
+          color: '#FFFFFF',
+          history: initialHistory,
+        },
+      ],
+    },
+    status: 'success',
   };
   it('should handle initial state', () => {
     expect(wallReducer(undefined, { type: 'unknown' })).toEqual({
-      id: null,
-      owner: null,
-      width: null,
-      height: null,
-      pixels: [],
+      wall: null,
+      status: 'idle',
     });
   });
 
@@ -52,24 +51,24 @@ describe('wall reducer', () => {
     const actual = wallReducer(initialState, setPixel(newPixel));
 
     expect(actual).toEqual({
-      ...initialState,
-      pixels: [
-        {
-          ...newPixel,
-          history: [...newPixel.history, ...initialHistory],
-        },
-      ],
+      wall: {
+        ...initialState.wall,
+        pixels: [
+          {
+            ...newPixel,
+            history: [...newPixel.history, ...initialHistory],
+          },
+        ],
+      },
+      status: 'success',
     });
   });
   it('should be able to clear the wall', () => {
     const actual = wallReducer(initialState, clearWall());
 
     expect(actual).toEqual({
-      id: null,
-      owner: null,
-      width: null,
-      height: null,
-      pixels: [],
+      wall: null,
+      status: 'idle',
     });
   });
 });

@@ -1,21 +1,20 @@
 import { Wall, Pixel } from '../../types';
-import 'dotenv/config';
 
 const getApiUrl = (): string => {
   if (process.env.NODE_ENV === 'development')
-    return process.env.DEV_API_ADDRESS || 'http://localhost:5000';
-  return process.env.API_ADDRESS || '';
+    return process.env.DEV_API_ADDRESS || 'http://localhost:2000/api/v1';
+  return process.env.API_ADDRESS || '/api/v1';
 };
 
-console.log("API_ADDRESS: ", getApiUrl());
-
-export const fetchWallById = async (wallID: number): Promise<Wall> => {
-  const response = await fetch(`${getApiUrl()}/wall/${wallID}`);
-  const wall = await response.json();
-  return {
-    ...wall,
-  };
-};
+export const fetchWallById = (wallID: number): Promise<Wall> =>
+  new Promise((resolve, reject) => {
+    fetch(`${getApiUrl()}/get-wall/${wallID}`).then((res) => {
+      if (res.status === 200) {
+        resolve(res.json());
+      }
+      reject(res.statusText);
+    });
+  });
 
 export async function setWallPixelById(
   wallID: number,
@@ -30,7 +29,7 @@ export async function setWallPixelById(
   });
   const wall = await response.json();
   return {
-    id: wall.wallID,
+    wallID: wall.wallID,
     owner: wall.owner,
     width: wall.width,
     height: wall.height,
