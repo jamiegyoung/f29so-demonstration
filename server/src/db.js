@@ -13,19 +13,19 @@ debug(`Connected to database "${dbFile}"`);
 function init() {
   const createTables = `
   CREATE TABLE IF NOT EXISTS Wall (
-    WallID INTEGER PRIMARY KEY AUTOINCREMENT,
-    Owner INTEGER NOT NULL,
-    Preview BLOB,
-    Width INTEGER NOT NULL,
-    Height INTEGER NOT NULL
+    wallID INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner INTEGER NOT NULL,
+    preview BLOB,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS WallPixel (
-    WallID INTEGER NOT NULL,
-    X INTEGER NOT NULL,
-    Y INTEGER NOT NULL,
-    Colour TEXT,
-    HistoryID INTEGER
+    wallID INTEGER NOT NULL,
+    x INTEGER NOT NULL,
+    y INTEGER NOT NULL,
+    colour TEXT,
+    historyID INTEGER
   );
 `;
   db.exec(createTables);
@@ -40,7 +40,7 @@ exports.init = init;
  */
 function getWallMetadata(cid) {
   const getMetadata = db.prepare(
-    'SELECT Owner,Width,Height FROM Wall WHERE WallID=?;',
+    'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(cid);
 }
@@ -53,7 +53,7 @@ exports.getWallMetadata = getWallMetadata;
  */
 function getWallPixels(cid) {
   const getPixels = db.prepare(
-    'SELECT X,Y,Colour FROM WallPixel WHERE WallID=?;',
+    'SELECT x,y,colour FROM wallPixel WHERE wallID=?;',
   );
   return getPixels.all(cid);
 }
@@ -67,7 +67,7 @@ exports.getWallPixels = getWallPixels;
  */
 function createWall(owner, width, height) {
   const createWallQr = db.prepare(
-    'INSERT INTO Wall(Owner,Width,Height) VALUES (?,?,?);',
+    'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
   createWallQr.run(owner, width, height);
 
@@ -94,15 +94,15 @@ exports.getPixel = getPixel;
  * Set a specific pixel on a wall
  *
  * TODO: Add history stuff
- * @param {number} wallId Wall ID
+ * @param {number} wallID Wall ID
  * @param {number} x
  * @param {number} y
  * @param {string} color Hex string (format: RRGGBBAA)
  * @param {string} user Not currently used
  */
 
-function setPixel(wallId, x, y, color, _user) {
-  const existing = getPixel(wallId, x, y);
+function setPixel(wallID, x, y, color, _user) {
+  const existing = getPixel(wallID, x, y);
 
   const colorString = color.toString(); // Make sure it's a string
 
@@ -110,14 +110,14 @@ function setPixel(wallId, x, y, color, _user) {
     const updateExisting = db.prepare(
       'UPDATE WallPixel SET Colour=? WHERE WallID=? AND X=? AND Y=?;',
     );
-    updateExisting.run(colorString, wallId, x, y);
+    updateExisting.run(colorString, wallID, x, y);
 
     // Something about history here
   } else {
     const createNew = db.prepare(
       'INSERT INTO WallPixel(WallID,X,Y,Colour) VALUES (?,?,?,?);',
     );
-    createNew.run(wallId, x, y, colorString);
+    createNew.run(wallID, x, y, colorString);
 
     // Something about history here
   }

@@ -1,7 +1,7 @@
 import { Wall, Pixel } from '../../types';
 
-export const fetchWallById = async (wallId: number): Promise<Wall> => {
-  const response = await fetch(`/api/wall/${wallId}`);
+export const fetchWallById = async (wallID: number): Promise<Wall> => {
+  const response = await fetch(`/api/wall/${wallID}`);
   const wall = await response.json();
   return {
     ...wall,
@@ -9,10 +9,10 @@ export const fetchWallById = async (wallId: number): Promise<Wall> => {
 };
 
 export async function setWallPixelById(
-  wallId: number,
+  wallID: number,
   pixel: Pixel,
 ): Promise<Wall> {
-  const response = await fetch(`/api/wall/${wallId}/pixel`, {
+  const response = await fetch(`/api/wall/${wallID}/pixel`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,8 +21,8 @@ export async function setWallPixelById(
   });
   const wall = await response.json();
   return {
-    id: wall.wallId,
-    wallName: wall.wallName,
+    id: wall.wallID,
+    owner: wall.wallName,
     width: wall.width,
     height: wall.height,
     pixels: wall.pixels,

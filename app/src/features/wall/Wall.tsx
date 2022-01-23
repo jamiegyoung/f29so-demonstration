@@ -2,13 +2,13 @@
 // import { fetchWall, setPixel } from './wallSlice';
 
 type WallProps = {
-  wallId: number;
+  wallID: number;
 };
 
-function Wall({ wallId }: WallProps) {
+function Wall({ wallID: wallID }: WallProps) {
   return (
     <div>
-      <h1>Wall {wallId}</h1>
+      <h1>Wall {wallID}</h1>
     </div>
   );
 }

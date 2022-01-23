@@ -7,7 +7,7 @@ export type Pixel = {
 
 export type Wall = {
   id: number | null;
-  wallName: string | null;
+  owner: string | null;
   width: number | null;
   height: number | null;
   pixels: Pixel[];

@@ -14,12 +14,12 @@ const apiLimiter = rateLimit({
 // Every api request will be rate limited
 router.use(apiLimiter);
 
-router.get('/get-wall/:wallId', (req, res) => {
-  debug('GET /api/v1/get-wall/:wallId');
-  const { wallId } = req.params;
+router.get('/get-wall/:wallID', (req, res) => {
+  debug('GET /api/v1/get-wall/:wallID');
+  const { wallID } = req.params;
 
-  const data = db.getWallMetadata(wallId);
-  const pixels = db.getWallPixels(wallId);
+  const data = db.getWallMetadata(wallID);
+  const pixels = db.getWallPixels(wallID);
 
   if (!data) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -27,7 +27,7 @@ router.get('/get-wall/:wallId', (req, res) => {
     return;
   }
 
-  data.Pixels = pixels;
+  data.pixels = pixels;
 
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
@@ -45,12 +45,12 @@ router.get('/create-wall/:owner/:width/:height', (req, res) => {
   res.end('done');
 });
 
-router.get('/get-pixel/:wallId/:x/:y', (req, res) => {
-  const { wallId } = req.params;
+router.get('/get-pixel/:wallID/:x/:y', (req, res) => {
+  const { wallID } = req.params;
   const x = parseInt(req.params.x, 10);
   const y = parseInt(req.params.y, 10);
 
-  const meta = db.getWallMetadata(wallId);
+  const meta = db.getWallMetadata(wallID);
 
   // Verify coordinates are within the wall
   if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
@@ -59,7 +59,7 @@ router.get('/get-pixel/:wallId/:x/:y', (req, res) => {
     return;
   }
 
-  const pixel = db.getPixel(wallId, x, y);
+  const pixel = db.getPixel(wallID, x, y);
 
   if (pixel) {
     // Write coordinates back
@@ -74,13 +74,13 @@ router.get('/get-pixel/:wallId/:x/:y', (req, res) => {
   }
 });
 
-router.get('/set-pixel/:wallId/:x/:y/:color/:user', (req, res) => {
-  const { wallId } = req.params;
+router.get('/set-pixel/:wallID/:x/:y/:color/:user', (req, res) => {
+  const { wallID } = req.params;
   const x = parseInt(req.params.x, 10);
   const y = parseInt(req.params.y, 10);
   let { color } = req.params;
 
-  const meta = db.getWallMetadata(wallId);
+  const meta = db.getWallMetadata(wallID);
 
   // Verify coordinates are within the wall
   if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
@@ -97,14 +97,14 @@ router.get('/set-pixel/:wallId/:x/:y/:color/:user', (req, res) => {
     return;
   }
 
-  db.setPixel(wallId, x, y, color, req.params.user);
+  db.setPixel(wallID, x, y, color, req.params.user);
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });
 
-router.get('/get-preview/:wallId', (req, res) => {
-  const pre = db.getWallPreview(req.params.wallId);
+router.get('/get-preview/:wallID', (req, res) => {
+  const pre = db.getWallPreview(req.params.wallID);
 
   if (pre) {
     res.writeHead(200, { 'Content-Type': 'image/png' });

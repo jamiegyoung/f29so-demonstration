@@ -13,7 +13,7 @@ describe('wall reducer', () => {
 
   const initialState: Wall = {
     id: 3,
-    wallName: "bob's wall",
+    owner: "bob's wall",
     width: 32,
     height: 32,
     pixels: [

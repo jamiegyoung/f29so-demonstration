@@ -6,7 +6,7 @@ import { fetchWallById, setWallPixelById } from './wallApi';
 
 const initialState: Wall = {
   id: null,
-  wallName: null,
+  owner: null,
   width: null,
   height: null,
   pixels: [],
@@ -14,18 +14,18 @@ const initialState: Wall = {
 
 export const fetchWall = createAsyncThunk(
   'wall/fetchWall',
-  async (wallId: number): Promise<Wall> => fetchWallById(wallId),
+  async (wallID: number): Promise<Wall> => fetchWallById(wallID),
 );
 
 type SetPixelInfo = {
-  wallId: number;
+  wallID: number;
   pixel: Pixel;
 };
 
 export const setWallPixel = createAsyncThunk(
   'wall/setWallPixel',
-  async ({ wallId, pixel }: SetPixelInfo): Promise<Wall> =>
-    setWallPixelById(wallId, pixel),
+  async ({ wallID: wallID, pixel }: SetPixelInfo): Promise<Wall> =>
+    setWallPixelById(wallID, pixel),
 );
 
 export const wallSlice = createSlice({
@@ -48,7 +48,7 @@ export const wallSlice = createSlice({
     // clears the wall from the state
     clearWall: (state) => {
       state.id = null;
-      state.wallName = null;
+      state.owner = null;
       state.width = null;
       state.height = null;
       state.pixels = [];
@@ -59,9 +59,9 @@ export const wallSlice = createSlice({
       fetchWall.fulfilled,
       (state, action: PayloadAction<Wall>) => {
         // set state to the action
-        const { id: wallId, wallName, width, height, pixels } = action.payload;
-        state.id = wallId;
-        state.wallName = wallName;
+        const { id: wallID, owner: wallName, width, height, pixels } = action.payload;
+        state.id = wallID;
+        state.owner = wallName;
         state.width = width;
         state.height = height;
         state.pixels = pixels;

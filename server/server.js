@@ -1,5 +1,6 @@
 // CONSTANTS
 const port = 2000;
+
 // IMPORTS
 const express = require('express');
 const path = require('path');
@@ -46,22 +47,22 @@ db.init();
  * Generate preview PNGs for all walles
  */
 function genPreviews() {
-  const wallIds = db.getAllWallIDs();
-  debug('Generating previews for %d walles', wallIds.length);
-  debug(wallIds);
+  const wallIDs = db.getAllWallIDs();
+  debug('Generating previews for %d walles', wallIDs.length);
+  debug(wallIDs);
 
   debug('Started generating previews...');
-  wallIds.forEach((wallId) => {
-    debug(`Preview for ID ${wallId}`);
+  wallIDs.forEach((wallID) => {
+    debug(`Preview for ID ${wallID}`);
 
-    const meta = db.getWallMetadata(wallId);
-    const pixels = db.getWallPixels(wallId);
+    const meta = db.getWallMetadata(wallID);
+    const pixels = db.getWallPixels(wallID);
 
     const preview = genPreview(pixels, meta.Width, meta.Height);
 
-    // fs.writeFileSync(`previews/${wallId}.png`, preview); // test
+    // fs.writeFileSync(`previews/${wallID}.png`, preview); // test
 
-    db.setWallPreview(wallId, preview);
+    db.setWallPreview(wallID, preview);
   });
   debug('Done generating previews');
 }
