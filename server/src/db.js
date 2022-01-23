@@ -24,7 +24,7 @@ function init() {
     wallID INTEGER NOT NULL,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
-    colour TEXT,
+    color TEXT,
     historyID INTEGER
   );
 `;
@@ -53,7 +53,7 @@ exports.getWallMetadata = getWallMetadata;
  */
 function getWallPixels(cid) {
   const getPixels = db.prepare(
-    'SELECT x,y,colour FROM wallPixel WHERE wallID=?;',
+    'SELECT x,y,color FROM wallPixel WHERE wallID=?;',
   );
   return getPixels.all(cid);
 }

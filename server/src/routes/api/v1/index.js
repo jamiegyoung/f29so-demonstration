@@ -93,7 +93,7 @@ router.get('/set-pixel/:wallID/:x/:y/:color/:user', (req, res) => {
 
   if (color.length !== 8) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid colour format');
+    res.end('Invalid color format');
     return;
   }
 
