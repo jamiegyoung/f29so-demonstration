@@ -12,16 +12,16 @@ debug(`Connected to database "${dbFile}"`);
 
 function init() {
   const createTables = `
-  CREATE TABLE IF NOT EXISTS Canvas (
-    CanvasID INTEGER PRIMARY KEY AUTOINCREMENT,
+  CREATE TABLE IF NOT EXISTS Wall (
+    WallID INTEGER PRIMARY KEY AUTOINCREMENT,
     Owner INTEGER NOT NULL,
     Preview BLOB,
     Width INTEGER NOT NULL,
     Height INTEGER NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS CanvasPixel (
-    CanvasID INTEGER NOT NULL,
+  CREATE TABLE IF NOT EXISTS WallPixel (
+    WallID INTEGER NOT NULL,
     X INTEGER NOT NULL,
     Y INTEGER NOT NULL,
     Colour TEXT,
@@ -34,49 +34,49 @@ function init() {
 exports.init = init;
 
 /**
- * Get metadata for a canvas
- * @param {number} cid The canvas ID
+ * Get metadata for a wall
+ * @param {number} cid The wall ID
  * @returns {JSON}
  */
-function getCanvasMetadata(cid) {
+function getWallMetadata(cid) {
   const getMetadata = db.prepare(
-    'SELECT Owner,Width,Height FROM Canvas WHERE CanvasID=?;',
+    'SELECT Owner,Width,Height FROM Wall WHERE WallID=?;',
   );
   return getMetadata.get(cid);
 }
-exports.getCanvasMetadata = getCanvasMetadata;
+exports.getWallMetadata = getWallMetadata;
 
 /**
- * Get the pixels for a canvas
- * @param {number} cid The canvas ID
+ * Get the pixels for a wall
+ * @param {number} cid The wall ID
  * @returns {JSON}
  */
-function getCanvasPixels(cid) {
+function getWallPixels(cid) {
   const getPixels = db.prepare(
-    'SELECT X,Y,Colour FROM CanvasPixel WHERE CanvasID=?;',
+    'SELECT X,Y,Colour FROM WallPixel WHERE WallID=?;',
   );
   return getPixels.all(cid);
 }
-exports.getCanvasPixels = getCanvasPixels;
+exports.getWallPixels = getWallPixels;
 
 /**
- * Create a new canvas
+ * Create a new wall
  * @param {string} owner
  * @param {number} width
  * @param {number} height
  */
-function createCanvas(owner, width, height) {
-  const createCanvasQr = db.prepare(
-    'INSERT INTO Canvas(Owner,Width,Height) VALUES (?,?,?);',
+function createWall(owner, width, height) {
+  const createWallQr = db.prepare(
+    'INSERT INTO Wall(Owner,Width,Height) VALUES (?,?,?);',
   );
-  createCanvasQr.run(owner, width, height);
+  createWallQr.run(owner, width, height);
 
   // Should return something to show if successful
 }
-exports.createCanvas = createCanvas;
+exports.createWall = createWall;
 
 /**
- * Get a single pixel from a canvas
+ * Get a single pixel from a wall
  * @param {*} cid
  * @param {*} x
  * @param {*} y
@@ -84,40 +84,40 @@ exports.createCanvas = createCanvas;
  */
 function getPixel(cid, x, y) {
   const getPixelQr = db.prepare(
-    'SELECT Colour,HistoryID FROM CanvasPixel WHERE CanvasID=? AND X=? AND Y=?;',
+    'SELECT Colour,HistoryID FROM WallPixel WHERE WallID=? AND X=? AND Y=?;',
   );
   return getPixelQr.get(cid, x, y);
 }
 exports.getPixel = getPixel;
 
 /**
- * Set a specific pixel on a canvas
+ * Set a specific pixel on a wall
  *
  * TODO: Add history stuff
- * @param {number} canvasId Canvas ID
+ * @param {number} wallId Wall ID
  * @param {number} x
  * @param {number} y
  * @param {string} color Hex string (format: RRGGBBAA)
  * @param {string} user Not currently used
  */
 
-function setPixel(canvasId, x, y, color, _user) {
-  const existing = getPixel(canvasId, x, y);
+function setPixel(wallId, x, y, color, _user) {
+  const existing = getPixel(wallId, x, y);
 
   const colorString = color.toString(); // Make sure it's a string
 
   if (existing) {
     const updateExisting = db.prepare(
-      'UPDATE CanvasPixel SET Colour=? WHERE CanvasID=? AND X=? AND Y=?;',
+      'UPDATE WallPixel SET Colour=? WHERE WallID=? AND X=? AND Y=?;',
     );
-    updateExisting.run(colorString, canvasId, x, y);
+    updateExisting.run(colorString, wallId, x, y);
 
     // Something about history here
   } else {
     const createNew = db.prepare(
-      'INSERT INTO CanvasPixel(CanvasID,X,Y,Colour) VALUES (?,?,?,?);',
+      'INSERT INTO WallPixel(WallID,X,Y,Colour) VALUES (?,?,?,?);',
     );
-    createNew.run(canvasId, x, y, colorString);
+    createNew.run(wallId, x, y, colorString);
 
     // Something about history here
   }
@@ -125,35 +125,35 @@ function setPixel(canvasId, x, y, color, _user) {
 exports.setPixel = setPixel;
 
 /**
- * Get all canvas IDs
+ * Get all wall IDs
  * @returns {number[]}
  */
-function getAllCanvasIDs() {
-  const qr = db.prepare('SELECT CanvasID FROM Canvas;');
-  return qr.all().map((v) => v.CanvasID);
+function getAllWallIDs() {
+  const qr = db.prepare('SELECT WallID FROM Wall;');
+  return qr.all().map((v) => v.WallID);
 }
 
-exports.getAllCanvasIDs = getAllCanvasIDs;
+exports.getAllWallIDs = getAllWallIDs;
 
 /**
- * Get the preview PNG for a canvas
+ * Get the preview PNG for a wall
  * @param {number} cid
  * @returns
  */
-function getCanvasPreview(cid) {
-  const qr = db.prepare('SELECT Preview FROM Canvas WHERE CanvasID=?');
+function getWallPreview(cid) {
+  const qr = db.prepare('SELECT Preview FROM Wall WHERE WallID=?');
   const res = qr.get(cid);
   return res ? res.Preview : undefined;
 }
-exports.getCanvasPreview = getCanvasPreview;
+exports.getWallPreview = getWallPreview;
 
 /**
- * Update canvas preview in the database
+ * Update wall preview in the database
  * @param {number} cid
  * @param {Buffer} preview
  */
-function setCanvasPreview(cid, preview) {
-  const qr = db.prepare('UPDATE Canvas SET Preview=? WHERE CanvasID=?');
+function setWallPreview(cid, preview) {
+  const qr = db.prepare('UPDATE Wall SET Preview=? WHERE WallID=?');
   qr.run(preview, cid);
 }
-exports.setCanvasPreview = setCanvasPreview;
+exports.setWallPreview = setWallPreview;

@@ -1,11 +1,11 @@
 {
-  "name": "f29so-canvas-test",
+  "name": "f29so-walls-server",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express:* && set NODE_ENV=development&& node server.js"
+    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon* && set NODE_ENV=development&& nodemon server.js"
   },
   "author": "Blast1113",
   "license": "ISC",

@@ -22,15 +22,15 @@ const { genPreview } = require('./preview-gen');
 
 app.use('/static', express.static(path.join(__dirname, './static/')));
 
-app.get(`${urlPrefix}/get-canvas/:canvasId`, (req, res) => {
-  const { canvasId } = req.params;
+app.get(`${urlPrefix}/get-wall/:wallId`, (req, res) => {
+  const { wallId } = req.params;
 
-  const data = db.getCanvasMetadata(canvasId);
-  const pixels = db.getCanvasPixels(canvasId);
+  const data = db.getWallMetadata(wallId);
+  const pixels = db.getWallPixels(wallId);
 
   if (!data) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Canvas does not exist');
+    res.end('Wall does not exist');
     return;
   }
 
@@ -40,9 +40,9 @@ app.get(`${urlPrefix}/get-canvas/:canvasId`, (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-app.get(`${urlPrefix}/create-canvas/:owner/:width/:height`, (req, res) => {
+app.get(`${urlPrefix}/create-wall/:owner/:width/:height`, (req, res) => {
   // TODO: add validation
-  // const succ = db.createCanvas(
+  // const succ = db.createWall(
   //   req.params.owner,
   //   req.params.width,
   //   req.params.height,
@@ -52,21 +52,21 @@ app.get(`${urlPrefix}/create-canvas/:owner/:width/:height`, (req, res) => {
   res.end('done');
 });
 
-app.get(`${urlPrefix}/get-pixel/:canvasId/:x/:y`, (req, res) => {
-  const { canvasId } = req.params;
+app.get(`${urlPrefix}/get-pixel/:wallId/:x/:y`, (req, res) => {
+  const { wallId } = req.params;
   const x = parseInt(req.params.x, 10);
   const y = parseInt(req.params.y, 10);
 
-  const meta = db.getCanvasMetadata(canvasId);
+  const meta = db.getWallMetadata(wallId);
 
-  // Verify coordinates are within the canvas
+  // Verify coordinates are within the wall
   if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid coordinates');
     return;
   }
 
-  const pixel = db.getPixel(canvasId, x, y);
+  const pixel = db.getPixel(wallId, x, y);
 
   if (pixel) {
     // Write coordinates back
@@ -81,15 +81,15 @@ app.get(`${urlPrefix}/get-pixel/:canvasId/:x/:y`, (req, res) => {
   }
 });
 
-app.get(`${urlPrefix}/set-pixel/:canvasId/:x/:y/:color/:user`, (req, res) => {
-  const { canvasId } = req.params;
+app.get(`${urlPrefix}/set-pixel/:wallId/:x/:y/:color/:user`, (req, res) => {
+  const { wallId } = req.params;
   const x = parseInt(req.params.x, 10);
   const y = parseInt(req.params.y, 10);
   let { color } = req.params;
 
-  const meta = db.getCanvasMetadata(canvasId);
+  const meta = db.getWallMetadata(wallId);
 
-  // Verify coordinates are within the canvas
+  // Verify coordinates are within the wall
   if (x < 0 || x >= meta.Width || y < 0 || y >= meta.Height) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid coordinates');
@@ -104,14 +104,14 @@ app.get(`${urlPrefix}/set-pixel/:canvasId/:x/:y/:color/:user`, (req, res) => {
     return;
   }
 
-  db.setPixel(canvasId, x, y, color, req.params.user);
+  db.setPixel(wallId, x, y, color, req.params.user);
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });
 
-app.get(`${urlPrefix}/get-preview/:canvasId`, (req, res) => {
-  const pre = db.getCanvasPreview(req.params.canvasId);
+app.get(`${urlPrefix}/get-preview/:wallId`, (req, res) => {
+  const pre = db.getWallPreview(req.params.wallId);
 
   if (pre) {
     res.writeHead(200, { 'Content-Type': 'image/png' });
@@ -132,30 +132,30 @@ db.init();
 // OTHER FUNCTIONS
 
 /**
- * Generate preview PNGs for all canvases
+ * Generate preview PNGs for all walles
  */
 function genPreviews() {
-  const canvasIds = db.getAllCanvasIDs();
-  debug('Generating previews for %d canvases', canvasIds.length);
-  debug(canvasIds);
+  const wallIds = db.getAllWallIDs();
+  debug('Generating previews for %d walles', wallIds.length);
+  debug(wallIds);
 
   debug('Started generating previews...');
-  canvasIds.forEach((canvasId) => {
-    debug(`Preview for ID ${canvasId}`);
+  wallIds.forEach((wallId) => {
+    debug(`Preview for ID ${wallId}`);
 
-    const meta = db.getCanvasMetadata(canvasId);
-    const pixels = db.getCanvasPixels(canvasId);
+    const meta = db.getWallMetadata(wallId);
+    const pixels = db.getWallPixels(wallId);
 
     const preview = genPreview(pixels, meta.Width, meta.Height);
 
-    // fs.writeFileSync(`previews/${canvasId}.png`, preview); // test
+    // fs.writeFileSync(`previews/${wallId}.png`, preview); // test
 
-    db.setCanvasPreview(canvasId, preview);
+    db.setWallPreview(wallId, preview);
   });
   debug('Done generating previews');
 }
 
 // TEST STUFF
-// genPreview(db.getCanvasPixels(1), 4, 2);
+// genPreview(db.getWallPixels(1), 4, 2);
 
 genPreviews();

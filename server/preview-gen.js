@@ -5,7 +5,7 @@ const fs = require('fs'); // temp
 
 
 /**
- * Generate a PNG version of a canvas
+ * Generate a PNG version of a WALL
  * @param {JSON} pixelArray 
  * @param {number} width 
  * @param {number} height 
