@@ -20,6 +20,23 @@ function Wall({ wallID }: WallProps) {
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const handleCanvasClick = (
+    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+  ) => {
+    const canvas = canvasRef.current;
+    if (!wallData.wall || !canvas) return;
+
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const x = Math.floor(
+      ((event.clientX - rect.left) / rect.width) * wallData.wall.width,
+    );
+    const y = Math.floor(
+      ((event.clientY - rect.top) / rect.height) * wallData.wall.height,
+    );
+    console.log('x: ', x, 'y: ', y);
+
+    // TODO: handle clicking on pixels
+  };
 
   useEffect(() => {
     if (!wallData.wall) return;
@@ -57,7 +74,7 @@ function Wall({ wallID }: WallProps) {
   }, [selector]);
 
   return wallData.status === 'success' ? (
-    <canvas ref={canvasRef} />
+    <canvas onClick={handleCanvasClick} ref={canvasRef} />
   ) : (
     <h1>
       {wallData.status} Wall {wallID}
