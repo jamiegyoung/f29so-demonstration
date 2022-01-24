@@ -15,7 +15,6 @@ type MouseCoordinates = {
 };
 
 const WIDTH_PERCENT = 0.85;
-const MAGNIFYING_GLASS_OFFSET = 1.5;
 
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
@@ -103,20 +102,68 @@ function Wall({ wallID }: WallProps) {
     };
 
     const drawMagnifyingGlass = ({ x, y, color }: Pixel) => {
-      const pixelWithOffset = pixelSize * MAGNIFYING_GLASS_OFFSET;
+      const calcMagnifyingGlassOffset = () => {
+        let offsetX = 1.5;
+        let offsetY = 1.5;
+        if (x > wall.width / 2) {
+          offsetX = -4.5;
+        }
+        if (y > wall.height / 2) {
+          offsetY = -4.5;
+        }
+        return { x: offsetX, y: offsetY };
+      };
+
+      const magnifyingGlassOffset = calcMagnifyingGlassOffset();
+
+      const calcPixelWithOffset = {
+        x: pixelSize * magnifyingGlassOffset.x,
+        y: pixelSize * magnifyingGlassOffset.y,
+      };
+
       context.shadowColor = '#000000';
       context.shadowBlur = 20;
       context.shadowOffsetX = 0;
       context.shadowOffsetY = 0;
+
+      ctx.beginPath();
+      ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize);
+      ctx.lineTo(
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 4,
+        y * pixelSize + calcPixelWithOffset.y,
+      );
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x * pixelSize, y * pixelSize + pixelSize);
+      ctx.lineTo(
+        x * pixelSize + calcPixelWithOffset.x,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 4,
+      );
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x * pixelSize, y * pixelSize);
+      ctx.lineTo(
+        x * pixelSize + calcPixelWithOffset.x,
+        y * pixelSize + calcPixelWithOffset.y,
+      );
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize + pixelSize);
+      ctx.lineTo(
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 4,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 4,
+      );
+      ctx.stroke();
+
       context.fillRect(
-        x * pixelSize + pixelWithOffset,
-        y * pixelSize + pixelWithOffset,
+        x * pixelSize + calcPixelWithOffset.x,
+        y * pixelSize + calcPixelWithOffset.y,
         pixelSize * 4,
         pixelSize * 4,
       );
       context.strokeRect(
-        x * pixelSize + pixelWithOffset,
-        y * pixelSize + pixelWithOffset,
+        x * pixelSize + calcPixelWithOffset.x,
+        y * pixelSize + calcPixelWithOffset.y,
         pixelSize * 4,
         pixelSize * 4,
       );
@@ -125,28 +172,14 @@ function Wall({ wallID }: WallProps) {
       context.textAlign = 'center';
       context.fillText(
         `(${x}, ${y})`,
-        x * pixelSize + pixelWithOffset + pixelSize * 2,
-        y * pixelSize + pixelWithOffset + pixelSize * 1.8,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 1.8,
       );
       context.fillText(
         `${color}`,
-        x * pixelSize + pixelWithOffset + pixelSize * 2,
-        y * pixelSize + pixelWithOffset + pixelSize * 3,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 3,
       );
-      ctx.beginPath();
-      ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize);
-      ctx.lineTo(
-        x * pixelSize + pixelWithOffset + pixelSize * 4,
-        y * pixelSize + pixelWithOffset,
-      );
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x * pixelSize, y * pixelSize + pixelSize);
-      ctx.lineTo(
-        x * pixelSize + pixelWithOffset,
-        y * pixelSize + pixelWithOffset + pixelSize * 4,
-      );
-      ctx.stroke();
     };
 
     const drawPixels = () => {

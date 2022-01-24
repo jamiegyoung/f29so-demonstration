@@ -3,7 +3,7 @@ import Wall from './features/wall/Wall';
 function App() {
   return (
     <div className="App">
-      <Wall wallID={1} />
+      <Wall wallID={8} />
     </div>
   );
 }
