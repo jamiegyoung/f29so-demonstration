@@ -66,11 +66,35 @@ exports.getWallPixels = getWallPixels;
  * @param {number} height
  */
 function createWall(owner, width, height) {
+  debug('Creating new wall');
   const createWallQr = db.prepare(
     'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
-  createWallQr.run(owner, width, height);
 
+  const { lastInsertRowid } = createWallQr.run(owner, width, height);
+  const insertPixel = db.prepare(
+    'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
+  );
+
+  const pixelArray = [];
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < height; x += 1) {
+      pixelArray.push({
+        wallID: lastInsertRowid,
+        x,
+        y,
+        color: '#FFFFFF',
+      });
+    }
+  }
+
+  const insertAllPixels = db.transaction((pixels) => {
+    pixels.forEach((pixel) => {
+      insertPixel.run(pixel.wallID, pixel.x, pixel.y, pixel.color);
+    });
+  });
+
+  insertAllPixels(pixelArray);
   // Should return something to show if successful
 }
 exports.createWall = createWall;
