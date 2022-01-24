@@ -48,14 +48,14 @@ exports.getWallMetadata = getWallMetadata;
 
 /**
  * Get the pixels for a wall
- * @param {number} cid The wall ID
+ * @param {number} wallID The wall ID
  * @returns {JSON}
  */
-function getWallPixels(cid) {
+function getWallPixels(wallID) {
   const getPixels = db.prepare(
     'SELECT x,y,color FROM wallPixel WHERE wallID=?;',
   );
-  return getPixels.all(cid);
+  return getPixels.all(wallID);
 }
 exports.getWallPixels = getWallPixels;
 
@@ -101,16 +101,16 @@ exports.createWall = createWall;
 
 /**
  * Get a single pixel from a wall
- * @param {*} cid
+ * @param {*} wallID
  * @param {*} x
  * @param {*} y
  * @returns {JSON}
  */
-function getPixel(cid, x, y) {
+function getPixel(wallID, x, y) {
   const getPixelQr = db.prepare(
     'SELECT color,HistoryID FROM WallPixel WHERE wallID=? AND color=? AND y=?;',
   );
-  return getPixelQr.get(cid, x, y);
+  return getPixelQr.get(wallID, x, y);
 }
 exports.getPixel = getPixel;
 
@@ -161,23 +161,23 @@ exports.getAllWallIDs = getAllWallIDs;
 
 /**
  * Get the preview PNG for a wall
- * @param {number} cid
+ * @param {number} wallID
  * @returns
  */
-function getWallPreview(cid) {
+function getWallPreview(wallID) {
   const qr = db.prepare('SELECT preview FROM Wall WHERE wallID=?');
-  const res = qr.get(cid);
+  const res = qr.get(wallID);
   return res ? res.Preview : undefined;
 }
 exports.getWallPreview = getWallPreview;
 
 /**
  * Update wall preview in the database
- * @param {number} cid
+ * @param {number} wallID
  * @param {Buffer} preview
  */
-function setWallPreview(cid, preview) {
+function setWallPreview(wallID, preview) {
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
-  qr.run(preview, cid);
+  qr.run(preview, wallID);
 }
 exports.setWallPreview = setWallPreview;
