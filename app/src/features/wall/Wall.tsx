@@ -105,10 +105,10 @@ function Wall({ wallID }: WallProps) {
       const calcMagnifyingGlassOffset = () => {
         let offsetX = 1.5;
         let offsetY = 1.5;
-        if (x > wall.width / 2) {
+        if (x >= wall.width / 2) {
           offsetX = -4.5;
         }
-        if (y > wall.height / 2) {
+        if (y >= wall.height / 2) {
           offsetY = -4.5;
         }
         return { x: offsetX, y: offsetY };
