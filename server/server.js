@@ -3,6 +3,7 @@ const port = 2000;
 
 // IMPORTS
 const express = require('express');
+const socketio = require('socket.io');
 const path = require('path');
 const helmet = require('helmet');
 const debug = require('debug')('server');
@@ -29,6 +30,8 @@ app.use('/static', express.static(path.join(__dirname, './static/')));
 
 app.use('/api', require('./src/routes/api'));
 
+app.use('/ws', require('./walls'));
+
 app.get('/', (req, res) => {
   debug('GET /');
   // res.cookie('CSRF-Token', req.csrfToken());
@@ -36,7 +39,9 @@ app.get('/', (req, res) => {
 });
 
 // INIT
-app.listen(port);
+const server = app.listen(port);
+const io = socketio(server);
+app.set('socketio', io);
 debug(`Started server on port ${port}`);
 
 db.init();

@@ -18,7 +18,8 @@
     "helmet": "^5.0.2",
     "jimp": "^0.16.1",
     "nodemon": "^2.0.15",
-    "pngjs": "^6.0.0"
+    "pngjs": "^6.0.0",
+    "socket.io": "^4.4.1"
   },
   "devDependencies": {
     "eslint": "^8.7.0",
