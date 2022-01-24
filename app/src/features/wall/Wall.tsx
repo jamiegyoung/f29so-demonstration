@@ -189,6 +189,12 @@ function Wall({ wallID }: WallProps) {
   return wallData.status === 'success' ? (
     <canvas
       onMouseMove={handleCanvasHover}
+      onMouseOut={() => {
+        hoveringPixelRef.current = null;
+      }}
+      onBlur={() => {
+        hoveringPixelRef.current = null;
+      }}
       // onClick={handleCanvasClick}
       ref={canvasRef}
     />
