@@ -1,8 +1,9 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
+import io, { Socket } from 'socket.io-client';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { fetchWall } from './wallSlice';
-
 import { WallState, Wall as WallType, Pixel } from '../../types';
+// import useApiUrl from '../../common/useApiUrl';
 
 type WallProps = {
   wallID: number;
@@ -19,11 +20,43 @@ const MAGNIFYING_GLASS_OFFSET = 1.5;
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
   const selector = useAppSelector((state) => state.wall);
+  // const apiUrl = useApiUrl();
 
   const [wallData, setWallData] = useState<WallState>({
     wall: null,
     status: 'idle',
   });
+
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const newSocket = io('http://localhost:2000/walls', {
+      query: {
+        wall: wallID,
+      },
+    });
+    setSocket(newSocket);
+    // return () => {
+    setTimeout(() => {
+      console.log('disconnecting socket');
+      newSocket.disconnect();
+    }, 1000);
+    // newSocket.close();
+    // };
+  }, [setSocket]);
+
+  useEffect(() => {
+    console.log(socket);
+
+    if (!socket) return;
+    socket.on('message', (msg) => {
+      console.log(msg);
+    });
+
+    socket.on('error', (err) => {
+      console.log('error', err);
+    });
+  }, [socket]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hoveringPixelRef = useRef<Pixel | null>(null);

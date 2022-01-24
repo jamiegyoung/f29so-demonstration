@@ -3,7 +3,8 @@ const port = 2000;
 
 // IMPORTS
 const express = require('express');
-const socketio = require('socket.io');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
 const helmet = require('helmet');
 const debug = require('debug')('server');
@@ -13,6 +14,20 @@ const { genPreview } = require('./src/preview-gen');
 
 // EXPRESS STUFF
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+// init the walls sockets
+require('./src/walls')(io);
+
+app.set('socketio', io);
+
+debug(`Started server on port ${port}`);
+
+db.init();
+
+httpServer.listen(port, () => {
+  debug(`Listening on port ${port}`);
+});
 
 // CSRF (add later when implemented into front-end)
 // const csrfMiddleware = csurf({
@@ -30,21 +45,13 @@ app.use('/static', express.static(path.join(__dirname, './static/')));
 
 app.use('/api', require('./src/routes/api'));
 
-app.use('/ws', require('./walls'));
+// app.use(require('./walls'));
 
 app.get('/', (req, res) => {
   debug('GET /');
   // res.cookie('CSRF-Token', req.csrfToken());
   res.sendFile(path.join(__dirname, './static/index.html'));
 });
-
-// INIT
-const server = app.listen(port);
-const io = socketio(server);
-app.set('socketio', io);
-debug(`Started server on port ${port}`);
-
-db.init();
 
 // OTHER FUNCTIONS
 
