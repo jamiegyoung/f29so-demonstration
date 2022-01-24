@@ -14,6 +14,7 @@ type MouseCoordinates = {
 };
 
 const WIDTH_PERCENT = 0.85;
+const MAGNIFYING_GLASS_OFFSET = 1.5;
 
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
@@ -33,6 +34,7 @@ function Wall({ wallID }: WallProps) {
     event: MouseEvent,
     wall: WallType,
   ): MouseCoordinates => {
+    // Get the mouse coordinates relative to the canvas
     const rect = canvasRef.current!.getBoundingClientRect();
     const x = Math.floor(
       ((event.clientX - rect.left) / rect.width) * wall.width,
@@ -49,6 +51,7 @@ function Wall({ wallID }: WallProps) {
 
     const { x, y } = getMouseCoordinates(event, wallData.wall);
 
+    // get the pixel at the mouse coordinates and set it as the hovering pixel
     const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
     if (pixel) hoveringPixelRef.current = pixel;
   };
@@ -67,58 +70,71 @@ function Wall({ wallID }: WallProps) {
     };
 
     const drawMagnifyingGlass = ({ x, y, color }: Pixel) => {
+      const pixelWithOffset = pixelSize * MAGNIFYING_GLASS_OFFSET;
       context.shadowColor = '#000000';
       context.shadowBlur = 20;
       context.shadowOffsetX = 0;
       context.shadowOffsetY = 0;
       context.fillRect(
-        x * pixelSize + pixelSize,
-        y * pixelSize + pixelSize,
+        x * pixelSize + pixelWithOffset,
+        y * pixelSize + pixelWithOffset,
         pixelSize * 4,
         pixelSize * 4,
       );
       context.strokeRect(
-        x * pixelSize + pixelSize,
-        y * pixelSize + pixelSize,
+        x * pixelSize + pixelWithOffset,
+        y * pixelSize + pixelWithOffset,
         pixelSize * 4,
         pixelSize * 4,
       );
       context.fillStyle = '#FFFFFF';
       context.font = `bold ${0.8 * pixelSize}px monospace`;
+      context.textAlign = 'center';
       context.fillText(
         `(${x}, ${y})`,
-        x * pixelSize + pixelSize * 1.1,
-        y * pixelSize + pixelSize * 2.5,
+        x * pixelSize + pixelWithOffset + pixelSize * 2,
+        y * pixelSize + pixelWithOffset + pixelSize * 1.8,
       );
       context.fillText(
         `${color}`,
-        x * pixelSize + pixelSize * 1.3,
-        y * pixelSize + pixelSize * 4,
+        x * pixelSize + pixelWithOffset + pixelSize * 2,
+        y * pixelSize + pixelWithOffset + pixelSize * 3,
       );
       ctx.beginPath();
       ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize);
-      ctx.lineTo(x * pixelSize + pixelSize * 5, y * pixelSize + pixelSize);
+      ctx.lineTo(
+        x * pixelSize + pixelWithOffset + pixelSize * 4,
+        y * pixelSize + pixelWithOffset,
+      );
       ctx.stroke();
       ctx.beginPath();
       ctx.moveTo(x * pixelSize, y * pixelSize + pixelSize);
-      ctx.lineTo(x * pixelSize + pixelSize, y * pixelSize + pixelSize * 5);
+      ctx.lineTo(
+        x * pixelSize + pixelWithOffset,
+        y * pixelSize + pixelWithOffset + pixelSize * 4,
+      );
       ctx.stroke();
     };
 
-    context.fillStyle = '#000000';
+    const drawPixels = () => {
+      wall.pixels.forEach((pixel: Pixel) => {
+        // check if the pixel is the one we're hovering over
+        context.fillStyle = pixel.color;
+        context.fillRect(
+          pixel.x * pixelSize,
+          pixel.y * pixelSize,
+          pixelSize,
+          pixelSize,
+        );
+      });
+    };
+
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
-    wall.pixels.forEach((pixel: Pixel) => {
-      // check if the pixel is the one we're hovering over
-      context.fillStyle = pixel.color;
-      context.fillRect(
-        pixel.x * pixelSize,
-        pixel.y * pixelSize,
-        pixelSize,
-        pixelSize,
-      );
-    });
+    // draw the pixels
+    drawPixels();
 
+    // draw hovering effects
     if (hoveringPixelRef.current) {
       const hoveringPixel = hoveringPixelRef.current;
       context.fillStyle = hoveringPixel.color;
@@ -137,6 +153,7 @@ function Wall({ wallID }: WallProps) {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     const render = () => {
+      // calculates the canvas size
       const setCanvasProperties = () => {
         if (window.innerWidth < window.innerHeight) {
           canvas.width = window.innerWidth * WIDTH_PERCENT;
@@ -146,8 +163,11 @@ function Wall({ wallID }: WallProps) {
         canvas.height = window.innerHeight * WIDTH_PERCENT;
         canvas.width = canvas.height * (wall.width / wall.height);
       };
+
       setCanvasProperties();
+
       const pixelSize = canvas.width / wall.width;
+      // starts drawing the canvas
       draw(ctx, pixelSize, wall);
       window.requestAnimationFrame(render);
     };
