@@ -1,4 +1,4 @@
-import useServerURL from '../../common/useServerURL';
+import useServerURL from '../../hooks/useServerURL';
 import { Wall, Pixel } from '../../types';
 
 const apiUrl = useServerURL();

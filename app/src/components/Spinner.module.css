@@ -1,0 +1,48 @@
+.spinnerSection {
+  transition: all 0.5s ease-in-out;
+}
+
+/* bottom left */
+.spinnerSection:nth-child(1) {
+  transition-delay: 200ms;
+}
+
+/* middle left */
+.spinnerSection:nth-child(2) {
+  transition-delay: 100ms;
+}
+
+/* top left */
+.spinnerSection:nth-child(3) {
+  transition-delay: 0ms;
+}
+
+/* bottom middle */
+.spinnerSection:nth-child(4) {
+  transition-delay: 300ms;
+}
+
+/* the middle */
+.spinnerSection:nth-child(5) {
+  transition-delay: 200ms;
+}
+
+/* top middle */
+.spinnerSection:nth-child(6) {
+  transition-delay: 100ms;
+}
+
+/* bottom right */
+.spinnerSection:nth-child(7) {
+  transition-delay: 400ms;
+}
+
+/* middle right */
+.spinnerSection:nth-child(8) {
+  transition-delay: 300ms;
+}
+
+/* top right */
+.spinnerSection:nth-child(9) {
+  transition-delay: 200ms;
+}
