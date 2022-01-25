@@ -3,6 +3,7 @@ import io, { Socket } from 'socket.io-client';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { fetchWall } from './wallSlice';
 import { WallState, Wall as WallType, Pixel } from '../../types';
+import Spinner from '../../components/Spinner';
 // import useApiUrl from '../../common/useApiUrl';
 
 type WallProps = {
@@ -265,10 +266,9 @@ function Wall({ wallID }: WallProps) {
       ref={canvasRef}
     />
   ) : (
-    <h1>
-      {wallData.status} Wall {wallID}
-    </h1>
+    <Spinner/>
   );
+   
 }
 
 export default Wall;
