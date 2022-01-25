@@ -15,7 +15,7 @@ type MouseCoordinates = {
   y: number;
 };
 
-const WIDTH_PERCENT = 0.85;
+const CANVAS_SIZE_PERCENT = 0.85;
 
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
@@ -58,7 +58,6 @@ function Wall({ wallID }: WallProps) {
     });
   }, [socket]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hoveringPixelRef = useRef<Pixel | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -193,9 +192,17 @@ function Wall({ wallID }: WallProps) {
           pixelSize,
           pixelSize,
         );
+        context.strokeStyle = '#000';
+        context.strokeRect(
+          pixel.x * pixelSize,
+          pixel.y * pixelSize,
+          pixelSize,
+          pixelSize,
+        );
       });
     };
 
+    context.fillStyle = '#000';
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
     // draw the pixels
@@ -220,15 +227,14 @@ function Wall({ wallID }: WallProps) {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     const render = () => {
-      // calculates the canvas size
+      // calculates the canvas size TODO: fix for non-square walls
       const setCanvasProperties = () => {
-        if (window.innerWidth < window.innerHeight) {
-          canvas.width = window.innerWidth * WIDTH_PERCENT;
-          canvas.height = canvas.width * (wall.height / wall.width);
-          return;
+        canvas.width = window.innerWidth * CANVAS_SIZE_PERCENT;
+        canvas.height = canvas.width * (wall.height / wall.width);
+        if (canvas.height > window.innerHeight * CANVAS_SIZE_PERCENT) {
+          canvas.height = window.innerHeight * CANVAS_SIZE_PERCENT;
+          canvas.width = canvas.height * (wall.width / wall.height);
         }
-        canvas.height = window.innerHeight * WIDTH_PERCENT;
-        canvas.width = canvas.height * (wall.width / wall.height);
       };
 
       setCanvasProperties();
@@ -266,9 +272,8 @@ function Wall({ wallID }: WallProps) {
       ref={canvasRef}
     />
   ) : (
-    <Spinner/>
+    <Spinner />
   );
-   
 }
 
 export default Wall;

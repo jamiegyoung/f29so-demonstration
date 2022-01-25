@@ -66,7 +66,6 @@ exports.getWallPixels = getWallPixels;
  * @param {number} height
  */
 function createWall(owner, width, height) {
-  debug('Creating new wall');
   const createWallQr = db.prepare(
     'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
@@ -78,7 +77,7 @@ function createWall(owner, width, height) {
 
   const pixelArray = [];
   for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < height; x += 1) {
+    for (let x = 0; x < width; x += 1) {
       pixelArray.push({
         wallID: lastInsertRowid,
         x,
