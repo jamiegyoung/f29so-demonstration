@@ -1,10 +1,10 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
-import io, { Socket } from 'socket.io-client';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { fetchWall } from './wallSlice';
 import { WallState, Wall as WallType, Pixel } from '../../types';
 import Spinner from '../../components/Spinner';
-// import useApiUrl from '../../common/useApiUrl';
+import useSocket from '../../hooks/useSocket';
+import useServerUrl from '../../hooks/useServerURL';
 
 type WallProps = {
   wallID: number;
@@ -27,22 +27,18 @@ function Wall({ wallID }: WallProps) {
     status: 'idle',
   });
 
-  const [socket, setSocket] = useState<Socket | null>(null);
+  // convert to useSocket
+  const [socket, setSocket] = useSocket();
 
   useEffect(() => {
-    const newSocket = io('http://localhost:2000/walls', {
-      query: {
-        wall: wallID,
+    setSocket({
+      uri: `${useServerUrl()}/walls`,
+      opts: {
+        query: {
+          wall: wallID,
+        },
       },
     });
-    setSocket(newSocket);
-    // return () => {
-    setTimeout(() => {
-      console.log('disconnecting socket');
-      newSocket.disconnect();
-    }, 1000);
-    // newSocket.close();
-    // };
   }, [setSocket]);
 
   useEffect(() => {
@@ -86,6 +82,15 @@ function Wall({ wallID }: WallProps) {
     // get the pixel at the mouse coordinates and set it as the hovering pixel
     const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
     if (pixel) hoveringPixelRef.current = pixel;
+  };
+
+  const handleCanvasClick = (event: MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!wallData.wall || !canvas) return;
+
+    const { x, y } = getMouseCoordinates(event, wallData.wall);
+    const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
+    console.log('clicked pixel', pixel);
   };
 
   const draw = (
@@ -268,7 +273,7 @@ function Wall({ wallID }: WallProps) {
       onBlur={() => {
         hoveringPixelRef.current = null;
       }}
-      // onClick={handleCanvasClick}
+      onClick={handleCanvasClick}
       ref={canvasRef}
     />
   ) : (
