@@ -14,6 +14,14 @@ const addConnectedWall = (socket, wallID) => {
   connectedSockets[wallID].push(socket.id);
 };
 
+const saveChanges = (wallID) => {
+  if (wallChanges[wallID]) {
+    console.log("saving changes");
+    // save the changes to the database
+    db.updatePixels(wallID, wallChanges[wallID]);
+  }
+};
+
 const addWallChange = (wallID, change) => {
   // if the wall doesn't exist, create it
   if (!wallChanges[wallID]) {
@@ -21,10 +29,8 @@ const addWallChange = (wallID, change) => {
     return;
   }
   wallChanges[wallID].push(change);
-  console.log('wallChanges length: ', wallChanges[wallID].length);
   if (wallChanges[wallID].length > 99) {
-    db.updatePixels(wallID, wallChanges[wallID]);
-    console.log('saved changes');
+    saveChanges(wallID);
     wallChanges[wallID] = [];
   }
 };
@@ -91,7 +97,7 @@ module.exports = (io) => {
       // Delete the wall room if no one is connected
       if (connectedSockets[wallID].length === 0) {
         delete connectedSockets[wallID];
-        db.updatePixels(wallID, wallChanges[wallID]);
+        saveChanges(wallID);
         delete wallChanges[wallID];
       }
       debug('connectedSockets: ', connectedSockets);

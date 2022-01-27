@@ -159,7 +159,6 @@ exports.updatePixels = (wallID, pixels) => {
     px.forEach((pixel) => {
       updatePixel.run(pixel.color, wallID, pixel.x, pixel.y);
       pixel.history.forEach((history) => {
-        console.log(history);
         insertHistory.run(
           pixel.pixelID,
           history.editor,
