@@ -10,7 +10,7 @@ const db = new Sqlite(dbFile);
 // eslint-disable-next-line no-console
 debug(`Connected to database "${dbFile}"`);
 
-function init() {
+exports.init = () => {
   const createTables = `
   CREATE TABLE IF NOT EXISTS Wall (
     wallID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,43 +21,48 @@ function init() {
   );
 
   CREATE TABLE IF NOT EXISTS WallPixel (
+    pixelID INTEGER PRIMARY KEY AUTOINCREMENT,
     wallID INTEGER NOT NULL,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
     color TEXT,
-    historyID INTEGER
+    FOREIGN KEY (wallID) REFERENCES Wall(wallID)
+  );
+
+  CREATE TABLE IF NOT EXISTS History (
+    pixelID INTEGER NOT NULL,
+    editor INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL,
+    color TEXT,
+    FOREIGN KEY(pixelID) REFERENCES WallPixel(pixelID)
   );
 `;
   db.exec(createTables);
-}
-
-exports.init = init;
+};
 
 /**
  * Get metadata for a wall
  * @param {number} cid The wall ID
  * @returns {JSON}
  */
-function getWallMetadata(cid) {
+exports.getWallMetadata = (cid) => {
   const getMetadata = db.prepare(
     'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(cid);
-}
-exports.getWallMetadata = getWallMetadata;
+};
 
 /**
  * Get the pixels for a wall
  * @param {number} wallID The wall ID
  * @returns {JSON}
  */
-function getWallPixels(wallID) {
+exports.getWallPixels = (wallID) => {
   const getPixels = db.prepare(
-    'SELECT x,y,color FROM wallPixel WHERE wallID=?;',
+    'SELECT pixelID,x,y,color FROM wallPixel WHERE wallID=?;',
   );
   return getPixels.all(wallID);
-}
-exports.getWallPixels = getWallPixels;
+};
 
 /**
  * Create a new wall
@@ -65,7 +70,7 @@ exports.getWallPixels = getWallPixels;
  * @param {number} width
  * @param {number} height
  */
-function createWall(owner, width, height) {
+exports.createWall = (owner, width, height) => {
   const createWallQr = db.prepare(
     'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
@@ -75,6 +80,19 @@ function createWall(owner, width, height) {
     'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
   );
 
+  const insertHistory = db.prepare(
+    'INSERT INTO History(pixelID,editor,timestamp,color) VALUES (?,?,?,?);',
+  );
+
+  function generateRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i += 1) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
   const pixelArray = [];
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
@@ -82,21 +100,26 @@ function createWall(owner, width, height) {
         wallID: lastInsertRowid,
         x,
         y,
-        color: '#FFFFFF',
+        color: generateRandomColor(),
       });
     }
   }
 
   const insertAllPixels = db.transaction((pixels) => {
     pixels.forEach((pixel) => {
-      insertPixel.run(pixel.wallID, pixel.x, pixel.y, pixel.color);
+      const { lastInsertRowid } = insertPixel.run(
+        pixel.wallID,
+        pixel.x,
+        pixel.y,
+        pixel.color,
+      );
+      insertHistory.run(lastInsertRowid, owner, Date.now(), pixel.color);
     });
   });
 
   insertAllPixels(pixelArray);
   // Should return something to show if successful
-}
-exports.createWall = createWall;
+};
 
 /**
  * Get a single pixel from a wall
@@ -105,13 +128,12 @@ exports.createWall = createWall;
  * @param {*} y
  * @returns {JSON}
  */
-function getPixel(wallID, x, y) {
+exports.getPixel = (wallID, x, y) => {
   const getPixelQr = db.prepare(
     'SELECT color,HistoryID FROM WallPixel WHERE wallID=? AND color=? AND y=?;',
   );
   return getPixelQr.get(wallID, x, y);
-}
-exports.getPixel = getPixel;
+};
 
 /**
  * Set a specific pixel on a wall
@@ -124,59 +146,59 @@ exports.getPixel = getPixel;
  * @param {string} user Not currently used
  */
 
-function setPixel(wallID, x, y, color, _user) {
-  const existing = getPixel(wallID, x, y);
+exports.updatePixels = (wallID, pixels) => {
+  if (!pixels) return;
+  const updatePixel = db.prepare(
+    'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
+  );
+  const insertHistory = db.prepare(
+    'INSERT INTO History(pixelID,editor,timestamp,color) VALUES (?,?,?,?);',
+  );
 
-  const colorString = color.toString(); // Make sure it's a string
+  const updateAllPixels = db.transaction((px) => {
+    px.forEach((pixel) => {
+      updatePixel.run(pixel.color, wallID, pixel.x, pixel.y);
+      pixel.history.forEach((history) => {
+        console.log(history);
+        insertHistory.run(
+          pixel.pixelID,
+          history.editor,
+          history.timestamp,
+          history.color,
+        );
+      });
+    });
+  });
 
-  if (existing) {
-    const updateExisting = db.prepare(
-      'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
-    );
-    updateExisting.run(colorString, wallID, x, y);
-
-    // Something about history here
-  } else {
-    const createNew = db.prepare(
-      'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
-    );
-    createNew.run(wallID, x, y, colorString);
-
-    // Something about history here
-  }
-}
-exports.setPixel = setPixel;
+  updateAllPixels(pixels);
+};
 
 /**
  * Get all wall IDs
  * @returns {number[]}
  */
-function getAllWallIDs() {
+exports.getAllWallIDs = () => {
   const qr = db.prepare('SELECT wallID FROM Wall;');
   return qr.all().map((v) => v.wallID);
-}
-
-exports.getAllWallIDs = getAllWallIDs;
+};
 
 /**
  * Get the preview PNG for a wall
  * @param {number} wallID
  * @returns
  */
-function getWallPreview(wallID) {
+exports.getWallPreview = (wallID) => {
   const qr = db.prepare('SELECT preview FROM Wall WHERE wallID=?');
   const res = qr.get(wallID);
   return res ? res.Preview : undefined;
-}
-exports.getWallPreview = getWallPreview;
+};
 
 /**
  * Update wall preview in the database
  * @param {number} wallID
  * @param {Buffer} preview
  */
-function setWallPreview(wallID, preview) {
+exports.setWallPreview = (wallID, preview) => {
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
   qr.run(preview, wallID);
-}
-exports.setWallPreview = setWallPreview;
+};

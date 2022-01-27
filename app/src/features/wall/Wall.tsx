@@ -1,6 +1,6 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { fetchWall } from './wallSlice';
+import { setPixel, setWall, setWallStatus } from './wallSlice';
 import { WallState, Wall as WallType, Pixel } from '../../types';
 import Spinner from '../../components/Spinner';
 import useSocket from '../../hooks/useSocket';
@@ -19,7 +19,7 @@ const CANVAS_SIZE_PERCENT = 0.85;
 
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
-  const selector = useAppSelector((state) => state.wall);
+  const wallSelector = useAppSelector((state) => state.wall);
   // const apiUrl = useApiUrl();
 
   const [wallData, setWallData] = useState<WallState>({
@@ -42,15 +42,21 @@ function Wall({ wallID }: WallProps) {
   }, [setSocket]);
 
   useEffect(() => {
-    console.log(socket);
-
     if (!socket) return;
-    socket.on('message', (msg) => {
-      console.log(msg);
+
+    socket.on('connected', (data: WallType) => {
+      dispatch(setWall(data));
+      dispatch(setWallStatus('success'));
     });
 
     socket.on('error', (err) => {
+      // TODO: handle socket errors
       console.log('error', err);
+      dispatch(setWallStatus('error'));
+    });
+
+    socket.on('pixel-edit', (data: Pixel) => {
+      dispatch(setPixel(data));
     });
   }, [socket]);
 
@@ -90,7 +96,10 @@ function Wall({ wallID }: WallProps) {
 
     const { x, y } = getMouseCoordinates(event, wallData.wall);
     const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
-    console.log('clicked pixel', pixel);
+    if (socket && pixel) {
+      const testPixel = { ...pixel, color: '#FFC0CB' };
+      socket.emit('pixel-edit', testPixel);
+    }
   };
 
   const draw = (
@@ -253,16 +262,10 @@ function Wall({ wallID }: WallProps) {
     render();
   }, [wallData, canvasRef]);
 
-  // when the wall id changes, fetch the wall
-  useEffect(() => {
-    const fetchData = () => dispatch(fetchWall(wallID));
-    fetchData();
-  }, [wallID]);
-
   // set wallData when wall changes
   useEffect(() => {
-    setWallData(selector);
-  }, [selector]);
+    setWallData(wallSelector);
+  }, [wallSelector]);
 
   return wallData.status === 'success' ? (
     <canvas

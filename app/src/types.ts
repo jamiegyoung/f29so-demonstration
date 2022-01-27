@@ -19,6 +19,8 @@ export type Wall = {
   pixels: Pixel[];
 };
 
+export type WallStatus = 'success' | 'idle' | 'loading' | 'error';
+
 export type WallState = {
   wall: Wall | null;
   /*
@@ -27,5 +29,5 @@ export type WallState = {
    * success is when the thunk has successfully returned a wall
    * failure is when the thunk has failed
    */
-  status: 'idle' | 'pending' | 'error' | 'success';
+  status: WallStatus;
 };

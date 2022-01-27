@@ -20,9 +20,12 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: './tsconfig.eslint.json',
   },
-  plugins: ['react', '@typescript-eslint'],
+  plugins: ['react', 'react-hooks', '@typescript-eslint'],
   rules: {
     'react/react-in-jsx-scope': 'off',
-    'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['state'] }],
+    'no-param-reassign': [
+      'error',
+      { props: true, ignorePropertyModificationsFor: ['state'] },
+    ],
   },
 };
