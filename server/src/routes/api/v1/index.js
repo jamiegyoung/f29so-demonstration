@@ -33,12 +33,11 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/:owner/:width/:height', (req, res) => {
-  // TODO: add validation
+router.get('/create-wall/:owner/', (req, res) => {
   db.createWall(
     req.params.owner,
-    req.params.width,
-    req.params.height,
+    32,
+    32,
   );
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });

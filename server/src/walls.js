@@ -16,7 +16,7 @@ const addConnectedWall = (socket, wallID) => {
 
 const saveChanges = (wallID) => {
   if (wallChanges[wallID]) {
-    console.log("saving changes");
+    console.log('saving changes');
     // save the changes to the database
     db.updatePixels(wallID, wallChanges[wallID]);
   }
@@ -78,12 +78,18 @@ module.exports = (io) => {
     socket.emit('connected', changedWall);
 
     socket.on('pixel-edit', (pixel) => {
-      // TODO: Need to validate change
-      pixel.history = [{
-        editor: socket.id,
-        timestamp: Date.now(),
-        color: pixel.color,
-      }];
+      const newColor = pixel.color;
+      const hexRegex = /^#([0-9A-F]{3}){1,2}$/i;
+      if (!hexRegex.test(newColor)) {
+        socket.emit('error', 'Invalid color');
+      }
+      pixel.history = [
+        {
+          editor: socket.id,
+          timestamp: Date.now(),
+          color: pixel.color,
+        },
+      ];
       wallsNamespace.to(wallID).emit('pixel-edit', pixel);
       addWallChange(wallID, pixel);
     });

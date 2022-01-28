@@ -36,7 +36,6 @@ export const wallSlice = createSlice({
     },
     // sets a single pixel in the wall
     setPixel: (state, action: PayloadAction<LocalPixel>) => {
-      // TODO: validate the pixel color
       const { x, y, color } = action.payload;
       // check there is a width and height and see if the pixel is within the wall
       if (

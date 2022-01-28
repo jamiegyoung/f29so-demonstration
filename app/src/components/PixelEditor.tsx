@@ -12,6 +12,7 @@ type PixelEditorProps = {
   onApply: (pixel: LocalPixel) => void;
 };
 
+// TODO: add recently used colors, add history
 function PixelEditor({ onApply }: PixelEditorProps) {
   const currentPixel = useAppSelector((state) => state.wall.editingPixel);
   const [newColor, setNewColor] = useState(currentPixel?.color || '#000000');

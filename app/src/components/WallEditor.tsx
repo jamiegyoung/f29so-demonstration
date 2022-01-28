@@ -66,8 +66,11 @@ function WallEditor() {
     });
 
     socket.on('error', (err) => {
-      // TODO: handle socket errors
       console.log('error', err);
+      dispatch(setWallStatus('error'));
+    });
+
+    socket.on('connect_error', () => {
       dispatch(setWallStatus('error'));
     });
   }, [socket]);
