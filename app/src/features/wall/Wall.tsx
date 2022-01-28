@@ -1,9 +1,9 @@
 import { MouseEvent, useEffect, useRef } from 'react';
-import { hex } from 'wcag-contrast';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setEditingPixel } from './wallSlice';
 import { Wall as WallType, LocalPixel } from '../../types';
 import Spinner from '../../components/Spinner';
+import useContrastingTextColor from '../../hooks/useContrastingTextColor';
 
 type MouseCoordinates = {
   x: number;
@@ -146,14 +146,8 @@ function Wall() {
         pixelSize * 4,
         pixelSize * 4,
       );
-      const calcTextColor = () => {
-        if (hex(color, '#000000') < 4.5) {
-          return '#FFF';
-        }
-        return '#000';
-      };
-
-      context.fillStyle = calcTextColor();
+      context.fillStyle = useContrastingTextColor(color);
+      context.shadowBlur = 0;
       context.font = `bold ${0.8 * pixelSize}px monospace`;
       context.textAlign = 'center';
       context.fillText(

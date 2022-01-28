@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import { useEffect, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
-import { hex } from 'wcag-contrast';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { clearEditingPixel } from '../features/wall/wallSlice';
+import useContrastingTextColor from '../hooks/useContrastingTextColor';
 import { LocalPixel } from '../types';
 import styles from './PixelEditor.module.css';
 import StyledButton from './StylesButton';
@@ -29,11 +29,7 @@ function PixelEditor({ onApply }: PixelEditorProps) {
   }
 
   useEffect(() => {
-    if (hex(newColor, '#FFF') <= 4.5) {
-      setApplyButtonTextColor('#000');
-      return;
-    }
-    setApplyButtonTextColor('#FFF');
+    setApplyButtonTextColor(useContrastingTextColor(newColor));
   }, [newColor]);
 
   function handleKeyDown(e: { key: string }) {
