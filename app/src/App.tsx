@@ -1,9 +1,9 @@
-import Wall from './features/wall/Wall';
+import WallEditor from './components/WallEditor';
 
 function App() {
   return (
     <div className="App">
-      <Wall wallID={1} />
+      <WallEditor />
     </div>
   );
 }

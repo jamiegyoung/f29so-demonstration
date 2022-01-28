@@ -35,11 +35,11 @@ router.get('/get-wall/:wallID', (req, res) => {
 
 router.get('/create-wall/:owner/:width/:height', (req, res) => {
   // TODO: add validation
-  // const succ = db.createWall(
-  //   req.params.owner,
-  //   req.params.width,
-  //   req.params.height,
-  // );
+  db.createWall(
+    req.params.owner,
+    req.params.width,
+    req.params.height,
+  );
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');

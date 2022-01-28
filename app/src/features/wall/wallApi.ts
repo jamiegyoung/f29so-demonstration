@@ -1,5 +1,5 @@
-import useServerURL from '../../hooks/useServerURL';
-import { Wall, Pixel } from '../../types';
+import useServerURL from '../../hooks/useServerURI';
+import { Wall, LocalPixel } from '../../types';
 
 const apiUrl = useServerURL();
 
@@ -17,7 +17,7 @@ export const fetchWallById = (wallID: number): Promise<Wall> =>
 
 export async function setWallPixelById(
   wallID: number,
-  pixel: Pixel,
+  pixel: LocalPixel,
 ): Promise<Wall> {
   const response = await fetch(`${apiUrl}/api/v1/${wallID}/pixel`, {
     method: 'POST',

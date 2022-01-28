@@ -4,21 +4,25 @@ import styles from './Spinner.module.css';
 function Spinner() {
   const [randomColor, setRandomColor] = useState(21);
 
-  const calcRandomColor = (): number => {
-    const newColor = Math.random() * 360;
-    if (newColor < randomColor + 40 && newColor > randomColor - 40) {
-      return calcRandomColor();
-    }
-    return newColor;
-  };
   useEffect(() => {
-    const timeout = setTimeout(() => {
+    const calcRandomColor = (): number => {
+      const newColor = Math.random() * 360;
+      if (newColor < randomColor + 40 && newColor > randomColor - 40) {
+        return calcRandomColor();
+      }
+      return newColor;
+    };
+
+    const timeout = setInterval(() => {
       setRandomColor(calcRandomColor());
     }, 1000);
+    
+    setRandomColor(calcRandomColor());
+    
     return () => {
-      clearTimeout(timeout);
+      clearInterval(timeout);
     };
-  }, [setRandomColor, calcRandomColor]);
+  }, [setRandomColor]);
 
   return (
     <div>

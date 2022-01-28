@@ -1,67 +1,31 @@
-import { MouseEvent, useEffect, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { setPixel, setWall, setWallStatus } from './wallSlice';
-import { WallState, Wall as WallType, Pixel } from '../../types';
+import { setEditingPixel } from './wallSlice';
+import { Wall as WallType, LocalPixel } from '../../types';
 import Spinner from '../../components/Spinner';
-import useSocket from '../../hooks/useSocket';
-import useServerUrl from '../../hooks/useServerURL';
-
-type WallProps = {
-  wallID: number;
-};
 
 type MouseCoordinates = {
   x: number;
   y: number;
 };
 
-const CANVAS_SIZE_PERCENT = 0.85;
+const CANVAS_SIZE_PERCENT = 0.75;
 
-function Wall({ wallID }: WallProps) {
+function Wall() {
   const dispatch = useAppDispatch();
-  const wallSelector = useAppSelector((state) => state.wall);
+  const wallData = useAppSelector((state) => state.wall.wall);
   const requestRef = useRef<number>(-1);
   // const apiUrl = useApiUrl();
 
-  const [wallData, setWallData] = useState<WallState>({
-    wall: null,
-    status: 'idle',
-  });
+  // const [wallData, setWallData] = useState<WallState>({
+  //   id: null,
+  //   wall: null,
+  //   status: 'idle',
+  //   currentColor: '#000000',
+  //   editingPixel: null,
+  // });
 
-  // convert to useSocket
-  const [socket, setSocket] = useSocket();
-
-  useEffect(() => {
-    setSocket({
-      uri: `${useServerUrl()}/walls`,
-      opts: {
-        query: {
-          wall: wallID,
-        },
-      },
-    });
-  }, [setSocket]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('connected', (data: WallType) => {
-      dispatch(setWall(data));
-      dispatch(setWallStatus('success'));
-    });
-
-    socket.on('error', (err) => {
-      // TODO: handle socket errors
-      console.log('error', err);
-      dispatch(setWallStatus('error'));
-    });
-
-    socket.on('pixel-edit', (data: Pixel) => {
-      dispatch(setPixel(data));
-    });
-  }, [socket]);
-
-  const hoveringPixelRef = useRef<Pixel | null>(null);
+  const hoveringPixelRef = useRef<LocalPixel | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -82,24 +46,23 @@ function Wall({ wallID }: WallProps) {
 
   const handleCanvasHover = (event: MouseEvent) => {
     const canvas = canvasRef.current;
-    if (!wallData.wall || !canvas) return;
+    if (!wallData || !canvas) return;
 
-    const { x, y } = getMouseCoordinates(event, wallData.wall);
+    const { x, y } = getMouseCoordinates(event, wallData);
 
     // get the pixel at the mouse coordinates and set it as the hovering pixel
-    const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
+    const pixel = wallData.pixels.find((px) => px.x === x && px.y === y);
     if (pixel) hoveringPixelRef.current = pixel;
   };
 
   const handleCanvasClick = (event: MouseEvent) => {
     const canvas = canvasRef.current;
-    if (!wallData.wall || !canvas) return;
+    if (!wallData || !canvas) return;
 
-    const { x, y } = getMouseCoordinates(event, wallData.wall);
-    const pixel = wallData.wall.pixels.find((px) => px.x === x && px.y === y);
-    if (socket && pixel) {
-      const testPixel = { ...pixel, color: '#FFC0CB' };
-      socket.emit('pixel-edit', testPixel);
+    const { x, y } = getMouseCoordinates(event, wallData);
+    const pixel = wallData.pixels.find((px) => px.x === x && px.y === y);
+    if (pixel) {
+      dispatch(setEditingPixel(pixel));
     }
   };
 
@@ -110,13 +73,13 @@ function Wall({ wallID }: WallProps) {
   ): void => {
     const context = ctx;
 
-    const drawBorder = ({ x, y }: Pixel) => {
+    const drawBorder = ({ x, y }: LocalPixel) => {
       context.strokeStyle = '#FFF';
       context.lineWidth = 2;
       context.strokeRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
     };
 
-    const drawMagnifyingGlass = ({ x, y, color }: Pixel) => {
+    const drawMagnifyingGlass = ({ x, y, color }: LocalPixel) => {
       const calcMagnifyingGlassOffset = () => {
         let offsetX = 1.5;
         let offsetY = 1.5;
@@ -198,7 +161,7 @@ function Wall({ wallID }: WallProps) {
     };
 
     const drawPixels = () => {
-      wall.pixels.forEach((pixel: Pixel) => {
+      wall.pixels.forEach((pixel: LocalPixel) => {
         // check if the pixel is the one we're hovering over
         context.fillStyle = pixel.color;
         context.fillRect(
@@ -235,27 +198,25 @@ function Wall({ wallID }: WallProps) {
 
   // Generate a new wall when the data is received
   const render = () => {
-    if (!wallData.wall) return;
-    const { wall } = wallData;
-
+    if (!wallData) return;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     // calculates the canvas size TODO: fix for non-square walls
     const setCanvasProperties = () => {
       canvas.width = window.innerWidth * CANVAS_SIZE_PERCENT;
-      canvas.height = canvas.width * (wall.height / wall.width);
+      canvas.height = canvas.width * (wallData.height / wallData.width);
       if (canvas.height > window.innerHeight * CANVAS_SIZE_PERCENT) {
         canvas.height = window.innerHeight * CANVAS_SIZE_PERCENT;
-        canvas.width = canvas.height * (wall.width / wall.height);
+        canvas.width = canvas.height * (wallData.width / wallData.height);
       }
     };
 
     setCanvasProperties();
 
-    const pixelSize = canvas.width / wall.width;
+    const pixelSize = canvas.width / wallData.width;
     // starts drawing the canvas
-    draw(ctx, pixelSize, wall);
+    draw(ctx, pixelSize, wallData);
     requestRef.current = requestAnimationFrame(render);
   };
 
@@ -264,13 +225,12 @@ function Wall({ wallID }: WallProps) {
     return () => cancelAnimationFrame(requestRef.current);
   }, [wallData]);
 
-  // set wallData when wall changes
-  useEffect(() => {
-    setWallData(wallSelector);
-  }, [wallSelector]);
-
-  return wallData.status === 'success' ? (
+  return wallData ? (
     <canvas
+      style={{
+        border: `1px solid #fff`,
+        borderRadius: '10px',
+      }}
       onMouseMove={handleCanvasHover}
       onMouseOut={() => {
         hoveringPixelRef.current = null;

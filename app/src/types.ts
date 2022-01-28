@@ -4,24 +4,28 @@ export type History = {
   color: string;
 };
 
-export type Pixel = {
+export interface LocalPixel {
   x: number;
   y: number;
   color: string;
+}
+
+export interface Pixel extends LocalPixel {
   history: History[];
-};
+}
 
 export type Wall = {
   wallID: number;
   owner: string;
   width: number;
   height: number;
-  pixels: Pixel[];
+  pixels: Pixel[] | LocalPixel[];
 };
 
 export type WallStatus = 'success' | 'idle' | 'loading' | 'error';
 
 export type WallState = {
+  id: number | null;
   wall: Wall | null;
   /*
    * idle is the default state
@@ -30,4 +34,6 @@ export type WallState = {
    * failure is when the thunk has failed
    */
   status: WallStatus;
+  currentColor: string;
+  editingPixel: LocalPixel | Pixel | null;
 };
