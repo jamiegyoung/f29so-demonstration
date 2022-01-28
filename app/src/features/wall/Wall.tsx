@@ -1,4 +1,5 @@
 import { MouseEvent, useEffect, useRef } from 'react';
+import { hex } from 'wcag-contrast';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setEditingPixel } from './wallSlice';
 import { Wall as WallType, LocalPixel } from '../../types';
@@ -145,7 +146,14 @@ function Wall() {
         pixelSize * 4,
         pixelSize * 4,
       );
-      context.fillStyle = '#FFFFFF';
+      const calcTextColor = () => {
+        if (hex(color, '#000000') < 4.5) {
+          return '#FFF';
+        }
+        return '#000';
+      }
+
+      context.fillStyle = calcTextColor();
       context.font = `bold ${0.8 * pixelSize}px monospace`;
       context.textAlign = 'center';
       context.fillText(
