@@ -73,6 +73,10 @@ function WallEditor() {
     socket.on('connect_error', () => {
       dispatch(setWallStatus('error'));
     });
+
+    socket.on('pixel-edit', (data: LocalPixel) => {
+      dispatch(setPixel(data));
+    });
   }, [socket]);
 
   const handlePixelEdit = (pixel: LocalPixel) => {

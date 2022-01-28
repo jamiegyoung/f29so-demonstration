@@ -151,7 +151,7 @@ function Wall() {
           return '#FFF';
         }
         return '#000';
-      }
+      };
 
       context.fillStyle = calcTextColor();
       context.font = `bold ${0.8 * pixelSize}px monospace`;

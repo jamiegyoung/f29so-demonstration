@@ -84,14 +84,14 @@ exports.createWall = (owner, width, height) => {
     'INSERT INTO History(pixelID,editor,timestamp,color) VALUES (?,?,?,?);',
   );
 
-  function generateRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i += 1) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+  // function generateRandomColor() {
+  //   const letters = '0123456789ABCDEF';
+  //   let color = '#';
+  //   for (let i = 0; i < 6; i += 1) {
+  //     color += letters[Math.floor(Math.random() * 16)];
+  //   }
+  //   return color;
+  // }
 
   const pixelArray = [];
   for (let y = 0; y < height; y += 1) {
@@ -100,7 +100,7 @@ exports.createWall = (owner, width, height) => {
         wallID: lastInsertRowid,
         x,
         y,
-        color: generateRandomColor(),
+        color: '#FFFFFF',
       });
     }
   }
