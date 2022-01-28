@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Wall from '../features/wall/Wall';
 import styles from './WallEditor.module.css';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
@@ -6,6 +7,7 @@ import {
   clearEditingPixel,
   setPixel,
   setWall,
+  setWallID,
   setWallStatus,
 } from '../features/wall/wallSlice';
 import PixelEditor from './PixelEditor';
@@ -25,20 +27,30 @@ function WallEditor() {
 
   const [statusText, setStatusText] = useState<StatusText>('Loading');
 
+  const params = useParams();
+
   useEffect(() => {
-    // deliberately throttle loading to see spinner
-    // TODO: remove after demonstration
-    setTimeout(() => {
-      if (!wallSelector.id) return;
-      setSocket({
-        uri: `${useServerURI()}/walls`,
-        opts: {
-          query: {
-            wall: wallSelector.id,
-          },
+    const { wallID } = params;
+    if (!wallID) return;
+    const idInt = parseInt(wallID, 10);
+    if (Number.isNaN(idInt)) return;
+    dispatch(setWallID(idInt));
+  });
+
+  useEffect(() => {
+    // // deliberately throttle loading to see spinner
+    // // TODO: remove after demonstration
+    // setTimeout(() => {
+    if (!wallSelector.id) return;
+    setSocket({
+      uri: `${useServerURI()}/walls`,
+      opts: {
+        query: {
+          wall: wallSelector.id,
         },
-      });
-    }, 3000);
+      },
+    });
+    // }, 3000);
   }, [setSocket, wallSelector.id]);
 
   useEffect(() => {

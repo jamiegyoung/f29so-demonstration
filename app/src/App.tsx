@@ -1,18 +1,14 @@
-import { useEffect } from 'react';
-import { useAppDispatch } from './app/hooks';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import WallEditor from './components/WallEditor';
-import { setWallID } from './features/wall/wallSlice';
 
 function App() {
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(setWallID(1));
-  }, [])
-
   return (
-    <div className="App">
-      <WallEditor />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<div>home</div>} />
+        <Route path="/wall/:wallID" element={<WallEditor />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
