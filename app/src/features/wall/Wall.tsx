@@ -20,6 +20,7 @@ const CANVAS_SIZE_PERCENT = 0.85;
 function Wall({ wallID }: WallProps) {
   const dispatch = useAppDispatch();
   const wallSelector = useAppSelector((state) => state.wall);
+  const requestRef = useRef<number>(-1);
   // const apiUrl = useApiUrl();
 
   const [wallData, setWallData] = useState<WallState>({
@@ -233,34 +234,35 @@ function Wall({ wallID }: WallProps) {
   };
 
   // Generate a new wall when the data is received
-  useEffect(() => {
+  const render = () => {
     if (!wallData.wall) return;
     const { wall } = wallData;
 
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
-    const render = () => {
-      // calculates the canvas size TODO: fix for non-square walls
-      const setCanvasProperties = () => {
-        canvas.width = window.innerWidth * CANVAS_SIZE_PERCENT;
-        canvas.height = canvas.width * (wall.height / wall.width);
-        if (canvas.height > window.innerHeight * CANVAS_SIZE_PERCENT) {
-          canvas.height = window.innerHeight * CANVAS_SIZE_PERCENT;
-          canvas.width = canvas.height * (wall.width / wall.height);
-        }
-      };
-
-      setCanvasProperties();
-
-      const pixelSize = canvas.width / wall.width;
-      // starts drawing the canvas
-      draw(ctx, pixelSize, wall);
-      window.requestAnimationFrame(render);
+    // calculates the canvas size TODO: fix for non-square walls
+    const setCanvasProperties = () => {
+      canvas.width = window.innerWidth * CANVAS_SIZE_PERCENT;
+      canvas.height = canvas.width * (wall.height / wall.width);
+      if (canvas.height > window.innerHeight * CANVAS_SIZE_PERCENT) {
+        canvas.height = window.innerHeight * CANVAS_SIZE_PERCENT;
+        canvas.width = canvas.height * (wall.width / wall.height);
+      }
     };
 
-    render();
-  }, [wallData, canvasRef]);
+    setCanvasProperties();
+
+    const pixelSize = canvas.width / wall.width;
+    // starts drawing the canvas
+    draw(ctx, pixelSize, wall);
+    requestRef.current = requestAnimationFrame(render);
+  };
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [wallData]);
 
   // set wallData when wall changes
   useEffect(() => {
