@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Wall from '../features/wall/Wall';
 import styles from './WallEditor.module.css';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
@@ -6,7 +6,6 @@ import {
   clearEditingPixel,
   setPixel,
   setWall,
-  setWallID,
   setWallStatus,
 } from '../features/wall/wallSlice';
 import PixelEditor from './PixelEditor';
@@ -15,30 +14,48 @@ import useSocket from '../hooks/useSocket';
 import { LocalPixel, Wall as WallType } from '../types';
 
 function WallEditor() {
-  // delete this when you can select a wall to edit
   const dispatch = useAppDispatch();
-  dispatch(setWallID(1));
-  // end delete
   const wallSelector = useAppSelector((state) => state.wall);
   const color = '#000000';
 
   // convert to useSocket
   const [socket, setSocket] = useSocket();
 
+  type StatusText = 'Loading' | 'Editing' | 'Saving' | 'Error Loading';
+
+  const [statusText, setStatusText] = useState<StatusText>('Loading');
+
   useEffect(() => {
     // deliberately throttle loading to see spinner
     // TODO: remove after demonstration
-    // setTimeout(() => {
-    setSocket({
-      uri: `${useServerURI()}/walls`,
-      opts: {
-        query: {
-          wall: wallSelector.id,
+    setTimeout(() => {
+      if (!wallSelector.id) return;
+      setSocket({
+        uri: `${useServerURI()}/walls`,
+        opts: {
+          query: {
+            wall: wallSelector.id,
+          },
         },
-      },
-    });
-    // }, 3000);
+      });
+    }, 3000);
   }, [setSocket, wallSelector.id]);
+
+  useEffect(() => {
+    switch (wallSelector.status) {
+      case 'loading':
+        setStatusText('Loading');
+        break;
+      case 'success':
+        setStatusText('Editing');
+        break;
+      case 'error':
+        setStatusText('Error Loading');
+        break;
+      default:
+        setStatusText('Loading');
+    }
+  }, [wallSelector.status]);
 
   useEffect(() => {
     if (!socket) return;
@@ -69,7 +86,9 @@ function WallEditor() {
         borderColor: color,
       }}
     >
-      <h1>Editing WALL {wallSelector.id || 'unknown'}</h1>
+      <h1>
+        {statusText} WALL {wallSelector.id || 'unknown'}
+      </h1>
       <div
         style={{
           display: 'flex',
