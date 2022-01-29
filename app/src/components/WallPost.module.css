@@ -1,0 +1,10 @@
+.wallPost {
+  width: calc(100% - 80px);
+  border-radius: 10px;
+  border: solid 2px #2e2e2e;
+  background-color: #0e0e0e;
+  padding: 10px 40px;
+  text-decoration: none;
+  color: #fff;
+  margin-bottom: 40px;
+}

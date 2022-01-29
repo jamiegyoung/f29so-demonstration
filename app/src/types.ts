@@ -37,3 +37,56 @@ export type WallState = {
   currentColor: string;
   editingPixel: LocalPixel | Pixel | null;
 };
+
+export type Route = {
+  uri: string;
+  params: boolean;
+  opts?: RequestInit;
+};
+
+export type Routes = {
+  [key: string]: Route;
+};
+
+export enum ApiVersion {
+  v1 = 'v1',
+}
+
+export interface Api {
+  version: ApiVersion;
+  routes: Routes;
+}
+
+export const v1: Api = {
+  version: ApiVersion.v1,
+  routes: {
+    getWall: {
+      uri: `${ApiVersion.v1}/get-wall/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    createWall: {
+      uri: `${ApiVersion.v1}/create-wall/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    getPreview: {
+      uri: `${ApiVersion.v1}/get-preview/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    getFeed: {
+      uri: `${ApiVersion.v1}/get-feed/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+  },
+};
+
+export type FeedPost = {
+  wallID: string;
+  owner: string;
+  edits: number;
+  likes: number;
+  lastEdit: string;
+};

@@ -7,7 +7,7 @@ const router = express.Router();
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs
   message: 'Too many requests, please try again later',
 });
 
@@ -34,73 +34,69 @@ router.get('/get-wall/:wallID', (req, res) => {
 });
 
 router.get('/create-wall/:owner/', (req, res) => {
-  db.createWall(
-    req.params.owner,
-    32,
-    32,
-  );
+  db.createWall(req.params.owner, 32, 32);
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });
 
-router.get('/get-pixel/:wallID/:x/:y', (req, res) => {
-  const { wallID } = req.params;
-  const x = parseInt(req.params.x, 10);
-  const y = parseInt(req.params.y, 10);
+// router.get('/get-pixel/:wallID/:x/:y', (req, res) => {
+//   const { wallID } = req.params;
+//   const x = parseInt(req.params.x, 10);
+//   const y = parseInt(req.params.y, 10);
 
-  const meta = db.getWallMetadata(wallID);
+//   const meta = db.getWallMetadata(wallID);
 
-  // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid coordinates');
-    return;
-  }
+//   // Verify coordinates are within the wall
+//   if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
+//     res.writeHead(400, { 'Content-Type': 'text/plain' });
+//     res.end('Invalid coordinates');
+//     return;
+//   }
 
-  const pixel = db.getPixel(wallID, x, y);
+//   const pixel = db.getPixel(wallID, x, y);
 
-  if (pixel) {
-    // Write coordinates back
-    pixel.x = x;
-    pixel.y = y;
+//   if (pixel) {
+//     // Write coordinates back
+//     pixel.x = x;
+//     pixel.y = y;
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(pixel));
-  } else {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end('Pixel does not exist');
-  }
-});
+//     res.writeHead(200, { 'Content-Type': 'application/json' });
+//     res.end(JSON.stringify(pixel));
+//   } else {
+//     res.writeHead(500, { 'Content-Type': 'text/plain' });
+//     res.end('Pixel does not exist');
+//   }
+// });
 
-router.get('/set-pixel/:wallID/:x/:y/:color/:user', (req, res) => {
-  const { wallID } = req.params;
-  const x = parseInt(req.params.x, 10);
-  const y = parseInt(req.params.y, 10);
-  let { color } = req.params;
+// router.get('/set-pixel/:wallID/:x/:y/:color/:user', (req, res) => {
+//   const { wallID } = req.params;
+//   const x = parseInt(req.params.x, 10);
+//   const y = parseInt(req.params.y, 10);
+//   let { color } = req.params;
 
-  const meta = db.getWallMetadata(wallID);
+//   const meta = db.getWallMetadata(wallID);
 
-  // Verify coordinates are within the wall
-  if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid coordinates');
-    return;
-  }
+//   // Verify coordinates are within the wall
+//   if (x < 0 || x >= meta.width || y < 0 || y >= meta.height) {
+//     res.writeHead(400, { 'Content-Type': 'text/plain' });
+//     res.end('Invalid coordinates');
+//     return;
+//   }
 
-  color = color.toString(); // Just to make sure
+//   color = color.toString(); // Just to make sure
 
-  if (color.length !== 8) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('Invalid color format');
-    return;
-  }
+//   if (color.length !== 8) {
+//     res.writeHead(400, { 'Content-Type': 'text/plain' });
+//     res.end('Invalid color format');
+//     return;
+//   }
 
-  db.setPixel(wallID, x, y, color, req.params.user);
+//   db.setPixel(wallID, x, y, color, req.params.user);
 
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('done');
-});
+//   res.writeHead(200, { 'Content-Type': 'text/plain' });
+//   res.end('done');
+// });
 
 router.get('/get-preview/:wallID', (req, res) => {
   const pre = db.getWallPreview(req.params.wallID);
@@ -112,6 +108,17 @@ router.get('/get-preview/:wallID', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Preview not found');
   }
+});
+
+router.get('/get-feed/:user', (req, res) => {
+  const user = req.params.user;
+  if (user) {
+    const feed = db.getFeed(user);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(feed));
+    return;
+  }
+  res.writeHead(400, { 'Content-Type': 'text/plain' });
 });
 
 module.exports = router;

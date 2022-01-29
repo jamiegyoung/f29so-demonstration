@@ -17,7 +17,10 @@ exports.init = () => {
     owner INTEGER NOT NULL,
     preview BLOB,
     width INTEGER NOT NULL,
-    height INTEGER NOT NULL
+    height INTEGER NOT NULL,
+    edits INTEGER NOT NULL DEFAULT 0,
+    likes INTEGER NOT NULL DEFAULT 0,
+    lastEdit DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS WallPixel (
@@ -200,4 +203,15 @@ exports.getWallPreview = (wallID) => {
 exports.setWallPreview = (wallID, preview) => {
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
   qr.run(preview, wallID);
+};
+
+/**
+ * Gets the feed for a user
+ * @param {number} userID
+ * @returns { {wallID: number, owner: number }[] }
+ */
+exports.getFeed = (userID) => {
+  const qr = db.prepare('SELECT wallID,owner,edits,likes,lastEdit FROM Wall');
+  // later get owner from user db
+  return qr.all();
 };
