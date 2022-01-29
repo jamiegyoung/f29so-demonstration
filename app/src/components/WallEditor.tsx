@@ -34,7 +34,7 @@ function WallEditor() {
     const idInt = parseInt(wallID, 10);
     if (Number.isNaN(idInt)) return;
     dispatch(setWallID(idInt));
-  });
+  }, [params]);
 
   useEffect(() => {
     // // deliberately throttle loading to see spinner
@@ -69,7 +69,7 @@ function WallEditor() {
   }, [wallSelector.status]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) return undefined;
 
     socket.on('connected', (data: WallType) => {
       dispatch(setWall(data));
@@ -88,6 +88,10 @@ function WallEditor() {
     socket.on('pixel-edit', (data: LocalPixel) => {
       dispatch(setPixel(data));
     });
+
+    return () => {
+      socket.close();
+    };
   }, [socket]);
 
   const handlePixelEdit = (pixel: LocalPixel) => {
@@ -99,7 +103,11 @@ function WallEditor() {
 
   return (
     <div className={styles.wallEditorContainer}>
-      <h1>
+      <h1
+        style={{
+          margin: 0,
+        }}
+      >
         {statusText} WALL {wallSelector.id || 'unknown'}
       </h1>
       <div>
