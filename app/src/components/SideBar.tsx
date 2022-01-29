@@ -12,9 +12,11 @@ function SideBar() {
         <Link
           to={`/${key}`}
           key={key}
-          className={`${key === pathname.slice(1) ? styles.selected : ''} ${
-            styles.selection
-          }`}
+          className={`${
+            key === pathname.slice(1) || (key === 'home' && pathname === '/')
+              ? styles.selected
+              : ''
+          } ${styles.selection}`}
         >
           {key}
         </Link>
