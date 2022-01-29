@@ -1,0 +1,6 @@
+.wall {
+  border: 5px solid #464646;
+  border-radius: 10px;
+  cursor: pointer;
+}
+

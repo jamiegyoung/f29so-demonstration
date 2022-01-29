@@ -3,7 +3,8 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setEditingPixel } from './wallSlice';
 import { Wall as WallType, LocalPixel } from '../../types';
 import Spinner from '../../components/Spinner';
-import useContrastingTextColor from '../../hooks/useContrastingTextColor';
+import useContrastingColor from '../../hooks/useContrastingTextColor';
+import styles from './Wall.module.css';
 
 type MouseCoordinates = {
   x: number;
@@ -74,9 +75,9 @@ function Wall() {
   ): void => {
     const context = ctx;
 
-    const drawBorder = ({ x, y }: LocalPixel) => {
-      context.strokeStyle = '#FFF';
-      context.lineWidth = 2;
+    const drawBorder = ({ x, y, color }: LocalPixel) => {
+      context.strokeStyle = useContrastingColor(color);
+      context.lineWidth = 3;
       context.strokeRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
     };
 
@@ -94,17 +95,13 @@ function Wall() {
       };
 
       const magnifyingGlassOffset = calcMagnifyingGlassOffset();
+      context.strokeStyle = useContrastingColor(color);
+      context.lineWidth = 3;
 
       const calcPixelWithOffset = {
         x: pixelSize * magnifyingGlassOffset.x,
         y: pixelSize * magnifyingGlassOffset.y,
       };
-
-      context.shadowColor = '#000000';
-      context.shadowBlur = 20;
-      context.shadowOffsetX = 0;
-      context.shadowOffsetY = 0;
-
       ctx.beginPath();
       ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize);
       ctx.lineTo(
@@ -133,7 +130,6 @@ function Wall() {
         y * pixelSize + calcPixelWithOffset.y + pixelSize * 4,
       );
       ctx.stroke();
-
       context.fillRect(
         x * pixelSize + calcPixelWithOffset.x,
         y * pixelSize + calcPixelWithOffset.y,
@@ -146,8 +142,10 @@ function Wall() {
         pixelSize * 4,
         pixelSize * 4,
       );
-      context.fillStyle = useContrastingTextColor(color);
+      context.fillStyle = useContrastingColor(color);
       context.shadowBlur = 0;
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
       context.font = `bold ${0.8 * pixelSize}px monospace`;
       context.textAlign = 'center';
       context.fillText(
@@ -193,6 +191,10 @@ function Wall() {
       const hoveringPixel = hoveringPixelRef.current;
       context.fillStyle = hoveringPixel.color;
       // draw border around the hovering pixel
+      context.shadowColor = '#121212';
+      context.shadowBlur = 3;
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
       drawBorder(hoveringPixel);
       drawMagnifyingGlass(hoveringPixel);
     }
@@ -215,7 +217,6 @@ function Wall() {
     };
 
     setCanvasProperties();
-
     const pixelSize = canvas.width / wallData.width;
     // starts drawing the canvas
     draw(ctx, pixelSize, wallData);
@@ -229,10 +230,7 @@ function Wall() {
 
   return wallData ? (
     <canvas
-      style={{
-        border: `1px solid #fff`,
-        borderRadius: '10px',
-      }}
+      className={styles.wall}
       onMouseMove={handleCanvasHover}
       onMouseOut={() => {
         hoveringPixelRef.current = null;

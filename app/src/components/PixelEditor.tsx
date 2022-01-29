@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { clearEditingPixel } from '../features/wall/wallSlice';
-import useContrastingTextColor from '../hooks/useContrastingTextColor';
+import useContrastingColor from '../hooks/useContrastingTextColor';
 import { LocalPixel } from '../types';
 import styles from './PixelEditor.module.css';
 import StyledButton from './StylesButton';
@@ -29,7 +29,7 @@ function PixelEditor({ onApply }: PixelEditorProps) {
   }
 
   useEffect(() => {
-    setApplyButtonTextColor(useContrastingTextColor(newColor));
+    setApplyButtonTextColor(useContrastingColor(newColor));
   }, [newColor]);
 
   function handleKeyDown(e: { key: string }) {

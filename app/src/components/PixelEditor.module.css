@@ -23,6 +23,7 @@
   transform: translate(-50%, -50%);
   z-index: 1;
   background-color: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(2px);
   color: white;
   border: none;
 }
@@ -50,8 +51,4 @@
 
 .hexPicker {
   width: 100%;
-}
-
-.applyButton {
-  
 }
