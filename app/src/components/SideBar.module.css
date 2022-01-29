@@ -1,0 +1,21 @@
+.container {
+  text-align: end;
+  margin-right: 20px;
+  left: 100px;
+  position: absolute;
+  left: -11rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.selection {
+  text-decoration: none;
+  cursor: pointer;
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.selected {
+  color: #FF5C00;
+}

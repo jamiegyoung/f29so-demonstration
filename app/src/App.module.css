@@ -1,0 +1,13 @@
+.mainStrip {
+  width: 550px;
+  border-left: 1px solid #242424;
+  border-right: 1px solid #242424;
+  padding: 20px;
+  position: relative;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

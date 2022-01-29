@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setEditingPixel } from './wallSlice';
 import { Wall as WallType, LocalPixel } from '../../types';
 import Spinner from '../../components/Spinner';
-import useContrastingColor from '../../hooks/useContrastingTextColor';
+import useContrastingColor from '../../hooks/useContrastingColor';
 import styles from './Wall.module.css';
 
 type MouseCoordinates = {
@@ -12,6 +12,7 @@ type MouseCoordinates = {
 };
 
 const CANVAS_SIZE_PERCENT = 0.75;
+const CANVAS_MAX_SIZE = 550;
 
 function Wall() {
   const dispatch = useAppDispatch();
@@ -105,7 +106,7 @@ function Wall() {
       ctx.beginPath();
       ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize);
       ctx.lineTo(
-        x * pixelSize + calcPixelWithOffset.x + pixelSize * 4,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 5,
         y * pixelSize + calcPixelWithOffset.y,
       );
       ctx.stroke();
@@ -113,7 +114,7 @@ function Wall() {
       ctx.moveTo(x * pixelSize, y * pixelSize + pixelSize);
       ctx.lineTo(
         x * pixelSize + calcPixelWithOffset.x,
-        y * pixelSize + calcPixelWithOffset.y + pixelSize * 4,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 5,
       );
       ctx.stroke();
       ctx.beginPath();
@@ -126,37 +127,37 @@ function Wall() {
       ctx.beginPath();
       ctx.moveTo(x * pixelSize + pixelSize, y * pixelSize + pixelSize);
       ctx.lineTo(
-        x * pixelSize + calcPixelWithOffset.x + pixelSize * 4,
-        y * pixelSize + calcPixelWithOffset.y + pixelSize * 4,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 5,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 5,
       );
       ctx.stroke();
       context.fillRect(
         x * pixelSize + calcPixelWithOffset.x,
         y * pixelSize + calcPixelWithOffset.y,
-        pixelSize * 4,
-        pixelSize * 4,
+        pixelSize * 5,
+        pixelSize * 5,
       );
       context.strokeRect(
         x * pixelSize + calcPixelWithOffset.x,
         y * pixelSize + calcPixelWithOffset.y,
-        pixelSize * 4,
-        pixelSize * 4,
+        pixelSize * 5,
+        pixelSize * 5,
       );
       context.fillStyle = useContrastingColor(color);
       context.shadowBlur = 0;
       context.shadowOffsetX = 0;
       context.shadowOffsetY = 0;
-      context.font = `bold ${0.8 * pixelSize}px monospace`;
+      context.font = `bold ${1 * pixelSize}px monospace`;
       context.textAlign = 'center';
       context.fillText(
         `(${x}, ${y})`,
-        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2,
-        y * pixelSize + calcPixelWithOffset.y + pixelSize * 1.8,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2.5,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 2.2,
       );
       context.fillText(
         `${color}`,
-        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2,
-        y * pixelSize + calcPixelWithOffset.y + pixelSize * 3,
+        x * pixelSize + calcPixelWithOffset.x + pixelSize * 2.5,
+        y * pixelSize + calcPixelWithOffset.y + pixelSize * 3.6,
       );
     };
 
@@ -214,6 +215,11 @@ function Wall() {
         canvas.height = window.innerHeight * CANVAS_SIZE_PERCENT;
         canvas.width = canvas.height * (wallData.width / wallData.height);
       }
+      if (canvas.height > CANVAS_MAX_SIZE || canvas.width > CANVAS_MAX_SIZE) {
+        canvas.height = CANVAS_MAX_SIZE;
+        canvas.width = CANVAS_MAX_SIZE;
+      }
+        
     };
 
     setCanvasProperties();

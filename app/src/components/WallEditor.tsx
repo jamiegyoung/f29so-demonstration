@@ -18,7 +18,6 @@ import { LocalPixel, Wall as WallType } from '../types';
 function WallEditor() {
   const dispatch = useAppDispatch();
   const wallSelector = useAppSelector((state) => state.wall);
-  const color = '#000000';
 
   // convert to useSocket
   const [socket, setSocket] = useSocket();
@@ -99,21 +98,11 @@ function WallEditor() {
   };
 
   return (
-    <div
-      className={styles.wallEditorContainer}
-      style={{
-        borderColor: color,
-      }}
-    >
+    <div className={styles.wallEditorContainer}>
       <h1>
         {statusText} WALL {wallSelector.id || 'unknown'}
       </h1>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
+      <div>
         <Wall />
         {wallSelector.editingPixel ? (
           <PixelEditor onApply={handlePixelEdit} />

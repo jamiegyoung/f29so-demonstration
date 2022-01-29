@@ -1,6 +1,6 @@
 import { hex } from 'wcag-contrast';
 
-const CONTRAST_THRESHOLD = 6;
+const CONTRAST_THRESHOLD = 5.5;
 
 const useContrastingColor = (backgroundColor: string) => {
   if (hex('#000000', backgroundColor) >= CONTRAST_THRESHOLD) {
