@@ -191,11 +191,11 @@ function Wall() {
       const hoveringPixel = hoveringPixelRef.current;
       context.fillStyle = hoveringPixel.color;
       // draw border around the hovering pixel
+      drawBorder(hoveringPixel);
       context.shadowColor = '#121212';
       context.shadowBlur = 3;
       context.shadowOffsetX = 0;
       context.shadowOffsetY = 0;
-      drawBorder(hoveringPixel);
       drawMagnifyingGlass(hoveringPixel);
     }
   };
