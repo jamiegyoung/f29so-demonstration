@@ -8,14 +8,20 @@
   flex-direction: column;
 }
 
+
+.selection:hover {
+  color: #ffd3b9;
+}
+
 .selection {
   text-decoration: none;
   cursor: pointer;
   color: white;
   font-size: 2rem;
   font-weight: 600;
+  margin-top: 10px;
 }
 
 .selected {
-  color: #FF5C00;
+  color: #FF5C00 !important;
 }
