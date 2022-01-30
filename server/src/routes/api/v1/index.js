@@ -6,6 +6,8 @@ import {
   getWallPixels,
   createWall,
   getFeed,
+  addLike,
+  getLikes,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -39,8 +41,8 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/:owner/', async (req, res) => {
-  await createWall(req.params.owner, 32, 32);
+router.get('/create-wall/:ownerID/', async (req, res) => {
+  await createWall(req.params.ownerID, 32, 32);
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });
@@ -115,12 +117,24 @@ router.get('/create-wall/:owner/', async (req, res) => {
 //   }
 // });
 
-router.get('/get-feed/:user/:page', (req, res) => {
-  const { user, page } = req.params;
-  if (user && page) {
-    const feed = getFeed(user);
+router.get('/get-feed/:userID/:page', (req, res) => {
+  const { userID, page } = req.params;
+  if (userID && page) {
+    const feed = getFeed(userID);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(feed));
+    return;
+  }
+  res.writeHead(400, { 'Content-Type': 'text/plain' });
+});
+
+router.get('/add-like/:wallID/:userID', (req, res) => {
+  const { wallID, userID } = req.params;
+  if (wallID && userID) {
+    addLike(wallID, userID);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    const likes = getLikes(wallID);
+    res.end(JSON.stringify(likes.length));
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });

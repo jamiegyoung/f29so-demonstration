@@ -80,6 +80,11 @@ export const v1: Api = {
       params: true,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    addLike: {
+      uri: `${ApiVersion.v1}/add-like/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 
@@ -95,4 +100,9 @@ export type FeedPost = {
 export type FeedState = {
   status: FetchStatus;
   posts: FeedPost[];
-}
+};
+
+export type SetLikeType = {
+  wallID: number;
+  likes: number;
+};

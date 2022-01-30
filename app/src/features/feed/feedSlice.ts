@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import fetchApi from '../../app/fetchApi';
-import { FeedState, v1 } from '../../types';
+import { FeedState, SetLikeType, v1 } from '../../types';
 
 const initialState: FeedState = {
   status: 'idle',
@@ -28,6 +28,16 @@ export const feedSlice = createSlice({
       state.posts = [];
       state.status = 'idle';
     },
+    setLikes: (
+      state,
+      action: PayloadAction<SetLikeType>,
+    ) => {
+      const { wallID, likes } = action.payload;
+      const post = state.posts.find((p) => p.wallID === wallID);
+      if (post) {
+        post.likes = likes;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchUserFeed.fulfilled, (state, action) => {
@@ -45,6 +55,6 @@ export const feedSlice = createSlice({
   },
 });
 
-export const { clearFeed } = feedSlice.actions;
+export const { clearFeed, setLikes } = feedSlice.actions;
 
 export default feedSlice.reducer;

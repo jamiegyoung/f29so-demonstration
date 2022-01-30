@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Route } from '../types';
 import fetchApi from '../app/fetchApi';
 
-const useApi = (route: Route, ...params: string[]) => {
+const useApi = (
+  route: Route,
+  ...params: string[]
+): [Response | null, () => Promise<void>] => {
   const [data, setData] = useState<Response | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setData(await fetchApi(route, ...params));
-    };
-    fetchData();
-  }, [route]);
+  const fetchData = async () => {
+    setData(await fetchApi(route, ...params));
+  };
 
-  return data;
+  return [data, fetchData];
 };
 
 export default useApi;

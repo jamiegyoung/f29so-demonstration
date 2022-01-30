@@ -37,27 +37,73 @@ export const init = () => {
     color TEXT,
     FOREIGN KEY(pixelID) REFERENCES WallPixel(pixelID)
   );
-`;
+
+  CREATE TABLE IF NOT EXISTS Likes (
+    wallID INTEGER NOT NULL,
+    userID INTEGER NOT NULL,
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
+    );
+    `;
+  // add the line below when we have a user table
+  // FOREIGN KEY(userID) REFERENCES User(userID)
   db.exec(createTables);
 };
 
 /**
  * Get metadata for a wall
- * @param {number} cid The wall ID
+ * @param {number} wallID The wall ID
  * @returns {JSON}
  */
-export const getWallMetadata = (cid) => {
+export const getWallMetadata = (wallID) => {
   const getMetadata = db.prepare(
     'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
   );
-  return getMetadata.get(cid);
+  return getMetadata.get(wallID);
 };
 
-export const updateWallMetadata = (cid, metadata) => {
+export const getLikes = (wallID) => {
+  const likes = db.prepare('SELECT userID FROM Likes WHERE wallID=?;');
+  return likes.all(wallID);
+};
+
+// eslint-disable-next-line no-unused-vars
+export const addLike = (wallID, _uid) => {
+  // will have to get if the user exists when they have been implemented
+  // check if the user has already liked the wall
+  // uncomment when users are implemented
+  /*
+  const hasLiked = db.prepare(
+    'SELECT * FROM Likes WHERE wallID=? AND userID=?;',
+  );
+  const hasLikedResult = hasLiked.get(wallID, uid);
+  if (hasLikedResult) {
+    return;
+  }
+  */
+  const insertLike = db.prepare(
+    'INSERT INTO Likes (wallID, userID) VALUES (?, ?);',
+  );
+  const updateLikes = db.prepare(
+    'UPDATE Wall SET likes=likes+1 WHERE wallID=?;',
+  );
+  const add = db.transaction(() => {
+    insertLike.run(wallID, 1);
+    updateLikes.run(wallID);
+  });
+  
+  add();
+};
+
+export const updateWallMetadata = (wallID, metadata) => {
   const updateMetadata = db.prepare(
     'UPDATE Wall SET width=?,height=?,lastEdit=? WHERE wallID=?;',
   );
-  updateMetadata.run(metadata.width, metadata.height, metadata.lastEdit, cid);
+  updateMetadata.run(
+    metadata.width,
+    metadata.height,
+    metadata.lastEdit,
+    wallID,
+  );
 };
 
 export const getAllWallMetadatas = () => {

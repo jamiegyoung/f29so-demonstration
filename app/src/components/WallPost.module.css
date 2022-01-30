@@ -17,7 +17,7 @@
   font-size: 1.1rem;
 }
 
-.wallPost h1 {
+.wallPostData > h1 {
   font-size: 2rem;
   font-weight: bold;
   margin: 0 0 15px 0;
@@ -82,17 +82,16 @@
   margin: auto 0 0 0;
 }
 
-.bottomRightContainer p {
-  margin: 0 0 0 15px;
-}
-
-.bottomRightContainer button {
+.moreInfoButton {
   background-color: transparent;
   border: none;
   color: white;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bolder;
+  margin: 0 0 0 20px;
   font-family: 'Roboto', sans-serif;
-  margin-left: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
 }
