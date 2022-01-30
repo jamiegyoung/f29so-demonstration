@@ -1,29 +1,41 @@
 // CONSTANTS
-const port = 2000;
-
 // IMPORTS
-const express = require('express');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
-const helmet = require('helmet');
-const debug = require('debug')('server');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import path from 'path';
+import helmet from 'helmet';
+import Debug from 'debug';
 // const csurf = require('csurf');
-const db = require('./src/db');
-const { genPreview } = require('./src/preview-gen');
+import { scheduleJob } from 'node-schedule';
+import {
+  init as initDb,
+  getAllWallMetadatas,
+  updatePreview,
+  getWallPixels,
+} from './src/db.js';
+
+import api from './src/routes/api/index.js';
+
+import walls from './src/walls.js';
+import genPreviewBuffer from './src/genPreview.js';
+
+const debug = Debug('server');
+const port = 2000;
+// const { genPreview } = require('./src/preview-gen');
 
 // EXPRESS STUFF
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer);
 // init the walls sockets
-require('./src/walls')(io);
+walls(io);
 
 app.set('socketio', io);
 
 debug(`Started server on port ${port}`);
 
-db.init();
+initDb();
 
 httpServer.listen(port, () => {
   debug(`Listening on port ${port}`);
@@ -40,10 +52,12 @@ httpServer.listen(port, () => {
 // app.use(csrfMiddleware);
 
 app.use(helmet());
+app.use(
+  '/static',
+  express.static(new URL('./static/', import.meta.url).pathname),
+);
 
-app.use('/static', express.static(path.join(__dirname, './static/')));
-
-app.use('/api', require('./src/routes/api'));
+app.use('/api', api);
 
 // app.use(require('./walls'));
 
@@ -53,33 +67,27 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './static/index.html'));
 });
 
-// OTHER FUNCTIONS
-
-/**
- * Generate preview PNGs for all walles
- */
-function genPreviews() {
-  const wallIDs = db.getAllWallIDs();
-  debug('Generating previews for %d walles', wallIDs.length);
-  debug(wallIDs);
-
-  debug('Started generating previews...');
-  wallIDs.forEach((wallID) => {
-    debug(`Preview for ID ${wallID}`);
-
-    const meta = db.getWallMetadata(wallID);
-    const pixels = db.getWallPixels(wallID);
-
-    const preview = genPreview(pixels, meta.width, meta.height);
-
-    // fs.writeFileSync(`previews/${wallID}.png`, preview); // test
-
-    db.setWallPreview(wallID, preview);
-  });
-  debug('Done generating previews');
+async function genWallPreviews() {
+  debug('poggers');
+  const allMetadata = getAllWallMetadatas();
+  if (allMetadata.length === 0) return;
+  for (let i = 0; i < allMetadata.length; i += 1) {
+    const metadata = allMetadata[i];
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((res) => {
+      debug('generating preview for wall', metadata.wallID);
+      const pixels = getWallPixels(metadata.wallID);
+      updatePreview(
+        metadata.wallID,
+        genPreviewBuffer(metadata.width, metadata.height, pixels),
+      );
+      res();
+    });
+  }
 }
 
-// TEST STUFF
-// genPreview(db.getWallPixels(1), 4, 2);
+scheduleJob('*/5 * * * *', () => {
+  genWallPreviews();
+});
 
-genPreviews();
+genWallPreviews();
