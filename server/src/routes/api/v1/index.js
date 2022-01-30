@@ -1,8 +1,14 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const debug = require('debug')('server');
-const db = require('../../../db');
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import Debug from 'debug';
+import {
+  getWallMetadata,
+  getWallPixels,
+  createWall,
+  getFeed,
+} from '../../../db.js';
 
+const debug = Debug('api/v1');
 const router = express.Router();
 
 const apiLimiter = rateLimit({
@@ -18,8 +24,8 @@ router.get('/get-wall/:wallID', (req, res) => {
   debug('GET /api/v1/get-wall/:wallID');
   const { wallID } = req.params;
 
-  const data = db.getWallMetadata(wallID);
-  const pixels = db.getWallPixels(wallID);
+  const data = getWallMetadata(wallID);
+  const pixels = getWallPixels(wallID);
 
   if (!data) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -34,7 +40,7 @@ router.get('/get-wall/:wallID', (req, res) => {
 });
 
 router.get('/create-wall/:owner/', (req, res) => {
-  db.createWall(req.params.owner, 32, 32);
+  createWall(req.params.owner, 32, 32);
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
@@ -98,22 +104,22 @@ router.get('/create-wall/:owner/', (req, res) => {
 //   res.end('done');
 // });
 
-router.get('/get-preview/:wallID', (req, res) => {
-  const pre = db.getWallPreview(req.params.wallID);
+// router.get('/get-preview/:wallID', (req, res) => {
+//   const pre = db.getWallPreview(req.params.wallID);
 
-  if (pre) {
-    res.writeHead(200, { 'Content-Type': 'image/png' });
-    res.end(pre);
-  } else {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Preview not found');
-  }
-});
+//   if (pre) {
+//     res.writeHead(200, { 'Content-Type': 'image/png' });
+//     res.end(pre);
+//   } else {
+//     res.writeHead(200, { 'Content-Type': 'text/plain' });
+//     res.end('Preview not found');
+//   }
+// });
 
 router.get('/get-feed/:user', (req, res) => {
-  const user = req.params.user;
+  const { user } = req.params;
   if (user) {
-    const feed = db.getFeed(user);
+    const feed = getFeed(user);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(feed));
     return;
@@ -121,4 +127,4 @@ router.get('/get-feed/:user', (req, res) => {
   res.writeHead(400, { 'Content-Type': 'text/plain' });
 });
 
-module.exports = router;
+export default router;

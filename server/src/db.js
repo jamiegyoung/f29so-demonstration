@@ -1,16 +1,14 @@
-const debug = require('debug')('db');
+import Debug from 'debug';
+import Sqlite from 'better-sqlite3';
+import genPreviewBuffer from './genPreview.js';
 
-// CONSTANTS
 const dbFile = 'database.db';
 
-// IMPORTS
-const Sqlite = require('better-sqlite3');
-
+const debug = Debug('db');
 const db = new Sqlite(dbFile);
-// eslint-disable-next-line no-console
 debug(`Connected to database "${dbFile}"`);
 
-exports.init = () => {
+export const init = () => {
   const createTables = `
   CREATE TABLE IF NOT EXISTS Wall (
     wallID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,11 +46,16 @@ exports.init = () => {
  * @param {number} cid The wall ID
  * @returns {JSON}
  */
-exports.getWallMetadata = (cid) => {
+export const getWallMetadata = (cid) => {
   const getMetadata = db.prepare(
     'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(cid);
+};
+
+export const getAllWallMetadatas = () => {
+  const qr = db.prepare('SELECT owner,width,height,wallID FROM Wall;');
+  return qr.all();
 };
 
 /**
@@ -60,11 +63,16 @@ exports.getWallMetadata = (cid) => {
  * @param {number} wallID The wall ID
  * @returns {JSON}
  */
-exports.getWallPixels = (wallID) => {
+export const getWallPixels = (wallID) => {
   const getPixels = db.prepare(
     'SELECT pixelID,x,y,color FROM wallPixel WHERE wallID=?;',
   );
   return getPixels.all(wallID);
+};
+
+export const updatePreview = (wallID, buffer) => {
+  const qr = db.prepare('UPDATE Wall SET preview=? WHERE WallID=?');
+  qr.run(buffer, wallID);
 };
 
 /**
@@ -73,12 +81,25 @@ exports.getWallPixels = (wallID) => {
  * @param {number} width
  * @param {number} height
  */
-exports.createWall = (owner, width, height) => {
+export const createWall = (owner, width, height) => {
   const createWallQr = db.prepare(
     'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
 
-  const { lastInsertRowid } = createWallQr.run(owner, width, height);
+  const { lastInsertRowid: wallID } = createWallQr.run(owner, width, height);
+
+  const pixelArray = [];
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      pixelArray.push({
+        wallID,
+        x,
+        y,
+        color: '#FFFFFF',
+      });
+    }
+  }
+
   const insertPixel = db.prepare(
     'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
   );
@@ -96,31 +117,20 @@ exports.createWall = (owner, width, height) => {
   //   return color;
   // }
 
-  const pixelArray = [];
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      pixelArray.push({
-        wallID: lastInsertRowid,
-        x,
-        y,
-        color: '#FFFFFF',
-      });
-    }
-  }
-
   const insertAllPixels = db.transaction((pixels) => {
     pixels.forEach((pixel) => {
-      const { lastInsertRowid } = insertPixel.run(
+      const { lastInsertRowid: pixelID } = insertPixel.run(
         pixel.wallID,
         pixel.x,
         pixel.y,
         pixel.color,
       );
-      insertHistory.run(lastInsertRowid, owner, Date.now(), pixel.color);
+      insertHistory.run(pixelID, owner, Date.now(), pixel.color);
     });
   });
 
   insertAllPixels(pixelArray);
+  updatePreview(wallID, genPreviewBuffer(width, height, pixelArray));
   // Should return something to show if successful
 };
 
@@ -131,7 +141,7 @@ exports.createWall = (owner, width, height) => {
  * @param {*} y
  * @returns {JSON}
  */
-exports.getPixel = (wallID, x, y) => {
+export const getPixel = (wallID, x, y) => {
   const getPixelQr = db.prepare(
     'SELECT color,HistoryID FROM WallPixel WHERE wallID=? AND color=? AND y=?;',
   );
@@ -149,7 +159,7 @@ exports.getPixel = (wallID, x, y) => {
  * @param {string} user Not currently used
  */
 
-exports.updatePixels = (wallID, pixels) => {
+export const updatePixels = (wallID, pixels) => {
   if (!pixels) return;
   const updatePixel = db.prepare(
     'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
@@ -179,7 +189,7 @@ exports.updatePixels = (wallID, pixels) => {
  * Get all wall IDs
  * @returns {number[]}
  */
-exports.getAllWallIDs = () => {
+export const getAllWallIDs = () => {
   const qr = db.prepare('SELECT wallID FROM Wall;');
   return qr.all().map((v) => v.wallID);
 };
@@ -189,20 +199,20 @@ exports.getAllWallIDs = () => {
  * @param {number} wallID
  * @returns
  */
-exports.getWallPreview = (wallID) => {
+export const getWallPreview = (wallID) => {
   const qr = db.prepare('SELECT preview FROM Wall WHERE wallID=?');
   const res = qr.get(wallID);
-  return res ? res.Preview : undefined;
+  return res ? res.preview : undefined;
 };
 
 /**
  * Update wall preview in the database
  * @param {number} wallID
- * @param {Buffer} preview
+ * @param {Buffer} previewBuffer
  */
-exports.setWallPreview = (wallID, preview) => {
+export const setWallPreview = (wallID, previewBuffer) => {
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
-  qr.run(preview, wallID);
+  qr.run(previewBuffer, wallID);
 };
 
 /**
@@ -210,7 +220,8 @@ exports.setWallPreview = (wallID, preview) => {
  * @param {number} userID
  * @returns { {wallID: number, owner: number }[] }
  */
-exports.getFeed = (userID) => {
+// eslint-disable-next-line no-unused-vars
+export const getFeed = (userID) => {
   const qr = db.prepare('SELECT wallID,owner,edits,likes,lastEdit FROM Wall');
   // later get owner from user db
   return qr.all();

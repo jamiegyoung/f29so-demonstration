@@ -1,5 +1,7 @@
-const debug = require('debug')('walls-socket');
-const db = require('./db');
+import Debug from 'debug';
+import { updatePixels, getWallMetadata, getWallPixels } from './db.js';
+
+const debug = Debug('walls');
 
 const connectedSockets = {};
 const wallChanges = {};
@@ -18,7 +20,7 @@ const saveChanges = (wallID) => {
   if (wallChanges[wallID]) {
     console.log('saving changes');
     // save the changes to the database
-    db.updatePixels(wallID, wallChanges[wallID]);
+    updatePixels(wallID, wallChanges[wallID]);
   }
 };
 
@@ -49,7 +51,7 @@ const applyWallChanges = (wall) => {
   return newWall;
 };
 
-module.exports = (io) => {
+export default (io) => {
   const wallsNamespace = io.of('/walls');
 
   wallsNamespace.on('connection', (socket) => {
@@ -65,12 +67,12 @@ module.exports = (io) => {
 
     addConnectedWall(socket, wallID);
 
-    const data = db.getWallMetadata(wallID);
+    const data = getWallMetadata(wallID);
     if (!data) {
       socket.emit('error', 'Wall not found');
       return;
     }
-    const pixels = db.getWallPixels(wallID);
+    const pixels = getWallPixels(wallID);
 
     data.pixels = pixels;
     const changedWall = applyWallChanges(data);
@@ -83,15 +85,16 @@ module.exports = (io) => {
       if (!hexRegex.test(newColor)) {
         socket.emit('error', 'Invalid color');
       }
-      pixel.history = [
+      const newPixel = pixel;
+      newPixel.history = [
         {
           editor: socket.id,
           timestamp: Date.now(),
           color: pixel.color,
         },
       ];
-      wallsNamespace.to(wallID).emit('pixel-edit', pixel);
-      addWallChange(wallID, pixel);
+      wallsNamespace.to(wallID).emit('pixel-edit', newPixel);
+      addWallChange(wallID, newPixel);
     });
 
     socket.on('disconnect', () => {

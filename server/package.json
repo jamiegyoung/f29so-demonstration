@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon*,-engine*,-socket.io* && set NODE_ENV=development&& nodemon server.js"
@@ -16,13 +17,14 @@
     "express": "^4.17.2",
     "express-rate-limit": "^6.2.0",
     "helmet": "^5.0.2",
+    "hex-rgb": "^5.0.0",
     "jimp": "^0.16.1",
+    "node-schedule": "^2.1.0",
     "nodemon": "^2.0.15",
-    "pngjs": "^6.0.0",
     "socket.io": "^4.4.1"
   },
   "devDependencies": {
-    "eslint": "^8.7.0",
+    "eslint": "^8.8.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
