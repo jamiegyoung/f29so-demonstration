@@ -49,7 +49,7 @@ function WallPost({
         <h1>
           [ {randomNames[Math.floor(Math.random() * randomNames.length)]} ]
         </h1>
-        <p>last edited: {lastEdit}</p>
+        <p>last edited: {new Date(lastEdit).toLocaleString()}</p>
         <p>edits: {edits}</p>
         <div className={styles.bottomRightContainer}>
           <LikeButton wallID={wallID} />
