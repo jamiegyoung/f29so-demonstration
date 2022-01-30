@@ -56,7 +56,7 @@ export const init = () => {
  */
 export const getWallMetadata = (wallID) => {
   const getMetadata = db.prepare(
-    'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
+    'SELECT owner,width,height,wallID,edits,likes FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(wallID);
 };
@@ -96,12 +96,13 @@ export const addLike = (wallID, _uid) => {
 
 export const updateWallMetadata = (wallID, metadata) => {
   const updateMetadata = db.prepare(
-    'UPDATE Wall SET width=?,height=?,lastEdit=? WHERE wallID=?;',
+    'UPDATE Wall SET width=?,height=?,lastEdit=?,edits=? WHERE wallID=?;',
   );
   updateMetadata.run(
     metadata.width,
     metadata.height,
     metadata.lastEdit,
+    metadata.edits,
     wallID,
   );
 };

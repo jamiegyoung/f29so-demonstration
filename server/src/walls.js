@@ -29,8 +29,11 @@ const saveChanges = async (wallID) => {
     updatePixels(wallID, wallChanges[wallID]);
     const metadata = getWallMetadata(wallID);
     const pixels = getWallPixels(wallID);
+    const newEdits = wallChanges[wallID].length;
+    debug('new edits:', metadata.edits + newEdits);
     updateWallMetadata(wallID, {
       ...metadata,
+      edits: metadata.edits + newEdits,
       lastEdit: Date.now(),
     });
     updatePreview(
