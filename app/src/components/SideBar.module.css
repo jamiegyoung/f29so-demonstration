@@ -17,9 +17,9 @@
   cursor: pointer;
   color: white;
   font-size: 2.5rem;
-  font-weight: 600;
   margin-top: 10px;
   letter-spacing: -0.1rem;
+  font-weight: bolder;
 }
 
 .selected {

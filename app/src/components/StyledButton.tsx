@@ -6,10 +6,14 @@ interface StyledButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 function StyledButton(props: StyledButtonProps) {
-  const { children } = props;
+  const { children, className } = props;
   return (
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    <button type="button" {...props} className={styles.button}>
+    <button
+      type="button"
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...props}
+      className={`${className || ''} ${styles.button}`}
+    >
       {children}
     </button>
   );

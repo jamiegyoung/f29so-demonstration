@@ -3,7 +3,7 @@
   border-radius: 10px;
   border: solid 2px #2e2e2e;
   background-color: #0e0e0e;
-  padding: 10px 40px;
+  padding: 20px 30px;
   text-decoration: none;
   color: #fff;
   margin-bottom: 40px;
@@ -13,15 +13,86 @@
 .wallPostData {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  margin-left: 50px;
+  margin-left: 20px;
+  font-size: 1.1rem;
 }
 
-.wallPostData p {
-  margin: 0;
+.wallPost h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+}
+
+.wallPostData > p {
+  margin: 2px 0;
+  font-size: 1.2rem;
 }
 
 .wallPreview {
   image-rendering: pixelated;
   border-radius: 10px;
+  width: 100%;
+  /* max-width: 128px; */
+}
+
+.contributeButton {
+  padding: 10px 20px 10px 35px;
+  margin: 10px 0 0 0;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: bold;
+  background-color: rgb(241, 241, 241);
+  color: black;
+  border-radius: 10px;
+  border: 1px solid #242424;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.1s ease-out;
+  cursor: pointer;
+  position: relative;
+  letter-spacing: -0.02rem;
+  transition: all 0.2s ease-out;
+}
+
+.contributeButton:hover {
+  background-color: rgb(255, 255, 255);
+  transform: scale(1.05);
+}
+
+.leftContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.buttonIcon {
+  position: absolute;
+  top: 8px;
+  left: 2px;
+  transform: scaleX(-1);
+}
+
+.bottomRightContainer {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-size: 1.5rem;
+  padding: 12px 0 12px 35px;
+  margin: auto 0 0 0;
+}
+
+.bottomRightContainer p {
+  margin: 0 0 0 15px;
+}
+
+.bottomRightContainer button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  font-weight: bolder;
+  font-family: 'Roboto', sans-serif;
+  margin-left: 20px;
+  cursor: pointer;
 }

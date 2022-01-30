@@ -6,7 +6,7 @@ import { clearEditingPixel } from '../features/wall/wallSlice';
 import useContrastingColor from '../hooks/useContrastingColor';
 import { LocalPixel } from '../types';
 import styles from './PixelEditor.module.css';
-import StyledButton from './StylesButton';
+import StyledButton from './StyledButton';
 
 type PixelEditorProps = {
   onApply: (pixel: LocalPixel) => void;
