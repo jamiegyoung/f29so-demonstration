@@ -18,7 +18,7 @@ export const init = () => {
     height INTEGER NOT NULL,
     edits INTEGER NOT NULL DEFAULT 0,
     likes INTEGER NOT NULL DEFAULT 0,
-    lastEdit DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    lastEdit INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int))
   );
 
   CREATE TABLE IF NOT EXISTS WallPixel (
@@ -51,6 +51,13 @@ export const getWallMetadata = (cid) => {
     'SELECT owner,width,height,wallID FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(cid);
+};
+
+export const updateWallMetadata = (cid, metadata) => {
+  const updateMetadata = db.prepare(
+    'UPDATE Wall SET width=?,height=?,lastEdit=? WHERE wallID=?;',
+  );
+  updateMetadata.run(metadata.width, metadata.height, metadata.lastEdit, cid);
 };
 
 export const getAllWallMetadatas = () => {
@@ -222,7 +229,9 @@ export const setWallPreview = (wallID, previewBuffer) => {
  */
 // eslint-disable-next-line no-unused-vars
 export const getFeed = (userID) => {
-  const qr = db.prepare('SELECT wallID,owner,edits,likes,lastEdit,preview FROM Wall');
+  const qr = db.prepare(
+    'SELECT wallID,owner,edits,likes,lastEdit,preview FROM Wall',
+  );
   // later get owner from user db
   return qr.all();
 };

@@ -1,5 +1,12 @@
 import Debug from 'debug';
-import { updatePixels, getWallMetadata, getWallPixels } from './db.js';
+import {
+  updatePixels,
+  getWallMetadata,
+  getWallPixels,
+  updatePreview,
+  updateWallMetadata,
+} from './db.js';
+import genPreviewBuffer from './genPreview.js';
 
 const debug = Debug('walls');
 
@@ -16,10 +23,20 @@ const addConnectedWall = (socket, wallID) => {
   connectedSockets[wallID].push(socket.id);
 };
 
-const saveChanges = (wallID) => {
+const saveChanges = async (wallID) => {
   if (wallChanges[wallID]) {
     // save the changes to the database
     updatePixels(wallID, wallChanges[wallID]);
+    const metadata = getWallMetadata(wallID);
+    const pixels = getWallPixels(wallID);
+    updateWallMetadata(wallID, {
+      ...metadata,
+      lastEdit: Date.now(),
+    });
+    updatePreview(
+      wallID,
+      await genPreviewBuffer(metadata.width, metadata.height, pixels),
+    );
   }
 };
 
