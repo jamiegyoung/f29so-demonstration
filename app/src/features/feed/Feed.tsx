@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
-import WallPost from '../../components/WallPost';
+import { useEffect } from 'react';
 import styles from './Feed.module.css';
-import useApi from '../../hooks/useApi';
-import { v1, FeedPost } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { fetchUserFeed } from './feedSlice';
+import { FeedPost } from '../../types';
+import WallPost from '../../components/WallPost';
 
 function feed() {
-  const [feedData, setFeedData] = useState<null | FeedPost[]>([]);
-  const apiData = useApi(v1.routes.getFeed, '1');
-  useEffect(() => {
-    const setApiData = async () => {
-      if (apiData?.status === 200) {
-        setFeedData(await apiData.json());
-      }
-    };
-    setApiData();
-  }, [apiData]);
+  const feedData = useAppSelector((state) => state.feed);
+  const dispatch = useAppDispatch();
 
-  console.log(feedData);
+  useEffect(() => {
+    feedData?.posts.map((post: FeedPost) => post);
+  }, [feedData]);
+
+  useEffect(() => {
+    dispatch(fetchUserFeed({ userID: 1, page: 0 }));
+  }, []);
 
   return (
     <div className={styles.feed}>
-      {feedData?.map((post: FeedPost) => (
+      {feedData?.posts.map((post: FeedPost) => (
         <WallPost
           key={post.wallID}
           wallID={post.wallID}
@@ -28,6 +27,7 @@ function feed() {
           edits={post.edits}
           likes={post.likes}
           lastEdit={post.lastEdit}
+          preview={post.preview}
         />
       ))}
     </div>

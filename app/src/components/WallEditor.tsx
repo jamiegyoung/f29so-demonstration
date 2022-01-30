@@ -11,7 +11,7 @@ import {
   setWallStatus,
 } from '../features/wall/wallSlice';
 import PixelEditor from './PixelEditor';
-import useServerURI from '../hooks/useServerURI';
+import getServerURI from '../app/serverURI';
 import useSocket from '../hooks/useSocket';
 import { LocalPixel, Wall as WallType } from '../types';
 
@@ -42,7 +42,7 @@ function WallEditor() {
     // setTimeout(() => {
     if (!wallSelector.id) return;
     setSocket({
-      uri: `${useServerURI()}/walls`,
+      uri: `${getServerURI()}/walls`,
       opts: {
         query: {
           wall: wallSelector.id,

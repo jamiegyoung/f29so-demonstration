@@ -4,7 +4,7 @@ import Debug from 'debug';
 
 const debug = Debug('genPreview');
 
-function genBuffer(width, height, pixels) {
+export default function genPreviewBuffer(width, height, pixels) {
   const previewArr = Array.from(Array(height), () =>
     Array(width).fill('#000000'),
   );
@@ -12,27 +12,19 @@ function genBuffer(width, height, pixels) {
   pixels.forEach((px) => {
     previewArr[px.y][px.x] = px.color;
   });
-  // debug(previewArr);
-  const saveImage = () =>
-    new Jimp(32, 32, (err, image) => {
-      if (err) throw err;
-      // debug(previewImage);
-      previewArr.forEach((row, y) => {
-        row.forEach((color, x) => {
-          const { red, green, blue } = hexRgb(color);
-          const parsedColor = Jimp.rgbaToInt(red, green, blue, 255);
-          image.setPixelColor(parsedColor, x, y);
-        });
-      });
-      image.getBuffer(Jimp.MIME_PNG, (_err, buffer) => {
-        if (_err) return undefined;
-        return buffer;
-      });
-    });
 
-  return saveImage().bitmap.data;
-}
+  const image = new Jimp(32, 32, 0xffc0cbff, (err) => {
+    if (err) throw err;
+  });
 
-export default function genPreviewBuffer(width, height, pixels) {
-  return genBuffer(width, height, pixels);
+  pixels.forEach((px) => {
+    const rgb = hexRgb(px.color);
+    image.setPixelColor(
+      Jimp.rgbaToInt(rgb.red, rgb.green, rgb.blue, 255),
+      px.x,
+      px.y,
+    );
+  });
+
+  return image.getBufferAsync(Jimp.MIME_PNG);
 }

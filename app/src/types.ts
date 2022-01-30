@@ -22,7 +22,7 @@ export type Wall = {
   pixels: Pixel[] | LocalPixel[];
 };
 
-export type WallStatus = 'success' | 'idle' | 'loading' | 'error';
+export type FetchStatus = 'success' | 'idle' | 'loading' | 'error';
 
 export type WallState = {
   id: number | null;
@@ -33,7 +33,7 @@ export type WallState = {
    * success is when the thunk has successfully returned a wall
    * failure is when the thunk has failed
    */
-  status: WallStatus;
+  status: FetchStatus;
   currentColor: string;
   editingPixel: LocalPixel | Pixel | null;
 };
@@ -84,9 +84,15 @@ export const v1: Api = {
 };
 
 export type FeedPost = {
-  wallID: string;
-  owner: string;
+  wallID: number;
+  owner: number;
   edits: number;
   likes: number;
   lastEdit: string;
+  preview: Buffer;
 };
+
+export type FeedState = {
+  status: FetchStatus;
+  posts: FeedPost[];
+}

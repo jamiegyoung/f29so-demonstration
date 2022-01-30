@@ -18,7 +18,6 @@ const addConnectedWall = (socket, wallID) => {
 
 const saveChanges = (wallID) => {
   if (wallChanges[wallID]) {
-    console.log('saving changes');
     // save the changes to the database
     updatePixels(wallID, wallChanges[wallID]);
   }

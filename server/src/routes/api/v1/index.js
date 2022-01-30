@@ -39,9 +39,8 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/:owner/', (req, res) => {
-  createWall(req.params.owner, 32, 32);
-
+router.get('/create-wall/:owner/', async (req, res) => {
+  await createWall(req.params.owner, 32, 32);
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });
@@ -116,9 +115,9 @@ router.get('/create-wall/:owner/', (req, res) => {
 //   }
 // });
 
-router.get('/get-feed/:user', (req, res) => {
-  const { user } = req.params;
-  if (user) {
+router.get('/get-feed/:user/:page', (req, res) => {
+  const { user, page } = req.params;
+  if (user && page) {
     const feed = getFeed(user);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(feed));

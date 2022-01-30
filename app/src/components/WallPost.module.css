@@ -7,4 +7,21 @@
   text-decoration: none;
   color: #fff;
   margin-bottom: 40px;
+  display: flex;
+}
+
+.wallPostData {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 50px;
+}
+
+.wallPostData p {
+  margin: 0;
+}
+
+.wallPreview {
+  image-rendering: pixelated;
+  border-radius: 10px;
 }

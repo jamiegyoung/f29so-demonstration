@@ -11,8 +11,9 @@ import { scheduleJob } from 'node-schedule';
 import {
   init as initDb,
   getAllWallMetadatas,
-  updatePreview,
+  // updatePreview,
   getWallPixels,
+  setWallPreview,
 } from './src/db.js';
 
 import api from './src/routes/api/index.js';
@@ -68,21 +69,15 @@ app.get('/', (req, res) => {
 });
 
 async function genWallPreviews() {
-  debug('poggers');
   const allMetadata = getAllWallMetadatas();
   if (allMetadata.length === 0) return;
   for (let i = 0; i < allMetadata.length; i += 1) {
+    debug('generating preview for wall', allMetadata[i].wallID);
     const metadata = allMetadata[i];
+    const pixels = getWallPixels(metadata.wallID);
     // eslint-disable-next-line no-await-in-loop
-    await new Promise((res) => {
-      debug('generating preview for wall', metadata.wallID);
-      const pixels = getWallPixels(metadata.wallID);
-      updatePreview(
-        metadata.wallID,
-        genPreviewBuffer(metadata.width, metadata.height, pixels),
-      );
-      res();
-    });
+    const buffer = await genPreviewBuffer(metadata.width, metadata.height, pixels);
+    setWallPreview(metadata.wallID, buffer);
   }
 }
 

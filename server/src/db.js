@@ -81,7 +81,7 @@ export const updatePreview = (wallID, buffer) => {
  * @param {number} width
  * @param {number} height
  */
-export const createWall = (owner, width, height) => {
+export const createWall = async (owner, width, height) => {
   const createWallQr = db.prepare(
     'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
   );
@@ -130,7 +130,7 @@ export const createWall = (owner, width, height) => {
   });
 
   insertAllPixels(pixelArray);
-  updatePreview(wallID, genPreviewBuffer(width, height, pixelArray));
+  updatePreview(wallID, await genPreviewBuffer(width, height, pixelArray));
   // Should return something to show if successful
 };
 
@@ -222,7 +222,7 @@ export const setWallPreview = (wallID, previewBuffer) => {
  */
 // eslint-disable-next-line no-unused-vars
 export const getFeed = (userID) => {
-  const qr = db.prepare('SELECT wallID,owner,edits,likes,lastEdit FROM Wall');
+  const qr = db.prepare('SELECT wallID,owner,edits,likes,lastEdit,preview FROM Wall');
   // later get owner from user db
   return qr.all();
 };

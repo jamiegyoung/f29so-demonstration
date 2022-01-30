@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import wallReducer from '../features/wall/wallSlice';
+import feedReducer from '../features/feed/feedSlice';
 
 export const store = configureStore({
   reducer: {
     wall: wallReducer,
+    feed: feedReducer,
   },
 });
 

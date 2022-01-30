@@ -1,7 +1,7 @@
 // import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 // import { RootState } from "../../app/store";
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Wall, WallState, WallStatus, LocalPixel } from '../../types';
+import { Wall, WallState, FetchStatus, LocalPixel } from '../../types';
 
 const initialState: WallState = {
   id: null,
@@ -31,7 +31,7 @@ export const wallSlice = createSlice({
       state.wall = action.payload;
       state.id = action.payload.wallID;
     },
-    setWallStatus: (state, action: PayloadAction<WallStatus>) => {
+    setWallStatus: (state, action: PayloadAction<FetchStatus>) => {
       state.status = action.payload;
     },
     // sets a single pixel in the wall
