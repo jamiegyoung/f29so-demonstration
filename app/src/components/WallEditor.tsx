@@ -5,6 +5,7 @@ import styles from './WallEditor.module.css';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import {
   clearEditingPixel,
+  clearWall,
   setPixel,
   setWall,
   setWallID,
@@ -91,6 +92,7 @@ function WallEditor() {
 
     return () => {
       socket.close();
+      dispatch(clearWall());
     };
   }, [socket]);
 
