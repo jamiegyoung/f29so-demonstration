@@ -112,7 +112,7 @@ export const updateWallMetadata = (wallID, metadata) => {
   updateMetadata.run(
     metadata.width,
     metadata.height,
-    metadata.lastEdit,
+    metadata.lastEdit/1000,
     metadata.edits,
     wallID,
   );

@@ -1,5 +1,6 @@
 import Debug from 'debug';
 import {
+  updateWallMetadata,
   getWallMetadata,
   getWallPixels,
   updatePreview,
@@ -32,7 +33,14 @@ const updateWallPreview = async (wallID) => {
 };
 
 const addWallChange = (wallID, pixel) => {
-  updatePixel(pixel)
+  updatePixel(pixel);
+  const wallMetadata = getWallMetadata(wallID);
+  const newWallMetadata = {
+    ...wallMetadata,
+    lastEdit: Date.now(),
+    edits: wallMetadata.edits + 1,
+  };
+  updateWallMetadata(wallID, newWallMetadata);
   // if the wall doesn't exist, create it
   if (!wallChanges[wallID]) {
     wallChanges[wallID] = 1;
