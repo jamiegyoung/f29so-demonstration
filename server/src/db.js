@@ -234,8 +234,40 @@ export const getPixelHistory = (pixelID) => {
   return ids;
 };
 
+export const updatePixel = (pixel) => {
+  debug('Updating pixel', pixel);
+  const updatePixelQr = db.prepare(
+    'UPDATE WallPixel SET color=? WHERE pixelID=?;',
+  );
+  const insertPixelHistory = db.prepare(
+    'INSERT INTO PixelHistory(pixelID) VALUES (?);',
+  );
+
+  const insertHistory = db.prepare(
+    'INSERT INTO History(historyID,userID,timestamp,color) VALUES (?,?,?,?);',
+  );
+
+  updatePixelQr.run(pixel.color, pixel.pixelID);
+  const oldHistory = getPixelHistory(pixel.pixelID);
+  const filteredOldHistory = pixel.history.filter(
+    (h) => !oldHistory.find((oh) => oh.historyID === h.historyID),
+  );
+
+  filteredOldHistory.forEach((history) => {
+    const { lastInsertRowid: historyID } = insertPixelHistory.run(
+      pixel.pixelID,
+    );
+    insertHistory.run(
+      historyID,
+      history.userID,
+      history.timestamp,
+      history.color,
+    );
+  });
+};
+
 /**
- * Set a specific pixel on a wall
+ * Set specific pixels on a wall
  *
  * TODO: Add history stuff
  * @param {number} wallID Wall ID
@@ -244,40 +276,13 @@ export const getPixelHistory = (pixelID) => {
  * @param {string} color Hex string (format: RRGGBBAA)
  * @param {string} user Not currently used
  */
-
 export const updatePixels = (wallID, pixels) => {
   debug('Updating pixels for wall', wallID);
   if (!pixels) return;
-  const updatePixel = db.prepare(
-    'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
-  );
-
-  const insertPixelHistory = db.prepare(
-    'INSERT INTO PixelHistory(pixelID) VALUES (?);',
-  );
-
-  const insertHistory = db.prepare(
-    'INSERT INTO History(historyID, userID, timestamp, color) VALUES (?,?,?,?);',
-  );
 
   const updateAllPixels = db.transaction((pxs) => {
     pxs.forEach((pixel) => {
-      updatePixel.run(pixel.color, wallID, pixel.x, pixel.y);
-      const oldHistory = getPixelHistory(pixel.pixelID);
-      const filteredOldHistory = pixel.history.filter(
-        (h) => !oldHistory.find((oh) => oh.historyID === h.historyID),
-      );
-      filteredOldHistory.forEach((history) => {
-        const { lastInsertRowid: historyID } = insertPixelHistory.run(
-          pixel.pixelID,
-        );
-        insertHistory.run(
-          historyID,
-          history.userID,
-          history.timestamp,
-          history.color,
-        );
-      });
+      updatePixel(pixel);
     });
   });
 

@@ -1,10 +1,9 @@
 import Debug from 'debug';
 import {
-  updatePixels,
   getWallMetadata,
   getWallPixels,
   updatePreview,
-  updateWallMetadata,
+  updatePixel,
 } from './db.js';
 import genPreviewBuffer from './genPreview.js';
 
@@ -23,51 +22,27 @@ const addConnectedWall = (socket, wallID) => {
   connectedSockets[wallID].push(socket.id);
 };
 
-const saveChanges = async (wallID) => {
-  if (wallChanges[wallID]) {
-    // save the changes to the database
-    updatePixels(wallID, wallChanges[wallID]);
-    const metadata = getWallMetadata(wallID);
-    const pixels = getWallPixels(wallID);
-    const newEdits = wallChanges[wallID].length;
-    debug('new edits:', metadata.edits + newEdits);
-    updateWallMetadata(wallID, {
-      ...metadata,
-      edits: metadata.edits + newEdits,
-      lastEdit: Date.now(),
-    });
-    updatePreview(
-      wallID,
-      await genPreviewBuffer(metadata.width, metadata.height, pixels),
-    );
-  }
+const updateWallPreview = async (wallID) => {
+  const metadata = getWallMetadata(wallID);
+  const pixels = getWallPixels(wallID);
+  updatePreview(
+    wallID,
+    await genPreviewBuffer(metadata.width, metadata.height, pixels),
+  );
 };
 
-const addWallChange = (wallID, change) => {
+const addWallChange = (wallID, pixel) => {
+  updatePixel(pixel)
   // if the wall doesn't exist, create it
   if (!wallChanges[wallID]) {
-    wallChanges[wallID] = [change];
+    wallChanges[wallID] = 1;
     return;
   }
-  wallChanges[wallID] = [change, ...wallChanges[wallID]];
-  if (wallChanges[wallID].length > 99) {
-    saveChanges(wallID);
-    wallChanges[wallID] = [];
+  wallChanges[wallID] += 1;
+  if (wallChanges[wallID] > 99) {
+    updateWallPreview(wallID);
+    wallChanges[wallID] = 0;
   }
-};
-
-const applyWallChanges = (wall) => {
-  if (!wallChanges[wall.wallID]) {
-    return wall;
-  }
-  const newWall = wall;
-  newWall.pixels = wall.pixels.map(
-    (pixel) =>
-      wallChanges[wall.wallID].find(
-        (change) => change.x === pixel.x && change.y === pixel.y,
-      ) || pixel,
-  );
-  return newWall;
 };
 
 export default (io) => {
@@ -94,9 +69,8 @@ export default (io) => {
     const pixels = getWallPixels(wallID);
     // console.log(pixels);
     data.pixels = pixels;
-    const changedWall = applyWallChanges(data);
 
-    socket.emit('connected', changedWall);
+    socket.emit('connected', data);
 
     socket.on('pixel-edit', (pixel) => {
       const newColor = pixel.color;
@@ -104,6 +78,7 @@ export default (io) => {
       if (!hexRegex.test(newColor)) {
         socket.emit('error', 'Invalid color');
       }
+      debug(newColor);
       if (wallChanges[wallID] && wallChanges[wallID][0]) {
         if (wallChanges[wallID][0].color === newColor) {
           socket.emit('error', 'No change');
@@ -134,7 +109,7 @@ export default (io) => {
       // Delete the wall room if no one is connected
       if (connectedSockets[wallID].length === 0) {
         delete connectedSockets[wallID];
-        saveChanges(wallID);
+        updateWallPreview(wallID);
         delete wallChanges[wallID];
       }
       debug('connectedSockets: ', connectedSockets);

@@ -1,6 +1,5 @@
 import Jimp from 'jimp';
 import hexRgb from 'hex-rgb';
-import Debug from 'debug';
 
 export default function genPreviewBuffer(width, height, pixels) {
   const previewArr = Array.from(Array(height), () =>
@@ -11,7 +10,7 @@ export default function genPreviewBuffer(width, height, pixels) {
     previewArr[px.y][px.x] = px.color;
   });
 
-  const image = new Jimp(32, 32, 0xffc0cbff, (err) => {
+  const image = new Jimp(width, height, 0xffc0cbff, (err) => {
     if (err) throw err;
   });
 
