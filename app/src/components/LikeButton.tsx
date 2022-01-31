@@ -7,7 +7,7 @@ import styles from './LikeButton.module.css';
 
 function LikeButton({ wallID }: { wallID: number }) {
   // defaulting userid to 1 for now
-  const [res, fetch] = useApi(v1.routes.addLike, wallID.toString(), '1');
+  const [res, fetch] = useApi(v1.routes.addLike);
 
   const likes = useAppSelector(
     (state) => state.feed.posts.find((post) => post.wallID === wallID)?.likes,
@@ -30,7 +30,7 @@ function LikeButton({ wallID }: { wallID: number }) {
       <button
         type="button"
         onClick={() => {
-          fetch();
+          fetch(wallID.toString(), '1');
         }}
         style={{
           display: 'flex',

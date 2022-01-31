@@ -28,10 +28,7 @@ export const feedSlice = createSlice({
       state.posts = [];
       state.status = 'idle';
     },
-    setLikes: (
-      state,
-      action: PayloadAction<SetLikeType>,
-    ) => {
+    setLikes: (state, action: PayloadAction<SetLikeType>) => {
       const { wallID, likes } = action.payload;
       const post = state.posts.find((p) => p.wallID === wallID);
       if (post) {

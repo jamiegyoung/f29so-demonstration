@@ -14,7 +14,7 @@ import {
 import PixelEditor from './PixelEditor';
 import getServerURI from '../app/serverURI';
 import useSocket from '../hooks/useSocket';
-import { LocalPixel, Wall as WallType } from '../types';
+import { Pixel, Wall as WallType } from '../types';
 
 function WallEditor() {
   const dispatch = useAppDispatch();
@@ -86,7 +86,7 @@ function WallEditor() {
       dispatch(setWallStatus('error'));
     });
 
-    socket.on('pixel-edit', (data: LocalPixel) => {
+    socket.on('pixel-edit', (data: Pixel) => {
       dispatch(setPixel(data));
     });
 
@@ -96,9 +96,8 @@ function WallEditor() {
     };
   }, [socket]);
 
-  const handlePixelEdit = (pixel: LocalPixel) => {
+  const handlePixelEdit = (pixel: Pixel) => {
     if (!socket) return;
-    dispatch(setPixel(pixel));
     dispatch(clearEditingPixel());
     socket.emit('pixel-edit', pixel);
   };

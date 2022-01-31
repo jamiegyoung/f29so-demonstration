@@ -1,10 +1,12 @@
 export type History = {
-  userId: number;
-  timestamp: string;
+  historyID: number;
+  userID: number;
+  timestamp: number;
   color: string;
 };
 
 export interface LocalPixel {
+  pixelID: number
   x: number;
   y: number;
   color: string;
@@ -19,7 +21,7 @@ export type Wall = {
   owner: string;
   width: number;
   height: number;
-  pixels: Pixel[] | LocalPixel[];
+  pixels: Pixel[];
 };
 
 export type FetchStatus = 'success' | 'idle' | 'loading' | 'error';
@@ -35,7 +37,7 @@ export type WallState = {
    */
   status: FetchStatus;
   currentColor: string;
-  editingPixel: LocalPixel | Pixel | null;
+  editingPixel: Pixel | null;
 };
 
 export type Route = {
@@ -82,6 +84,11 @@ export const v1: Api = {
     },
     addLike: {
       uri: `${ApiVersion.v1}/add-like/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    getPixelHistory: {
+      uri: `${ApiVersion.v1}/get-pixel-history/`,
       params: true,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },

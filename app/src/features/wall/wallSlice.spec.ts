@@ -5,14 +5,15 @@ import wallReducer, {
   setEditingPixel,
   clearWall,
 } from './wallSlice';
-import { LocalPixel, WallState } from '../../types';
+import { Pixel, WallState } from '../../types';
 
 describe('wall reducer', () => {
-
-  const newPixel: LocalPixel = {
+  const newPixel: Pixel = {
+    pixelID: 0,
     x: 0,
     y: 0,
     color: '#000000',
+    history: [],
   };
 
   const initialState: WallState = {
@@ -24,9 +25,11 @@ describe('wall reducer', () => {
       height: 32,
       pixels: [
         {
+          pixelID: 0,
           x: 0,
           y: 0,
           color: '#FFFFFF',
+          history: [],
         },
       ],
     },

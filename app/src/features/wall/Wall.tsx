@@ -61,7 +61,7 @@ function Wall() {
   const handleCanvasClick = (event: MouseEvent) => {
     const canvas = canvasRef.current;
     if (!wallData || !canvas) return;
-
+    
     const { x, y } = getMouseCoordinates(event, wallData);
     const pixel = wallData.pixels.find((px) => px.x === x && px.y === y);
     if (pixel) {

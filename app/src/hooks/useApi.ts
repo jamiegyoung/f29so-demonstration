@@ -4,11 +4,10 @@ import fetchApi from '../app/fetchApi';
 
 const useApi = (
   route: Route,
-  ...params: string[]
-): [Response | null, () => Promise<void>] => {
+): [Response | null, (...params: string[]) => Promise<void>] => {
   const [data, setData] = useState<Response | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (...params: string[]) => {
     setData(await fetchApi(route, ...params));
   };
 

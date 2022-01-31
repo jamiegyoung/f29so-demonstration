@@ -9,10 +9,11 @@ const db = new Sqlite(dbFile);
 debug(`Connected to database "${dbFile}"`);
 
 export const init = () => {
+  debug('Initializing database');
   const createTables = `
   CREATE TABLE IF NOT EXISTS Wall (
-    wallID INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner INTEGER NOT NULL,
+    wallID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    ownerID INTEGER NOT NULL,
     preview BLOB,
     width INTEGER NOT NULL,
     height INTEGER NOT NULL,
@@ -22,7 +23,7 @@ export const init = () => {
   );
 
   CREATE TABLE IF NOT EXISTS WallPixel (
-    pixelID INTEGER PRIMARY KEY AUTOINCREMENT,
+    pixelID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     wallID INTEGER NOT NULL,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
@@ -30,19 +31,25 @@ export const init = () => {
     FOREIGN KEY (wallID) REFERENCES Wall(wallID)
   );
 
-  CREATE TABLE IF NOT EXISTS History (
+  CREATE TABLE IF NOT EXISTS PixelHistory (
+    historyID INTEGER NOT NULL PRIMARY KEY,
     pixelID INTEGER NOT NULL,
-    editor INTEGER NOT NULL,
+    FOREIGN KEY (pixelid) REFERENCES WallPixel(pixelID)
+  );
+
+  CREATE TABLE IF NOT EXISTS History (
+    historyID INTEGER NOT NULL,
+    userID INTEGER NOT NULL,
     timestamp INTEGER NOT NULL,
     color TEXT,
-    FOREIGN KEY(pixelID) REFERENCES WallPixel(pixelID)
-  );
+    FOREIGN KEY (historyID) REFERENCES PixelHistory(historyID)
+    );
 
   CREATE TABLE IF NOT EXISTS Likes (
     wallID INTEGER NOT NULL,
     userID INTEGER NOT NULL,
     FOREIGN KEY(wallID) REFERENCES Wall(wallID)
-    );
+  );
     `;
   // add the line below when we have a user table
   // FOREIGN KEY(userID) REFERENCES User(userID)
@@ -55,19 +62,22 @@ export const init = () => {
  * @returns {JSON}
  */
 export const getWallMetadata = (wallID) => {
+  debug('getting metadata for wall', wallID);
   const getMetadata = db.prepare(
-    'SELECT owner,width,height,wallID,edits,likes FROM Wall WHERE wallID=?;',
+    'SELECT ownerID,width,height,wallID,edits,likes FROM Wall WHERE wallID=?;',
   );
   return getMetadata.get(wallID);
 };
 
 export const getLikes = (wallID) => {
+  debug('getting likes for wall', wallID);
   const likes = db.prepare('SELECT userID FROM Likes WHERE wallID=?;');
   return likes.all(wallID);
 };
 
 // eslint-disable-next-line no-unused-vars
 export const addLike = (wallID, _uid) => {
+  debug(`adding like to wall ${wallID}`);
   // will have to get if the user exists when they have been implemented
   // check if the user has already liked the wall
   // uncomment when users are implemented
@@ -90,11 +100,12 @@ export const addLike = (wallID, _uid) => {
     insertLike.run(wallID, 1);
     updateLikes.run(wallID);
   });
-  
+
   add();
 };
 
 export const updateWallMetadata = (wallID, metadata) => {
+  debug('Updating metadata for wall', wallID);
   const updateMetadata = db.prepare(
     'UPDATE Wall SET width=?,height=?,lastEdit=?,edits=? WHERE wallID=?;',
   );
@@ -108,8 +119,14 @@ export const updateWallMetadata = (wallID, metadata) => {
 };
 
 export const getAllWallMetadatas = () => {
-  const qr = db.prepare('SELECT owner,width,height,wallID FROM Wall;');
+  debug('Getting all wall metadata');
+  const qr = db.prepare('SELECT ownerID,width,height,wallID FROM Wall;');
   return qr.all();
+};
+
+export const getHistoryIDs = (pixelID) => {
+  const qr = db.prepare('SELECT historyID FROM PixelHistory WHERE pixelID=?;');
+  return qr.all(pixelID);
 };
 
 /**
@@ -118,29 +135,51 @@ export const getAllWallMetadatas = () => {
  * @returns {JSON}
  */
 export const getWallPixels = (wallID) => {
+  debug('Getting pixels for wallID', wallID);
   const getPixels = db.prepare(
-    'SELECT pixelID,x,y,color FROM wallPixel WHERE wallID=?;',
+    'SELECT pixelID,x,y,color FROM WallPixel WHERE wallID=?;',
   );
-  return getPixels.all(wallID);
+  const pixels = getPixels.all(wallID);
+  const history = db.prepare(
+    'SELECT historyID,userID,timestamp,color FROM History WHERE historyID=?;',
+  );
+
+  const qPixelHistory = db.transaction(() => {
+    pixels.map((px) => {
+      const historyIDs = getHistoryIDs(px.pixelID);
+      const historyResult = historyIDs
+        .map((id) => history.get(id.historyID))
+        .filter((res) => res);
+      const newPx = px;
+      newPx.history = historyResult;
+      return px;
+    });
+  });
+
+  qPixelHistory();
+
+  return pixels;
 };
 
 export const updatePreview = (wallID, buffer) => {
+  debug('Updating preview for wall', wallID);
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE WallID=?');
   qr.run(buffer, wallID);
 };
 
 /**
  * Create a new wall
- * @param {string} owner
+ * @param {string} ownerID
  * @param {number} width
  * @param {number} height
  */
-export const createWall = async (owner, width, height) => {
+export const createWall = async (ownerID, width, height) => {
+  debug('Creating new wall');
   const createWallQr = db.prepare(
-    'INSERT INTO Wall(owner,width,height) VALUES (?,?,?);',
+    'INSERT INTO Wall(ownerID,width,height) VALUES (?,?,?);',
   );
 
-  const { lastInsertRowid: wallID } = createWallQr.run(owner, width, height);
+  const { lastInsertRowid: wallID } = createWallQr.run(ownerID, width, height);
 
   const pixelArray = [];
   for (let y = 0; y < height; y += 1) {
@@ -158,18 +197,9 @@ export const createWall = async (owner, width, height) => {
     'INSERT INTO WallPixel(wallID,x,y,color) VALUES (?,?,?,?);',
   );
 
-  const insertHistory = db.prepare(
-    'INSERT INTO History(pixelID,editor,timestamp,color) VALUES (?,?,?,?);',
+  const insertHistoryID = db.prepare(
+    'INSERT INTO PixelHistory(pixelID) VALUES (?);',
   );
-
-  // function generateRandomColor() {
-  //   const letters = '0123456789ABCDEF';
-  //   let color = '#';
-  //   for (let i = 0; i < 6; i += 1) {
-  //     color += letters[Math.floor(Math.random() * 16)];
-  //   }
-  //   return color;
-  // }
 
   const insertAllPixels = db.transaction((pixels) => {
     pixels.forEach((pixel) => {
@@ -179,7 +209,7 @@ export const createWall = async (owner, width, height) => {
         pixel.y,
         pixel.color,
       );
-      insertHistory.run(pixelID, owner, Date.now(), pixel.color);
+      insertHistoryID.run(pixelID);
     });
   });
 
@@ -188,18 +218,20 @@ export const createWall = async (owner, width, height) => {
   // Should return something to show if successful
 };
 
-/**
- * Get a single pixel from a wall
- * @param {*} wallID
- * @param {*} x
- * @param {*} y
- * @returns {JSON}
- */
-export const getPixel = (wallID, x, y) => {
-  const getPixelQr = db.prepare(
-    'SELECT color,HistoryID FROM WallPixel WHERE wallID=? AND color=? AND y=?;',
+export const getPixelHistory = (pixelID) => {
+  debug('Getting history for pixel', pixelID);
+  const ids = getHistoryIDs(pixelID);
+  const history = db.prepare(
+    'SELECT userID,timestamp,color FROM History WHERE historyID=?;',
   );
-  return getPixelQr.get(wallID, x, y);
+  const qr = db.transaction((historyIDs) => {
+    historyIDs.forEach((id) => {
+      const historyResult = history.run(id.historyID);
+      ids.find((i) => i.historyID === id.historyID).history = historyResult;
+    });
+  });
+  qr(ids);
+  return ids;
 };
 
 /**
@@ -214,21 +246,34 @@ export const getPixel = (wallID, x, y) => {
  */
 
 export const updatePixels = (wallID, pixels) => {
+  debug('Updating pixels for wall', wallID);
   if (!pixels) return;
   const updatePixel = db.prepare(
     'UPDATE WallPixel SET color=? WHERE wallID=? AND x=? AND y=?;',
   );
-  const insertHistory = db.prepare(
-    'INSERT INTO History(pixelID,editor,timestamp,color) VALUES (?,?,?,?);',
+
+  const insertPixelHistory = db.prepare(
+    'INSERT INTO PixelHistory(pixelID) VALUES (?);',
   );
 
-  const updateAllPixels = db.transaction((px) => {
-    px.forEach((pixel) => {
+  const insertHistory = db.prepare(
+    'INSERT INTO History(historyID, userID, timestamp, color) VALUES (?,?,?,?);',
+  );
+
+  const updateAllPixels = db.transaction((pxs) => {
+    pxs.forEach((pixel) => {
       updatePixel.run(pixel.color, wallID, pixel.x, pixel.y);
-      pixel.history.forEach((history) => {
-        insertHistory.run(
+      const oldHistory = getPixelHistory(pixel.pixelID);
+      const filteredOldHistory = pixel.history.filter(
+        (h) => !oldHistory.find((oh) => oh.historyID === h.historyID),
+      );
+      filteredOldHistory.forEach((history) => {
+        const { lastInsertRowid: historyID } = insertPixelHistory.run(
           pixel.pixelID,
-          history.editor,
+        );
+        insertHistory.run(
+          historyID,
+          history.userID,
           history.timestamp,
           history.color,
         );
@@ -244,6 +289,7 @@ export const updatePixels = (wallID, pixels) => {
  * @returns {number[]}
  */
 export const getAllWallIDs = () => {
+  debug('Getting all wall IDs');
   const qr = db.prepare('SELECT wallID FROM Wall;');
   return qr.all().map((v) => v.wallID);
 };
@@ -254,6 +300,7 @@ export const getAllWallIDs = () => {
  * @returns
  */
 export const getWallPreview = (wallID) => {
+  debug('Getting preview for wall', wallID);
   const qr = db.prepare('SELECT preview FROM Wall WHERE wallID=?');
   const res = qr.get(wallID);
   return res ? res.preview : undefined;
@@ -265,6 +312,7 @@ export const getWallPreview = (wallID) => {
  * @param {Buffer} previewBuffer
  */
 export const setWallPreview = (wallID, previewBuffer) => {
+  debug('Setting preview for wall', wallID);
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE wallID=?');
   qr.run(previewBuffer, wallID);
 };
@@ -272,12 +320,13 @@ export const setWallPreview = (wallID, previewBuffer) => {
 /**
  * Gets the feed for a user
  * @param {number} userID
- * @returns { {wallID: number, owner: number }[] }
+ * @returns { {wallID: number, ownerID: number }[] }
  */
 // eslint-disable-next-line no-unused-vars
 export const getFeed = (userID) => {
+  debug('Getting feed for user', userID);
   const qr = db.prepare(
-    'SELECT wallID,owner,edits,likes,lastEdit,preview FROM Wall',
+    'SELECT wallID,ownerID,edits,likes,lastEdit,preview FROM Wall',
   );
   // later get owner from user db
   return qr.all();

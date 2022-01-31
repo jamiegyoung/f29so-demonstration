@@ -76,7 +76,11 @@ async function genWallPreviews() {
     const metadata = allMetadata[i];
     const pixels = getWallPixels(metadata.wallID);
     // eslint-disable-next-line no-await-in-loop
-    const buffer = await genPreviewBuffer(metadata.width, metadata.height, pixels);
+    const buffer = await genPreviewBuffer(
+      metadata.width,
+      metadata.height,
+      pixels,
+    );
     setWallPreview(metadata.wallID, buffer);
   }
 }

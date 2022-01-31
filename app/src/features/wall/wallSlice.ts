@@ -1,7 +1,7 @@
 // import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 // import { RootState } from "../../app/store";
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Wall, WallState, FetchStatus, LocalPixel } from '../../types';
+import { Wall, WallState, FetchStatus, Pixel } from '../../types';
 
 const initialState: WallState = {
   id: null,
@@ -15,7 +15,7 @@ export const wallSlice = createSlice({
   name: 'wall',
   initialState,
   reducers: {
-    setEditingPixel: (state, action: PayloadAction<LocalPixel>) => {
+    setEditingPixel: (state, action: PayloadAction<Pixel>) => {
       state.editingPixel = action.payload;
     },
     clearEditingPixel: (state) => {
@@ -35,8 +35,8 @@ export const wallSlice = createSlice({
       state.status = action.payload;
     },
     // sets a single pixel in the wall
-    setPixel: (state, action: PayloadAction<LocalPixel>) => {
-      const { x, y, color } = action.payload;
+    setPixel: (state, action: PayloadAction<Pixel>) => {
+      const { x, y, color, history } = action.payload;
       // check there is a width and height and see if the pixel is within the wall
       if (
         state.wall &&
@@ -48,6 +48,8 @@ export const wallSlice = createSlice({
         const pixel = state.wall.pixels.find((p) => p.x === x && p.y === y);
         if (pixel) {
           pixel.color = color;
+          console.log('new history', history);
+          pixel.history = [...history, ...pixel.history];
         }
       }
       // else, they are trying to make a request to a pixel that doesn't exist

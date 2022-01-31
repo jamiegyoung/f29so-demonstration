@@ -49,7 +49,7 @@ const addWallChange = (wallID, change) => {
     wallChanges[wallID] = [change];
     return;
   }
-  wallChanges[wallID].push(change);
+  wallChanges[wallID] = [change, ...wallChanges[wallID]];
   if (wallChanges[wallID].length > 99) {
     saveChanges(wallID);
     wallChanges[wallID] = [];
@@ -92,7 +92,7 @@ export default (io) => {
       return;
     }
     const pixels = getWallPixels(wallID);
-
+    // console.log(pixels);
     data.pixels = pixels;
     const changedWall = applyWallChanges(data);
 
@@ -104,14 +104,23 @@ export default (io) => {
       if (!hexRegex.test(newColor)) {
         socket.emit('error', 'Invalid color');
       }
-      const newPixel = pixel;
-      newPixel.history = [
-        {
-          editor: socket.id,
-          timestamp: Date.now(),
-          color: pixel.color,
-        },
-      ];
+      if (wallChanges[wallID] && wallChanges[wallID][0]) {
+        if (wallChanges[wallID][0].color === newColor) {
+          socket.emit('error', 'No change');
+          return;
+        }
+      }
+      const newPixel = {
+        ...pixel,
+        history: [
+          {
+            userID: socket.id,
+            timestamp: Date.now(),
+            color: pixel.color,
+          },
+        ],
+      };
+
       wallsNamespace.to(wallID).emit('pixel-edit', newPixel);
       addWallChange(wallID, newPixel);
     });

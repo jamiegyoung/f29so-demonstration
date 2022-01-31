@@ -2,8 +2,6 @@ import Jimp from 'jimp';
 import hexRgb from 'hex-rgb';
 import Debug from 'debug';
 
-const debug = Debug('genPreview');
-
 export default function genPreviewBuffer(width, height, pixels) {
   const previewArr = Array.from(Array(height), () =>
     Array(width).fill('#000000'),
