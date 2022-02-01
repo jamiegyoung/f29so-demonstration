@@ -34,7 +34,7 @@ export const init = () => {
   CREATE TABLE IF NOT EXISTS PixelHistory (
     historyID INTEGER NOT NULL PRIMARY KEY,
     pixelID INTEGER NOT NULL,
-    FOREIGN KEY (pixelid) REFERENCES WallPixel(pixelID)
+    FOREIGN KEY (pixelID) REFERENCES WallPixel(pixelID)
   );
 
   CREATE TABLE IF NOT EXISTS History (

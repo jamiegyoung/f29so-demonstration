@@ -87,11 +87,6 @@ export const v1: Api = {
       params: true,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
-    getPixelHistory: {
-      uri: `${ApiVersion.v1}/get-pixel-history/`,
-      params: true,
-      opts: { method: 'GET', headers: { Accept: 'application/json' } },
-    },
   },
 };
 

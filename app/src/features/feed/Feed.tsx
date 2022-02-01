@@ -9,9 +9,9 @@ function feed() {
   const feedData = useAppSelector((state) => state.feed);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    feedData?.posts.map((post: FeedPost) => post);
-  }, [feedData]);
+  // useEffect(() => {
+  //   feedData?.posts.map((post: FeedPost) => post);
+  // }, [feedData]);
 
   useEffect(() => {
     dispatch(fetchUserFeed({ userID: 1, page: 0 }));

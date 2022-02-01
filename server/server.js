@@ -3,9 +3,10 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import path from 'path';
 import helmet from 'helmet';
 import Debug from 'debug';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 // const csurf = require('csurf');
 import { scheduleJob } from 'node-schedule';
 import {
@@ -20,6 +21,8 @@ import api from './src/routes/api/index.js';
 
 import walls from './src/walls.js';
 import genPreviewBuffer from './src/genPreview.js';
+
+const dir = dirname(fileURLToPath(import.meta.url));
 
 const debug = Debug('server');
 const port = 2000;
@@ -53,20 +56,10 @@ httpServer.listen(port, () => {
 // app.use(csrfMiddleware);
 
 app.use(helmet());
-app.use(
-  '/static',
-  express.static(new URL('./static/', import.meta.url).pathname),
-);
+app.use(express.static(path.join(dir, './public')));
 
 app.use('/api', api);
-
-// app.use(require('./walls'));
-
-app.get('/', (req, res) => {
-  debug('GET /');
-  // res.cookie('CSRF-Token', req.csrfToken());
-  res.sendFile(path.join(__dirname, './static/index.html'));
-});
+app.get('*', (req, res) => res.sendFile(path.join(dir, './public/index.html')));
 
 async function genWallPreviews() {
   const allMetadata = getAllWallMetadatas();
