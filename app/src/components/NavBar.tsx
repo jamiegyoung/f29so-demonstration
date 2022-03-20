@@ -11,7 +11,7 @@ function NavBar() {
     <div className={styles.bar}>
       <Link to="/" className={`${styles.logoFormat} no-select`}>
         <Logo size={0.25} />
-        <h1>WALLS</h1>
+        <h1 className={styles.logoText}>WALLS</h1>
       </Link>
       <div className={styles.stripContainer}>
         <Search />

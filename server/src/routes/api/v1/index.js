@@ -8,7 +8,6 @@ import {
   getFeed,
   addLike,
   getLikes,
-  getPixelHistory,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -70,5 +69,6 @@ router.get('/add-like/:wallID/:userID', (req, res) => {
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
 });
+
 
 export default router;

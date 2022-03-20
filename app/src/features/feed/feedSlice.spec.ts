@@ -1,7 +1,7 @@
 import { FeedState } from '../../types';
 import feedReducer, { clearFeed } from './feedSlice';
 
-describe('wall reducer', () => {
+describe('feed reducer', () => {
   const initialState: FeedState = {
     posts: [
       {
@@ -28,7 +28,7 @@ describe('wall reducer', () => {
       status: 'idle',
     });
   });
-  it('should be able to add a like', () => {
+  it('should be able to set the likes', () => {
     const actual = feedReducer(initialState, {
       type: 'feed/setLikes',
       payload: {

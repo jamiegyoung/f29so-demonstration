@@ -50,10 +50,53 @@ export const init = () => {
     userID INTEGER NOT NULL,
     FOREIGN KEY(wallID) REFERENCES Wall(wallID)
   );
+
+  CREATE TABLE IF NOT EXISTS Credentials (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    issuer TEXT NOT NULL,
+    subject TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS Users (
+    id INTEGER NOT NULL PRIMARY KEY,
+    username TEXT NOT NULL,
+    FOREIGN KEY(id) REFERENCES Credentials(id)
+  );
     `;
   // add the line below when we have a user table
   // FOREIGN KEY(userID) REFERENCES User(userID)
   db.exec(createTables);
+};
+
+export const getUser = (id) => {
+  const user = db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
+  return user;
+};
+
+export const addUser = (issuer, subject, username) => {
+  const stmt = db.prepare(
+    'INSERT INTO Credentials (issuer, subject) VALUES (?, ?)',
+  );
+  const userID = stmt.run(issuer, subject).lastInsertRowid;
+  debug(`Added user with id ${userID}`);
+  const stmt2 = db.prepare('INSERT INTO Users (id, username) VALUES (?, ?)');
+  stmt2.run(userID, username);
+  return getUser(userID);
+};
+
+/**
+ * Gets the id of the user with the given credentials
+ * @param {*} issuer the login service issuer e.g google or facebook
+ * @param {*} subject the user's unique identifier within the issuer
+ * @returns the id of the user
+ */
+export const getIdFromCredentials = (issuer, subject) => {
+  const query = db.prepare(
+    'SELECT id FROM Credentials WHERE issuer = ? AND subject = ?',
+  );
+  const result = query.get(issuer, subject);
+  if (result) return result.id;
+  return null;
 };
 
 /**
@@ -112,7 +155,7 @@ export const updateWallMetadata = (wallID, metadata) => {
   updateMetadata.run(
     metadata.width,
     metadata.height,
-    metadata.lastEdit/1000,
+    metadata.lastEdit / 1000,
     metadata.edits,
     wallID,
   );

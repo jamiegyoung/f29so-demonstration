@@ -12,6 +12,13 @@
   font-size: 1.3rem;
 }
 
+/* hide when on mobile */
+@media (max-width: 768px) {
+  .searchBar {
+    display: none;
+  }
+}
+
 
 .icon {
   position: absolute;

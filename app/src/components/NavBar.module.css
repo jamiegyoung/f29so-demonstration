@@ -38,10 +38,28 @@
 .profileContainer {
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .profileInfoContainer {
   margin-left: 15px;
+}
+
+@media (max-width: 950px) {
+  .logoText {
+    visibility: hidden;
+  }
+}
+
+/* hide profile info when on mobile */
+@media (max-width: 768px) {
+  .stripContainer {
+    visibility: hidden;
+  }
+
+  .logoText {
+    visibility: visible;
+  }
 }
 
 .profileInfoContainer p {

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon*,-engine*,-socket.io* && set NODE_ENV=development&& nodemon server.js"
+    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon*,-engine*,-socket.io*,-send && set NODE_ENV=development&& nodemon server.js"
   },
   "author": "Blast1113",
   "license": "ISC",
@@ -16,11 +16,14 @@
     "debug": "^4.3.3",
     "express": "^4.17.2",
     "express-rate-limit": "^6.2.0",
+    "express-session": "^1.17.2",
     "helmet": "^5.0.2",
     "hex-rgb": "^5.0.0",
     "jimp": "^0.16.1",
     "node-schedule": "^2.1.0",
     "nodemon": "^2.0.15",
+    "passport": "^0.5.2",
+    "passport-google-oidc": "^0.1.0",
     "socket.io": "^4.4.1"
   },
   "devDependencies": {
