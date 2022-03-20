@@ -18,6 +18,7 @@ import {
 } from './src/db.js';
 
 import api from './src/routes/api/index.js';
+import auth from './src/routes/auth/index.js';
 
 import walls from './src/walls.js';
 import genPreviewBuffer from './src/genPreview.js';
@@ -25,7 +26,7 @@ import genPreviewBuffer from './src/genPreview.js';
 const dir = dirname(fileURLToPath(import.meta.url));
 
 const debug = Debug('server');
-const port = 2000;
+const port = 7379;
 // const { genPreview } = require('./src/preview-gen');
 
 // EXPRESS STUFF
@@ -59,6 +60,7 @@ app.use(helmet());
 app.use(express.static(path.join(dir, './public')));
 
 app.use('/api', api);
+app.use('/auth', auth);
 app.get('*', (req, res) => res.sendFile(path.join(dir, './public/index.html')));
 
 async function genWallPreviews() {
