@@ -6,7 +6,7 @@ export type History = {
 };
 
 export interface LocalPixel {
-  pixelID: number
+  pixelID: number;
   x: number;
   y: number;
   color: string;
@@ -87,6 +87,16 @@ export const v1: Api = {
       params: true,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    user: {
+      uri: `${ApiVersion.v1}/user/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    selfUser: {
+      uri: `${ApiVersion.v1}/user/`,
+      params: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 
@@ -107,4 +117,16 @@ export type FeedState = {
 export type SetLikeType = {
   wallID: number;
   likes: number;
+};
+
+export type User = {
+  id: number;
+  username: string;
+  joined: number;
+  avatar: string;
+};
+
+export type UserState = {
+  status: FetchStatus;
+  user: User | null;
 };

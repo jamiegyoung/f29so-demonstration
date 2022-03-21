@@ -5,8 +5,13 @@ import icon from './256x256 icon.jpg';
 import Search from './Search';
 import ProfileImage from './ProfileImage';
 
-function NavBar() {
-  const userName = 'JCR';
+type NavBarProps = {
+  userName: string | undefined;
+  contributions: number | undefined;
+  joined: number | undefined;
+};
+
+function NavBar({ userName, joined, contributions }: NavBarProps) {
   return (
     <div className={styles.bar}>
       <Link to="/" className={`${styles.logoFormat} no-select`}>
@@ -21,8 +26,8 @@ function NavBar() {
             <p style={{ color: '#EDEEF0', fontWeight: '500' }}>
               [ {userName} ]
             </p>
-            <p>joined 21-11-10</p>
-            <p>contributions</p>
+            <p>joined {joined}</p>
+            <p>contributions: {contributions}</p>
           </div>
         </div>
       </div>

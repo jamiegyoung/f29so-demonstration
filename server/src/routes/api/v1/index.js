@@ -8,6 +8,7 @@ import {
   getFeed,
   addLike,
   getLikes,
+  getUser,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -70,5 +71,24 @@ router.get('/add-like/:wallID/:userID', (req, res) => {
   res.writeHead(400, { 'Content-Type': 'text/plain' });
 });
 
+router.get('/user', (req, res) => {
+  if (req.user) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(req.user));
+  }
+  res.writeHead(400, { 'Content-Type': 'text/plain' });
+});
+
+router.get('/user/:userID', (req, res) => {
+  debug('GET /api/v1/user/:userID');
+  const { userID } = req.params;
+  if (userID) {
+    const user = getUser(userID);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(user));
+    return;
+  }
+  res.writeHead(400, { 'Content-Type': 'text/plain' });
+});
 
 export default router;

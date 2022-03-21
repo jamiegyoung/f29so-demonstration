@@ -1,4 +1,7 @@
-import { useRoutes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useRoutes, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { fetchUser } from '../features/user/userSlice';
 import NavBar from '../components/NavBar';
 import SideBar from '../components/SideBar';
 import WallEditor from '../components/WallEditor';
@@ -12,10 +15,26 @@ const AppRoutes = () =>
     { path: '/wall/:wallID', element: <WallEditor /> },
   ]);
 
-function AppFrame(): JSX.Element {
+function AppFrame() {
+  const userData = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, []);
+
+  useEffect(() => {
+    if (userData.status === 'error') navigate('/login', { replace: true });
+  });
+
   return (
     <div>
-      <NavBar />
+      <NavBar
+        userName={userData.user?.username}
+        contributions={42}
+        joined={userData.user?.joined}
+      />
       <div className={styles.container}>
         <div className={styles.mainStrip}>
           <SideBar />

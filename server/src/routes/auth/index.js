@@ -91,10 +91,9 @@ router.get(
     failureRedirect: '/login',
     failureMessage: 'Failed to log in',
   }),
-  (req, res, next) => {
+  (_req, res) => {
     debug('redirected from google');
     res.redirect('/');
-    next();
   },
 );
 
@@ -104,10 +103,9 @@ router.get(
     failureRedirect: '/login',
     failureMessage: 'Failed to log in',
   }),
-  (req, res, next) => {
+  (_req, res) => {
     debug('redirected from facebook');
     res.redirect('/');
-    next();
   },
 );
 

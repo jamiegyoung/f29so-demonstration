@@ -36,9 +36,19 @@ const port = 7379;
 // EXPRESS STUFF
 const app = express();
 const httpServer = createServer(app);
+
+const sessionMiddleware = session({
+  secret: config.sessionSecret,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    secret: config.sessionSecret,
+  },
+});
+
 const io = new Server(httpServer);
 // init the walls sockets
-walls(io);
+
+walls(io, sessionMiddleware);
 
 app.set('socketio', io);
 
@@ -63,15 +73,7 @@ httpServer.listen(port, () => {
 app.use(express.static(path.join(dir, '/public')));
 
 app.use(cookieParser());
-
-app.use(
-  session({
-    secret: config.sessionSecret,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-    },
-  }),
-);
+app.use(sessionMiddleware);
 
 initializePassport(app);
 
@@ -80,11 +82,10 @@ const loggedIn = (req, res, next) => {
   if (req.user) {
     debug('user is logged in');
     debug(req.user);
-    next();
-  } else {
-    debug('user is not logged in');
-    res.redirect('/login');
+    return next();
   }
+  debug('user is not logged in');
+  res.redirect('/login');
 };
 
 const avoidLogin = (req, res, next) => {
@@ -92,11 +93,10 @@ const avoidLogin = (req, res, next) => {
   if (req.user) {
     debug('user is logged in');
     debug(req.user);
-    res.redirect('/');
-  } else {
-    debug('user is not logged in');
-    next();
+    return res.redirect('/');
   }
+  debug('user is not logged in');
+  next();
 };
 
 const servePage = (_req, res) =>

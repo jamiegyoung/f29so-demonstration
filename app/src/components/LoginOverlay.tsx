@@ -18,7 +18,12 @@ function LoginOverlay() {
           <img src={google} alt="google" width={24} height={24} />
           Sign in with Google
         </button>
-        <button type="button">
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/auth/login/facebook';
+          }}
+        >
           <img src={fb} alt="facebook" width={24} height={24} />
           Sign in with Facebook
         </button>

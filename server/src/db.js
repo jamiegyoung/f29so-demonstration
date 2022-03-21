@@ -49,6 +49,7 @@ export const init = () => {
     wallID INTEGER NOT NULL,
     userID INTEGER NOT NULL,
     FOREIGN KEY(wallID) REFERENCES Wall(wallID)
+    FOREIGN KEY(userID) REFERENCES User(id)
   );
 
   CREATE TABLE IF NOT EXISTS Credentials (
@@ -61,9 +62,29 @@ export const init = () => {
     id INTEGER NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
     joined INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int)),
+    avatar BLOB,
     FOREIGN KEY(id) REFERENCES Credentials(id)
   );
-    `;
+
+  CREATE TABLE IF NOT EXISTS Friends (
+    userID INTEGER NOT NULL,
+    friendID INTEGER NOT NULL,
+    FOREIGN KEY(userID) REFERENCES Users(id),
+    FOREIGN KEY(friendID) REFERENCES Users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS UserSettings (
+    userID INTEGER NOT NULL,
+    privacyLevel INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY(userID) REFERENCES Users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS Reports (
+    wallID INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
+  );
+`;
   db.exec(createTables);
 };
 
