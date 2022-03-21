@@ -1,0 +1,96 @@
+.mainContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.innerContainer {
+  width: 400px;
+  height: 500px;
+  background-color: #1c1c1c;
+  border: solid 1px #555555;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.innerContainer > button:not(:last-child) {
+  display: flex;
+  width: 250px;
+  height: 50px;
+  border-radius: 40px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 18px;
+  background-color: white;
+  border: solid 1px #555555;
+  margin: 5px;
+  padding: 5px 5px 5px 50px;
+  cursor: pointer;
+  transition: 0.2s cubic-bezier(.37,.08,.23,1.78);
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.innerContainer > button:last-child {
+  display: flex;
+  width: 250px;
+  height: 50px;
+  border-radius: 40px;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  background-color: white;
+  border: solid 1px #555555;
+  margin: 5px;
+  padding: 5px 5px 5px 5px;
+  cursor: pointer;
+  transition: 0.2s cubic-bezier(.37,.08,.1,1.29);
+  position: relative;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.innerContainer > button:hover {
+  background-color: rgb(231, 231, 231);
+  transform: translateY(-5px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.innerContainer > button > img {
+  position: absolute;
+  left: 15px;
+}
+
+.innerContainer > input {
+  width: 125px;
+  height: 45px;
+  border-radius: 10px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-size: 16px;
+  line-height: 14px;
+  background-color: #1c1c1c;
+  border: solid 1px #555555;
+  margin: 5px;
+  padding: 0px 10px;
+  color: white;
+  transition: 0.3s cubic-bezier(.37,.08,.1,1.29);
+}
+
+.innerContainer > input:focus {
+  width: 80%;
+}
+
+.innerContainer > input:not(:placeholder-shown) {
+  width: 80%;
+}
+
+.innerContainer > p {
+  margin: 2px;
+}

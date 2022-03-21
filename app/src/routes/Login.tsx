@@ -1,9 +1,8 @@
+import LoginOverlay from "../components/LoginOverlay";
 
 function Login() {
   return (
-    <div>
-      login
-    </div>
+    <LoginOverlay/>
   );
 }
 
