@@ -60,11 +60,10 @@ export const init = () => {
   CREATE TABLE IF NOT EXISTS Users (
     id INTEGER NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
+    joined INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int)),
     FOREIGN KEY(id) REFERENCES Credentials(id)
   );
     `;
-  // add the line below when we have a user table
-  // FOREIGN KEY(userID) REFERENCES User(userID)
   db.exec(createTables);
 };
 
@@ -79,8 +78,11 @@ export const addUser = (issuer, subject, username) => {
   );
   const userID = stmt.run(issuer, subject).lastInsertRowid;
   debug(`Added user with id ${userID}`);
-  const stmt2 = db.prepare('INSERT INTO Users (id, username) VALUES (?, ?)');
-  stmt2.run(userID, username);
+  const stmt2 = db.prepare(
+    'INSERT INTO Users (id, username, joined) VALUES (?, ?, ?)',
+  );
+  // Remove ms from the timestamp as it will take up a lot of space
+  stmt2.run(userID, username, Math.floor(Date.now() / 1000));
   return getUser(userID);
 };
 

@@ -56,12 +56,27 @@ httpServer.listen(port, () => {
 
 // app.use(csrfMiddleware);
 
+const loggedIn = (req, res, next) => {
+  debug('checking if user is logged in');
+  if (req.user) {
+    debug('user is logged in');
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
+
+const servePage = (_req, res) =>
+  res.sendFile(path.join(dir, './public/index.html'));
+
 app.use(helmet());
 app.use(express.static(path.join(dir, './public')));
 
-app.use('/api', api);
+app.use('/api', loggedIn, api);
 app.use('/auth', auth);
-app.get('*', (req, res) => res.sendFile(path.join(dir, './public/index.html')));
+app.get('/wall/*', loggedIn, servePage);
+app.get('/login', servePage);
+app.get('*', loggedIn, servePage);
 
 async function genWallPreviews() {
   const allMetadata = getAllWallMetadatas();
