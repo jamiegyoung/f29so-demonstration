@@ -108,7 +108,7 @@ app.use('/api', loggedIn, api);
 app.use('/auth', auth);
 app.get('/wall/*', loggedIn, servePage);
 app.get('/login', avoidLogin, servePage);
-app.all('*', loggedIn);
+app.all('*', loggedIn, servePage);
 
 async function genWallPreviews() {
   const allMetadata = getAllWallMetadatas();

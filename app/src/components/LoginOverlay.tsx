@@ -2,7 +2,6 @@ import Styles from './LoginOverlay.module.css';
 import Logo from './Logo';
 import fb from '../images/fb32.png';
 import google from '../images/google32.png';
-import twitter from '../images/twitter32.png';
 
 function LoginOverlay() {
   return (
@@ -22,10 +21,6 @@ function LoginOverlay() {
         <button type="button">
           <img src={fb} alt="facebook" width={24} height={24} />
           Sign in with Facebook
-        </button>
-        <button type="button">
-          <img src={twitter} alt="twitter" width={24} height={24} />
-          Sign in with Twitter
         </button>
         <p>Or</p>
         <input type="email" placeholder="Enter your email" />

@@ -2,6 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oidc';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import config from '../../../config.json' assert { type: 'json' };
 import session from 'express-session';
 import Debug from 'debug';
@@ -30,7 +31,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  const user = getUser(id)
+  const user = getUser(id);
   done(null, user);
 });
 
@@ -42,7 +43,7 @@ passport.use(
       callbackURL: config.google.callbackURL,
     },
     function verify(issuer, profile, cb) {
-      debug('verifying');
+      debug('verifying google login');
       const userID = getIdFromCredentials(issuer, profile.id);
       if (userID) {
         const user = getUser(userID);
@@ -57,7 +58,32 @@ passport.use(
   ),
 );
 
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: config.facebook.clientId,
+      clientSecret: config.facebook.clientSecret,
+      callbackURL: config.facebook.callbackURL,
+    },
+    function verify(accessToken, refreshToken, profile, cb) {
+      debug('verifying facebook login');
+      const userID = getIdFromCredentials('facebook', profile.id);
+      if (userID) {
+        const user = getUser(userID);
+        debug('user found');
+        return cb(null, user);
+      }
+      debug('user not found');
+      const newUser = addUser('facebook', profile.id, 'bob');
+      debug('new user added with id: ' + newUser.id);
+      return cb(null, newUser);
+    },
+  ),
+);
+
 router.get('/login/google', passport.authenticate('google'));
+
+router.get('/login/facebook', passport.authenticate('facebook'));
 
 router.get(
   '/redirect/google',
@@ -67,6 +93,19 @@ router.get(
   }),
   (req, res, next) => {
     debug('redirected from google');
+    res.redirect('/');
+    next();
+  },
+);
+
+router.get(
+  '/redirect/facebook',
+  passport.authenticate('facebook', {
+    failureRedirect: '/login',
+    failureMessage: 'Failed to log in',
+  }),
+  (req, res, next) => {
+    debug('redirected from facebook');
     res.redirect('/');
     next();
   },
