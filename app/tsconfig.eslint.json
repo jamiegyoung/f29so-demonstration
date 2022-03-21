@@ -5,7 +5,7 @@
       // repeated from base config's "include" setting
       "src",
       "tests",
-
+      "scripts",
       // these are the eslint-only inclusions
       ".eslintrc.js",
   ]
