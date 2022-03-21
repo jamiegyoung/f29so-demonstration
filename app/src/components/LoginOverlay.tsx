@@ -10,7 +10,12 @@ function LoginOverlay() {
       <div className={Styles.innerContainer}>
         <Logo size={0.3} />
         <h1>WALLS SIGN IN</h1>
-        <button type="button">
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/auth/login/google';
+          }}
+        >
           <img src={google} alt="google" width={24} height={24} />
           Sign in with Google
         </button>

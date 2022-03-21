@@ -107,5 +107,3 @@ dist
 **/*.db
 **/public
 **/private
-
-**/auth.json

@@ -2,7 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oidc';
-import config from './auth.json' assert { type: 'json' };
+import config from '../../../config.json' assert { type: 'json' };
 import session from 'express-session';
 import Debug from 'debug';
 import { getIdFromCredentials, getUser, addUser } from '../../db.js';
@@ -17,21 +17,21 @@ const apiLimiter = rateLimit({
   message: 'Too many requests, please try again later',
 });
 
+function initializePassport(app) {
+  app.use(passport.initialize());
+  app.use(passport.session());
+}
+
 // Every api request will be rate limited
 router.use(apiLimiter);
 
-router.use(
-  session({
-    secret: config.sessionSecret,
-  }),
-);
-
-router.get('/redirect', (req, res) => {
-  res.redirect('/pog');
-});
-
 passport.serializeUser((user, done) => {
   done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  const user = getUser(id)
+  done(null, user);
 });
 
 passport.use(
@@ -64,8 +64,13 @@ router.get(
   passport.authenticate('google', {
     failureRedirect: '/login',
     failureMessage: 'Failed to log in',
-    successRedirect: '/home',
   }),
+  (req, res, next) => {
+    debug('redirected from google');
+    res.redirect('/');
+    next();
+  },
 );
 
 export default router;
+export { initializePassport };
