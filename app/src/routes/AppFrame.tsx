@@ -7,6 +7,7 @@ import Home from './Home';
 
 const AppRoutes = () =>
   useRoutes([
+    { path: '/', element: <Home /> },
     { path: '/home', element: <Home /> },
     { path: '/wall/:wallID', element: <WallEditor /> },
   ]);
