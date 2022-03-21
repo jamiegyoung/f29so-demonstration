@@ -1,27 +1,17 @@
 import { BrowserRouter, useRoutes } from 'react-router-dom';
-import WallEditor from './components/WallEditor';
-import Home from './routes/Home';
-import styles from './App.module.css';
-import SideBar from './components/SideBar';
-import NavBar from './components/NavBar';
+import Login from './routes/Login';
+import AppFrame from './routes/AppFrame';
 
 const AppRoutes = () =>
   useRoutes([
-    { path: '/', element: <Home /> },
-    { path: '/home', element: <Home /> },
-    { path: '/wall/:wallID', element: <WallEditor /> },
+    { path: '/*', element: <AppFrame /> },
+    { path: '/login', element: <Login /> },
   ]);
 
 function App() {
   return (
     <BrowserRouter>
-      <NavBar />
-      <div className={styles.container}>
-        <div className={styles.mainStrip}>
-          <SideBar />
-          <AppRoutes />
-        </div>
-      </div>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
