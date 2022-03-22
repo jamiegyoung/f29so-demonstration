@@ -32,7 +32,7 @@ function AppFrame() {
     <div>
       <NavBar
         userName={userData.user?.username}
-        contributions={42}
+        contributions={userData.user?.contributionCount}
         joined={userData.user?.joined}
       />
       <div className={styles.container}>

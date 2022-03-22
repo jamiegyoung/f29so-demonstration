@@ -92,7 +92,9 @@ export const getUser = (id) =>
   db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
 
 export const getContributionCount = (id) =>
-  db.prepare('SELECT COUNT(*) FROM History WHERE userID = ?').get(id);
+  db.prepare('SELECT COUNT(*) FROM History WHERE userID = ?').get(id)[
+    'COUNT(*)'
+  ];
 
 export const getContributions = (id) => {
   const historyIDs = db

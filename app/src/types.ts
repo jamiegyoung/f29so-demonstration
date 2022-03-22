@@ -98,6 +98,11 @@ export const v1: Api = {
       params: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    contributions: {
+      uri: `${ApiVersion.v1}/contributions/`,
+      params: true,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 
@@ -125,6 +130,7 @@ export type User = {
   username: string;
   joined: number;
   avatar: string;
+  contributionCount: number;
 };
 
 export type UserState = {

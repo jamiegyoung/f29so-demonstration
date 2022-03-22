@@ -76,7 +76,12 @@ router.get('/add-like/:wallID/:userID', (req, res) => {
 router.get('/user', (req, res) => {
   if (req.user) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(req.user));
+    res.end(
+      JSON.stringify({
+        ...req.user,
+        contributionCount: getContributionCount(req.user.id),
+      }),
+    );
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -88,7 +93,8 @@ router.get('/user/:userID', (req, res) => {
   if (userID) {
     const user = getUser(userID);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(user));
+    const contributionCount = getContributionCount(userID);
+    res.end(JSON.stringify({ ...user, contributionCount }));
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -101,14 +107,6 @@ router.get('/contributions/:userID', (req, res) => {
   const contributions = getContributions(userID);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   return res.end(JSON.stringify(contributions));
-});
-
-router.get('/contribution-count/:userID', (req, res) => {
-  debug('GET /api/v1/contributions/:userID');
-  const { userID } = req.params;
-  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  return res.end(JSON.stringify(getContributionCount(userID)));
 });
 
 export default router;
