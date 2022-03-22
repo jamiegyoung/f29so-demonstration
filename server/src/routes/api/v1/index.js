@@ -10,6 +10,7 @@ import {
   getLikes,
   getUser,
   getContributions,
+  getContributionCount,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -100,6 +101,14 @@ router.get('/contributions/:userID', (req, res) => {
   const contributions = getContributions(userID);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   return res.end(JSON.stringify(contributions));
+});
+
+router.get('/contribution-count/:userID', (req, res) => {
+  debug('GET /api/v1/contributions/:userID');
+  const { userID } = req.params;
+  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  return res.end(JSON.stringify(getContributionCount(userID)));
 });
 
 export default router;
