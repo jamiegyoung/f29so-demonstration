@@ -88,9 +88,50 @@ export const init = () => {
   db.exec(createTables);
 };
 
-export const getUser = (id) => {
-  const user = db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
-  return user;
+export const getUser = (id) =>
+  db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
+
+export const getContributions = (id) => {
+  const historyIDs = db
+    .prepare('SELECT historyID FROM History WHERE userID = ?')
+    .all(id)
+    .map((row) => row.historyID);
+  if (historyIDs.length === 0) return [];
+  debug(historyIDs);
+  const historyStmt = db.prepare('SELECT * FROM History WHERE historyID = ?');
+
+  const historys = [];
+  const getHistorys = db.transaction((h) => {
+    h.forEach((historyID) => {
+      historys.push({ ...historyStmt.get(historyID) });
+    });
+  });
+
+  const pixelHistorys = [];
+  getHistorys(historyIDs);
+  const pixelHistoryStmt = db.prepare(
+    'SELECT * FROM PixelHistory WHERE historyID = ?',
+  );
+  const getPixelHistory = db.transaction(() => {
+    historys.forEach((history) => {
+      pixelHistorys.push({
+        ...history,
+        ...pixelHistoryStmt.get(history.historyID),
+      });
+    });
+  });
+
+  getPixelHistory();
+
+  const res = [];
+  const wallPixelStmt = db.prepare('SELECT * FROM WallPixel WHERE pixelID = ?');
+  const getWallPixel = db.transaction(() => {
+    pixelHistorys.forEach((pixelHistory) => {
+      res.push({ ...pixelHistory, ...wallPixelStmt.get(pixelHistory.pixelID) });
+    });
+  });
+  getWallPixel();
+  return res;
 };
 
 export const addUser = (issuer, subject, username) => {

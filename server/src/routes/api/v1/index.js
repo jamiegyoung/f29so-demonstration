@@ -9,6 +9,7 @@ import {
   addLike,
   getLikes,
   getUser,
+  getContributions,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -75,6 +76,7 @@ router.get('/user', (req, res) => {
   if (req.user) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(req.user));
+    return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
 });
@@ -89,6 +91,15 @@ router.get('/user/:userID', (req, res) => {
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
+});
+
+router.get('/contributions/:userID', (req, res) => {
+  debug('GET /api/v1/contributions/:userID');
+  const { userID } = req.params;
+  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
+  const contributions = getContributions(userID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  return res.end(JSON.stringify(contributions));
 });
 
 export default router;
