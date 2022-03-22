@@ -4,7 +4,6 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oidc';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import config from '../../../config.json' assert { type: 'json' };
-import session from 'express-session';
 import Debug from 'debug';
 import { getIdFromCredentials, getUser, addUser } from '../../db.js';
 
@@ -51,7 +50,7 @@ passport.use(
         return cb(null, user);
       }
       debug('user not found');
-      const newUser = addUser(issuer, profile.id, `bobv${profile.id}`);
+      // const newUser = addUser(issuer, profile.id, `bobv${profile.id}`);
       debug('new user added with id: ' + newUser.id);
       return cb(null, newUser);
     },

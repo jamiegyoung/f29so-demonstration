@@ -11,6 +11,7 @@ import {
   getUser,
   getContributions,
   getContributionCount,
+  getFollowing,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -107,6 +108,14 @@ router.get('/contributions/:userID', (req, res) => {
   const contributions = getContributions(userID);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   return res.end(JSON.stringify(contributions));
+});
+
+router.get('/following/:userID', (req, res) => {
+  debug('GET /api/v1/following/:userID');
+  const { userID } = req.params;
+  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  return res.end(JSON.stringify(getFollowing(userID)));
 });
 
 export default router;

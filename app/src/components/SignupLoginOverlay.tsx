@@ -1,14 +1,14 @@
-import Styles from './LoginOverlay.module.css';
+import Styles from './SignupLoginOverlay.module.css';
 import Logo from './Logo';
 import fb from '../images/fb32.png';
 import google from '../images/google32.png';
 
-function LoginOverlay() {
+function SignupLoginOverlay() {
   return (
     <div className={Styles.mainContainer}>
       <div className={Styles.innerContainer}>
         <Logo size={0.3} />
-        <h1>WALLS SIGN IN</h1>
+        <h1>WALLS</h1>
         <button
           type="button"
           onClick={() => {
@@ -16,7 +16,7 @@ function LoginOverlay() {
           }}
         >
           <img src={google} alt="google" width={24} height={24} />
-          Sign in with Google
+          Continue with Google
         </button>
         <button
           type="button"
@@ -25,14 +25,14 @@ function LoginOverlay() {
           }}
         >
           <img src={fb} alt="facebook" width={24} height={24} />
-          Sign in with Facebook
+          Continue with Facebook
         </button>
         <p>Or</p>
         <input type="email" placeholder="Enter your email" />
-        <button type="button">Sign in with your email</button>
+        <button type="button">Continue with your email</button>
       </div>
     </div>
   );
 }
 
-export default LoginOverlay;
+export default SignupLoginOverlay;

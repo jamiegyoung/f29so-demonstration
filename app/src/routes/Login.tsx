@@ -1,8 +1,8 @@
-import LoginOverlay from "../components/LoginOverlay";
+import SignupLoginOverlay from "../components/SignupLoginOverlay";
 
 function Login() {
   return (
-    <LoginOverlay/>
+    <SignupLoginOverlay/>
   );
 }
 

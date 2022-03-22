@@ -1,0 +1,98 @@
+.mainContainer {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.innerContainer {
+  width: 400px;
+  height: 500px;
+  background-color: #1c1c1c;
+  border: solid 1px #555555;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.formHeader {
+  margin: 10px 0 40px 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  font-size: 1.2rem;
+}
+
+.form > button {
+  cursor: pointer;
+  width: 7rem;
+}
+
+.form > input {
+  width: 155px;
+  height: 45px;
+  border-radius: 10px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  line-height: 14px;
+  background-color: #000000;
+  border: solid 1px #555555;
+  margin: 5px 5px 0px 5px;
+  padding: 0px 10px;
+  color: white;
+  transition: 0.3s cubic-bezier(0.37, 0.08, 0.1, 1.29);
+  font-size: 1rem;
+}
+
+.form > input:focus {
+  width: 80%;
+}
+
+.form > input:not(:placeholder-shown) {
+  width: 80%;
+}
+
+.form > button {
+  transition: 0.3s cubic-bezier(0.37, 0.08, 0.1, 1.29);
+  width: 125px;
+  height: 45px;
+  border-radius: 10px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  line-height: 14px;
+  font-size: 1.2rem;
+  background-color: #000000;
+  border: solid 1px #555555;
+  margin: 20px 5px 5px 5px;
+  padding: 0px 10px;
+  color: white;
+  transition: 0.3s cubic-bezier(.37,.08,.1,1.29);
+}
+
+.form > button:hover {
+  background-color: #ffffff;
+  color: black;
+  width: 50%;
+  height: 40px;
+}
+
+.form > label {
+  margin: 20px 0 0 0;
+}
+
+.errorMessage {
+  font-size: .9rem;
+  margin: 5px 0 0 0;
+  color: rgb(255, 197, 197);
+}

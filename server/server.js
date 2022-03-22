@@ -5,6 +5,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import Debug from 'debug';
 import path, { dirname } from 'path';
@@ -23,6 +24,7 @@ import {
 
 import api from './src/routes/api/index.js';
 import auth, { initializePassport } from './src/routes/auth/index.js';
+import registration from './src/routes/registration/index.js';
 
 import walls from './src/walls.js';
 import genPreviewBuffer from './src/genPreview.js';
@@ -88,7 +90,7 @@ const loggedIn = (req, res, next) => {
   res.redirect('/login');
 };
 
-const avoidLogin = (req, res, next) => {
+const avoidIfLoggedIn = (req, res, next) => {
   debug('checking if user is logged in');
   if (req.user) {
     debug('user is logged in');
@@ -103,11 +105,14 @@ const servePage = (_req, res) =>
   res.sendFile(path.join(dir, './private/index.html'));
 
 app.use(helmet());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/api', loggedIn, api);
+app.use('/api', api);
+// app.use('/api', loggedIn, api);
 app.use('/auth', auth);
+app.use('/registration', avoidIfLoggedIn, registration, servePage);
 app.get('/wall/*', loggedIn, servePage);
-app.get('/login', avoidLogin, servePage);
+app.get('/login', avoidIfLoggedIn, servePage);
 app.all('*', loggedIn, servePage);
 
 async function genWallPreviews() {

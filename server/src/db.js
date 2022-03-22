@@ -61,16 +61,17 @@ export const init = () => {
   CREATE TABLE IF NOT EXISTS Users (
     id INTEGER NOT NULL PRIMARY KEY,
     username TEXT NOT NULL,
+    email TEXT NOT NULL,
     joined INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int)),
     avatar BLOB,
     FOREIGN KEY(id) REFERENCES Credentials(id)
   );
 
-  CREATE TABLE IF NOT EXISTS Friends (
+  CREATE TABLE IF NOT EXISTS Follows (
     userID INTEGER NOT NULL,
-    friendID INTEGER NOT NULL,
+    followingID INTEGER NOT NULL,
     FOREIGN KEY(userID) REFERENCES Users(id),
-    FOREIGN KEY(friendID) REFERENCES Users(id)
+    FOREIGN KEY(followingID) REFERENCES Users(id)
   );
 
   CREATE TABLE IF NOT EXISTS UserSettings (
@@ -88,8 +89,15 @@ export const init = () => {
   db.exec(createTables);
 };
 
+export const getFollowing = (id) => {
+  db.prepare('SELECT followingID FROM Follows WHERE userID = ?').all(id);
+};
+
 export const getUser = (id) =>
   db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
+
+export const getUserByUsername = (username) =>
+  db.prepare('SELECT * FROM Users WHERE username = ?').get(username);
 
 export const getContributionCount = (id) =>
   db.prepare('SELECT COUNT(*) FROM History WHERE userID = ?').get(id)[
@@ -139,17 +147,17 @@ export const getContributions = (id) => {
   return res;
 };
 
-export const addUser = (issuer, subject, username) => {
+export const addUser = (issuer, subject, username, email) => {
   const stmt = db.prepare(
     'INSERT INTO Credentials (issuer, subject) VALUES (?, ?)',
   );
   const userID = stmt.run(issuer, subject).lastInsertRowid;
   debug(`Added user with id ${userID}`);
   const stmt2 = db.prepare(
-    'INSERT INTO Users (id, username, joined) VALUES (?, ?, ?)',
+    'INSERT INTO Users (id, username, email, joined) VALUES (?, ?, ?, ?)',
   );
   // Remove ms from the timestamp as it will take up a lot of space
-  stmt2.run(userID, username, Math.floor(Date.now() / 1000));
+  stmt2.run(userID, username, email, Math.floor(Date.now() / 1000));
   return getUser(userID);
 };
 
