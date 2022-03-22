@@ -215,15 +215,22 @@ export const getWallPixels = (wallID) => {
       const historyIDs = getHistoryIDs(px.pixelID);
       const historyResult = historyIDs
         .map((id) => history.get(id.historyID))
-        .filter((res) => res);
+        .filter((res) => res)
+        .map((h) => {
+          const user = getUser(h.userID);
+          return {
+            ...h,
+            username: user ? user.username : 'Anonymous',
+          };
+        });
       const newPx = px;
+      // change the userID to username
       newPx.history = historyResult;
       return px;
     });
   });
 
   qPixelHistory();
-
   return pixels;
 };
 

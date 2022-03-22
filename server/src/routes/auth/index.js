@@ -51,7 +51,7 @@ passport.use(
         return cb(null, user);
       }
       debug('user not found');
-      const newUser = addUser(issuer, profile.id, 'bob');
+      const newUser = addUser(issuer, profile.id, `bobv${profile.id}`);
       debug('new user added with id: ' + newUser.id);
       return cb(null, newUser);
     },
@@ -74,7 +74,7 @@ passport.use(
         return cb(null, user);
       }
       debug('user not found');
-      const newUser = addUser('facebook', profile.id, 'bob');
+      const newUser = addUser('facebook', profile.id, `bobv${profile.id}`);
       debug('new user added with id: ' + newUser.id);
       return cb(null, newUser);
     },

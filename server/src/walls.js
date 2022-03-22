@@ -5,6 +5,7 @@ import {
   getWallPixels,
   updatePreview,
   updatePixel,
+  getUser,
 } from './db.js';
 import genPreviewBuffer from './genPreview.js';
 
@@ -13,14 +14,14 @@ const debug = Debug('walls');
 const connectedSockets = {};
 const wallChanges = {};
 
-const addConnectedWall = (socket, wallID) => {
+const addConnectedWall = (userID, wallID) => {
   // if the wall doesn't exist, create it
   if (!connectedSockets[wallID]) {
-    connectedSockets[wallID] = [socket.id];
+    connectedSockets[wallID] = [userID];
     return;
   }
   // add the socket to the wall's connected sockets
-  connectedSockets[wallID].push(socket.id);
+  connectedSockets[wallID].push(userID);
 };
 
 const updateWallPreview = async (wallID) => {
@@ -68,9 +69,10 @@ export default (io, sessionMiddleware) => {
         socket.disconnect();
         return;
       }
-      debug(socket.request.session.passport);
       const userID = socket.request.session.passport.user;
+
       const wallID = socket.handshake.query.wall;
+
       if (!wallID) {
         socket.emit('error', 'No wall ID provided');
         return;
@@ -80,7 +82,7 @@ export default (io, sessionMiddleware) => {
       socket.send(`connected to wall ${wallID}`);
       debug(`${userID} connected to wall ${wallID}`);
 
-      addConnectedWall(socket, wallID);
+      addConnectedWall(userID, wallID);
 
       const data = getWallMetadata(wallID);
       if (!data) {
@@ -106,11 +108,17 @@ export default (io, sessionMiddleware) => {
             return;
           }
         }
+        const newUser = getUser(userID);
+        if (!newUser) {
+          socket.emit('error', 'User not found');
+          return;
+        }
         const newPixel = {
           ...pixel,
           history: [
             {
-              userID: socket.id,
+              userID,
+              username: newUser.username,
               timestamp: Date.now(),
               color: pixel.color,
             },
@@ -122,10 +130,10 @@ export default (io, sessionMiddleware) => {
       });
 
       socket.on('disconnect', () => {
-        debug(`${socket.id} disconnected from wall ${wallID}`);
+        debug(`${userID} disconnected from wall ${wallID}`);
         // Remove the socket from the wall's connected sockets
         connectedSockets[wallID] = connectedSockets[wallID].filter(
-          (id) => id !== socket.id,
+          (id) => id !== userID,
         );
         // Delete the wall room if no one is connected
         if (connectedSockets[wallID].length === 0) {

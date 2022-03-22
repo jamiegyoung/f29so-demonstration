@@ -1,6 +1,7 @@
 export type History = {
   historyID: number;
   userID: number;
+  username: string;
   timestamp: number;
   color: string;
 };
