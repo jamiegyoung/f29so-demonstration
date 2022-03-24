@@ -26,6 +26,28 @@ router.get('/', (req, res, next) => {
   next();
 });
 
+function hasSessionPassportUser(req, res) {
+  if (!req.session) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('User has no session');
+    return false;
+  }
+
+  if (!req.session.passport) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No session found');
+    return false;
+  }
+
+  if (!req.session.passport.user) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No session user found');
+    return false;
+  }
+
+  return true;
+}
+
 router.post('/submit', apiLimiter, (req, res) => {
   if (!req.user) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -56,6 +78,12 @@ router.post('/submit', apiLimiter, (req, res) => {
     return;
   }
 
+  if (!/^[a-zA-Z0-9_]+$/.test(req.body.username)) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Username contains invalid characters');
+    return;
+  }
+
   const usernameConflict = getUserByUsername(req.body.username);
   if (usernameConflict) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -83,64 +111,24 @@ router.post('/submit', apiLimiter, (req, res) => {
   }
 
   const user = addUser(req.user.id, req.body.username, req.body.email);
-  if (user) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(user));
+  if (!user) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Failed to register user');
+  }
+
+  if (!hasSessionPassportUser(req, res)) {
     return;
   }
 
-  res.writeHead(400, { 'Content-Type': 'text/plain' });
-  res.end('Failed to register user');
+  req.session.passport.user = user;
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(user));
 });
 
 const usernameCheckLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5000, // limit each IP to 50 username checks per windowMs
   message: 'Too many requests, please try again later',
-});
-
-router.get('/success', (req, res) => {
-  debug('GET /registration/success');
-  debug('user:', req.user);
-  if (!req.user) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User has no credentials');
-    return;
-  }
-
-  if (!req.user.id) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User has no id');
-    return;
-  }
-
-  const user = getUser(req.user.id);
-  if (!user) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User not found');
-    return;
-  }
-
-  if (!req.session) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User has no session');
-    return;
-  }
-
-  if (!req.session.passport) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('No session found');
-    return;
-  }
-
-  if (!req.session.passport.user) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('No session user found');
-    return;
-  }
-
-  req.session.passport.user = user;
-  res.redirect('/');
 });
 
 router.get('/check-username/:username', usernameCheckLimiter, (req, res) => {
