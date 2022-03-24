@@ -99,6 +99,9 @@ export const getUser = (id) =>
 export const getUserByUsername = (username) =>
   db.prepare('SELECT * FROM Users WHERE username = ?').get(username);
 
+export const getUserByEmail = (email) =>
+  db.prepare('SELECT * FROM Users WHERE email = ?').get(email);
+
 export const getContributionCount = (id) =>
   db.prepare('SELECT COUNT(*) FROM History WHERE userID = ?').get(id)[
     'COUNT(*)'
@@ -147,18 +150,26 @@ export const getContributions = (id) => {
   return res;
 };
 
-export const addUser = (issuer, subject, username, email) => {
+export const addCredentials = (issuer, subject) => {
   const stmt = db.prepare(
     'INSERT INTO Credentials (issuer, subject) VALUES (?, ?)',
   );
   const userID = stmt.run(issuer, subject).lastInsertRowid;
   debug(`Added user with id ${userID}`);
-  const stmt2 = db.prepare(
+  return userID;
+};
+
+export const addUser = (id, username, email) => {
+  const stmt = db.prepare(
     'INSERT INTO Users (id, username, email, joined) VALUES (?, ?, ?, ?)',
   );
   // Remove ms from the timestamp as it will take up a lot of space
-  stmt2.run(userID, username, email, Math.floor(Date.now() / 1000));
-  return getUser(userID);
+  const res = stmt.run(id, username, email, Math.floor(Date.now() / 1000));
+  if (res.changes !== 1) {
+    return { error: 'Failed to add user' };
+  }
+  debug(`Added user with id ${id}`);
+  return getUser(id);
 };
 
 /**

@@ -5,7 +5,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oidc';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import config from '../../../config.json' assert { type: 'json' };
 import Debug from 'debug';
-import { getIdFromCredentials, getUser, addUser } from '../../db.js';
+import { getIdFromCredentials, getUser, addCredentials } from '../../db.js';
 
 const debug = Debug('auth');
 
@@ -26,36 +26,34 @@ function initializePassport(app) {
 router.use(apiLimiter);
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-  const user = getUser(id);
   done(null, user);
 });
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: config.google.clientId,
-      clientSecret: config.google.clientSecret,
-      callbackURL: config.google.callbackURL,
-    },
-    function verify(issuer, profile, cb) {
-      debug('verifying google login');
-      const userID = getIdFromCredentials(issuer, profile.id);
-      if (userID) {
-        const user = getUser(userID);
-        debug('user found');
-        return cb(null, user);
-      }
-      debug('user not found');
-      // const newUser = addUser(issuer, profile.id, `bobv${profile.id}`);
-      debug('new user added with id: ' + newUser.id);
-      return cb(null, newUser);
-    },
-  ),
-);
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: config.google.clientId,
+//       clientSecret: config.google.clientSecret,
+//       callbackURL: config.google.callbackURL,
+//     },
+//     function verify(issuer, profile, cb) {
+//       debug('verifying google login');
+//       const userID = getIdFromCredentials(issuer, profile.id);
+//       if (userID) {
+//         const user = getUser(userID);
+//         debug('user found');
+//         return cb(null, user);
+//       }
+//       debug('user not found');
+//       debug('new user added with id: ' + userID);
+//       return cb(null, newUser);
+//     },
+//   ),
+// );
 
 passport.use(
   new FacebookStrategy(
@@ -68,14 +66,19 @@ passport.use(
       debug('verifying facebook login');
       const userID = getIdFromCredentials('facebook', profile.id);
       if (userID) {
+        debug('user credentials found', userID);
         const user = getUser(userID);
-        debug('user found');
-        return cb(null, user);
+        if (user) {
+          debug('user found');
+          return cb(null, { ...user, isNew: false });
+        }
+        debug('user credentials found but user not found');
+        return cb(null, { id: userID, isNew: true });
       }
-      debug('user not found');
-      const newUser = addUser('facebook', profile.id, `bobv${profile.id}`);
-      debug('new user added with id: ' + newUser.id);
-      return cb(null, newUser);
+      debug('user credentials not found');
+      const newUserID = addCredentials('facebook', profile.id);
+      debug('new credentials added with id: ' + newUserID.id);
+      return cb(null, { id: newUserID, isNew: true });
     },
   ),
 );
@@ -84,16 +87,24 @@ router.get('/login/google', passport.authenticate('google'));
 
 router.get('/login/facebook', passport.authenticate('facebook'));
 
+function isUser(req, res, next) {
+  if (req.user.isNew) {
+    debug('user is new');
+    res.redirect('/registration');
+    return;
+  }
+  debug('user is not new');
+  res.redirect('/');
+  next();
+}
+
 router.get(
   '/redirect/google',
   passport.authenticate('google', {
     failureRedirect: '/login',
     failureMessage: 'Failed to log in',
   }),
-  (_req, res) => {
-    debug('redirected from google');
-    res.redirect('/');
-  },
+  isUser,
 );
 
 router.get(
@@ -102,10 +113,7 @@ router.get(
     failureRedirect: '/login',
     failureMessage: 'Failed to log in',
   }),
-  (_req, res) => {
-    debug('redirected from facebook');
-    res.redirect('/');
-  },
+  isUser,
 );
 
 export default router;

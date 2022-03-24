@@ -93,9 +93,9 @@ const loggedIn = (req, res, next) => {
 const avoidIfLoggedIn = (req, res, next) => {
   debug('checking if user is logged in');
   if (req.user) {
-    debug('user is logged in');
-    debug(req.user);
-    return res.redirect('/');
+    if (req.user.isNew === false) {
+      return res.redirect('/');
+    }
   }
   debug('user is not logged in');
   next();
@@ -105,12 +105,12 @@ const servePage = (_req, res) =>
   res.sendFile(path.join(dir, './private/index.html'));
 
 app.use(helmet());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
+app.use('/registration', avoidIfLoggedIn, registration, servePage);
 app.use('/api', api);
 // app.use('/api', loggedIn, api);
 app.use('/auth', auth);
-app.use('/registration', avoidIfLoggedIn, registration, servePage);
 app.get('/wall/*', loggedIn, servePage);
 app.get('/login', avoidIfLoggedIn, servePage);
 app.all('*', loggedIn, servePage);

@@ -89,13 +89,7 @@ function Registration() {
               });
               return;
             }
-            const { success } = await submissionRes.json();
-            if (!success) {
-              setErrors({
-                username: 'cannot access server, please try again in a minute',
-              });
-              return;
-            }
+            window.location.href = '/registration/success';
             setSubmitting(false);
           }}
         >
