@@ -45,8 +45,19 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/:ownerID/', async (req, res) => {
-  await createWall(req.params.ownerID, 32, 32);
+router.get('/create-wall/', async (req, res) => {
+  if (!req.user) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('User has no credentials');
+    return;
+  }
+  if (!req.user.id) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('User has no id');
+    return;
+  }
+
+  await createWall(req.user.id, 32, 32);
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('done');
 });

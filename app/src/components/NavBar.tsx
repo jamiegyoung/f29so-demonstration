@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import styles from './NavBar.module.css';
 import Logo from './Logo';
-import icon from './256x256 icon.jpg';
 import Search from './Search';
 import ProfileImage from './ProfileImage';
+import useDate from '../hooks/useDate';
 
 type NavBarProps = {
   userName: string | undefined;
@@ -21,12 +21,12 @@ function NavBar({ userName, joined, contributions }: NavBarProps) {
       <div className={styles.stripContainer}>
         <Search />
         <div className={styles.profileContainer}>
-          <ProfileImage src={icon} />
+          <ProfileImage size={50} />
           <div className={`${styles.profileInfoContainer} no-select`}>
             <p style={{ color: '#EDEEF0', fontWeight: '500' }}>
               [ {userName} ]
             </p>
-            <p>joined {joined}</p>
+            <p>joined {joined ? useDate(joined) : ''}</p>
             <p>contributions: {contributions}</p>
           </div>
         </div>

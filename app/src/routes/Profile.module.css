@@ -1,0 +1,15 @@
+.userHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.innerUserHeader > p {
+  color: #aaa;
+  font-size: 1.3rem;
+  margin: 5px;
+}
+
+.profileImage {
+  margin-right: 20px;
+}

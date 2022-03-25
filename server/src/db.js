@@ -94,10 +94,10 @@ export const getFollowing = (id) => {
 };
 
 export const getUser = (id) =>
-  db.prepare('SELECT * FROM Users WHERE id = ?').get(id);
+  db.prepare('SELECT id, username, joined, avatar FROM Users WHERE id = ?').get(id);
 
 export const getUserByUsername = (username) =>
-  db.prepare('SELECT * FROM Users WHERE username = ?').get(username);
+  db.prepare('SELECT id, username, joined, avatar FROM Users WHERE username = ?').get(username);
 
 export const getUserByEmail = (email) =>
   db.prepare('SELECT * FROM Users WHERE email = ?').get(email);
