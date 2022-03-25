@@ -80,7 +80,7 @@ router.get('/toggle-like/:wallID', (req, res) => {
     debug('toggleRes', toggleRes);
     debug('likes', likes);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ likes: likes.length, liked: toggleRes }));
+    res.end(JSON.stringify({ likes: likes.length, ...toggleRes }));
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
