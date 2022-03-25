@@ -48,8 +48,8 @@ export const init = () => {
   CREATE TABLE IF NOT EXISTS Likes (
     wallID INTEGER NOT NULL,
     userID INTEGER NOT NULL,
-    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
-    FOREIGN KEY(userID) REFERENCES User(id)
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID),
+    FOREIGN KEY(userID) REFERENCES Credentials(id)
   );
 
   CREATE TABLE IF NOT EXISTS Credentials (
@@ -206,33 +206,48 @@ export const getLikes = (wallID) => {
   return likes.all(wallID);
 };
 
-// eslint-disable-next-line no-unused-vars
-export const addLike = (wallID, _uid) => {
-  debug(`adding like to wall ${wallID}`);
-  // will have to get if the user exists when they have been implemented
-  // check if the user has already liked the wall
-  // uncomment when users are implemented
-  /*
-  const hasLiked = db.prepare(
-    'SELECT * FROM Likes WHERE wallID=? AND userID=?;',
-  );
-  const hasLikedResult = hasLiked.get(wallID, uid);
-  if (hasLikedResult) {
-    return;
+export const toggleLikes = (wallID, uid) => {
+  debug(`toggling like to wall ${wallID}`);
+
+  const getLikeCount = db.prepare('SELECT COUNT(*) FROM Likes WHERE wallID=?;');
+  const updateLikes = db.prepare('UPDATE Wall SET likes=? WHERE wallID=?;');
+  const hasLiked = db
+    .prepare('SELECT * FROM Likes WHERE wallID=? AND userID=?;')
+    .get(wallID, uid);
+
+  if (hasLiked) {
+    debug(`removing like from wall ${wallID}`);
+    const deleteLike = db.prepare(
+      'DELETE FROM Likes WHERE wallID=? AND userID=?;',
+    );
+
+    const commit = db.transaction(() => {
+      const likeCount = getLikeCount.get(wallID);
+      if (likeCount['COUNT(*)']) {
+        updateLikes.run(likeCount['COUNT(*)'] - 1, wallID);
+        deleteLike.run(wallID, uid);
+      }
+    });
+    commit();
+    return { liked: false };
   }
-  */
+
+  debug(`adding like to wall ${wallID}`);
   const insertLike = db.prepare(
-    'INSERT INTO Likes (wallID, userID) VALUES (?, ?);',
+    'INSERT INTO Likes (wallID, userID) VALUES (?, ?)',
   );
-  const updateLikes = db.prepare(
-    'UPDATE Wall SET likes=likes+1 WHERE wallID=?;',
-  );
+
   const add = db.transaction(() => {
-    insertLike.run(wallID, 1);
-    updateLikes.run(wallID);
+    const likeCount = getLikeCount.get(wallID);
+    if (likeCount['COUNT(*)'] !== undefined) {
+      // subtract one as this is a transaction and will not be processed until everything is complete
+      insertLike.run(wallID, uid);
+      updateLikes.run(likeCount['COUNT(*)'] + 1, wallID);
+    }
   });
 
   add();
+  return { liked: true };
 };
 
 export const updateWallMetadata = (wallID, metadata) => {
@@ -471,6 +486,16 @@ export const getFeed = (userID) => {
   const qr = db.prepare(
     'SELECT wallID,ownerID,edits,likes,lastEdit,preview FROM Wall',
   );
-  // later get owner from user db
-  return qr.all();
+  const res = qr.all();
+  const getDBLiked = db.prepare(
+    'SELECT * FROM Likes WHERE wallID=? AND userID=?',
+  );
+  const getUserLikes = db.transaction(() =>
+    res.map((w) => {
+      const liked = getDBLiked.get(w.wallID, userID);
+      return { ...w, liked: !!liked };
+    }),
+  );
+
+  return getUserLikes();
 };

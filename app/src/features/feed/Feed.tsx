@@ -5,16 +5,19 @@ import { fetchUserFeed } from './feedSlice';
 import { FeedPost } from '../../types';
 import WallPost from '../../components/WallPost';
 
-function feed() {
+function Feed() {
   const feedData = useAppSelector((state) => state.feed);
   const dispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   feedData?.posts.map((post: FeedPost) => post);
-  // }, [feedData]);
+  useEffect(() => {
+    console.log('yo');
+    console.log(feedData);
+    feedData?.posts.map((post: FeedPost) => post);
+  }, [feedData]);
 
   useEffect(() => {
-    dispatch(fetchUserFeed({ userID: 1, page: 0 }));
+    console.log('dispatching feed');
+    dispatch(fetchUserFeed({ page: 0 }));
   }, []);
 
   return (
@@ -28,10 +31,11 @@ function feed() {
           likes={post.likes}
           lastEdit={post.lastEdit}
           preview={post.preview}
+          liked={post.liked}
         />
       ))}
     </div>
   );
 }
 
-export default feed;
+export default Feed;

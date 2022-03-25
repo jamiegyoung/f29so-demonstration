@@ -11,6 +11,7 @@ describe('feed reducer', () => {
         likes: 64,
         lastEdit: '2020-01-01T00:00:00.000Z',
         preview: Buffer.from('abc'),
+        liked: true,
       },
     ],
     status: 'success',

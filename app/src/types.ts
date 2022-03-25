@@ -41,9 +41,15 @@ export type WallState = {
   editingPixel: Pixel | null;
 };
 
+export type FetchOpts = {
+  params?: string[];
+  body?: object | string;
+};
+
 export type Route = {
   uri: string;
   params: boolean;
+  body: boolean;
   opts?: RequestInit;
 };
 
@@ -52,7 +58,8 @@ export type Routes = {
 };
 
 export enum ApiVersion {
-  v1 = 'v1',
+  v1 = 'api/v1',
+  registration = 'registration',
 }
 
 export interface Api {
@@ -60,47 +67,79 @@ export interface Api {
   routes: Routes;
 }
 
+export const registration: Api = {
+  version: ApiVersion.v1,
+  routes: {
+    checkUsername: {
+      uri: `${ApiVersion.registration}/check-username`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    submit: {
+      uri: `${ApiVersion.registration}/submit`,
+      params: false,
+      body: true,
+      opts: {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    },
+  },
+};
+
 export const v1: Api = {
   version: ApiVersion.v1,
   routes: {
     getWall: {
       uri: `${ApiVersion.v1}/get-wall/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     createWall: {
       uri: `${ApiVersion.v1}/create-wall/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     getPreview: {
       uri: `${ApiVersion.v1}/get-preview/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     getFeed: {
       uri: `${ApiVersion.v1}/get-feed/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
-    addLike: {
-      uri: `${ApiVersion.v1}/add-like/`,
+    toggleLike: {
+      uri: `${ApiVersion.v1}/toggle-like/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     user: {
       uri: `${ApiVersion.v1}/user/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     selfUser: {
       uri: `${ApiVersion.v1}/user/`,
       params: false,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
     contributions: {
       uri: `${ApiVersion.v1}/contributions/`,
       params: true,
+      body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
   },
@@ -111,6 +150,7 @@ export type FeedPost = {
   owner: number;
   edits: number;
   likes: number;
+  liked: boolean;
   lastEdit: string;
   preview: Buffer;
 };
@@ -123,6 +163,7 @@ export type FeedState = {
 export type SetLikeType = {
   wallID: number;
   likes: number;
+  liked: boolean;
 };
 
 export type User = {

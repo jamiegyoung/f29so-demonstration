@@ -83,7 +83,6 @@ const loggedIn = (req, res, next) => {
   debug('checking if user is logged in');
   if (req.user) {
     debug('user is logged in');
-    debug(req.user);
     return next();
   }
   debug('user is not logged in');

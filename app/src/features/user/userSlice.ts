@@ -15,7 +15,7 @@ export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (payload?: FetchUserPayload) => {
     if (payload)
-      return fetchApi(v1.routes.user, payload.id.toString(10)).then((res) =>
+      return fetchApi(v1.routes.user, {params: [payload.id.toString(10)]}).then((res) =>
         res.json(),
       );
     return fetchApi(v1.routes.selfUser).then(async (res) => res.json());

@@ -8,15 +8,14 @@ const initialState: FeedState = {
 };
 
 type FetchUserFeedPayload = {
-  userID: number;
   page: number;
 };
 
 export const fetchUserFeed = createAsyncThunk(
   'feed/fetchUserFeed',
-  async ({ userID, page }: FetchUserFeedPayload) =>
-    fetchApi(v1.routes.getFeed, userID.toString(10), page.toString(10)).then(
-      (res) => res.json(),
+  async ({ page }: FetchUserFeedPayload) =>
+    fetchApi(v1.routes.getFeed, { params: [page.toString(10)] }).then((res) =>
+      res.json(),
     ),
 );
 
@@ -29,10 +28,11 @@ export const feedSlice = createSlice({
       state.status = 'idle';
     },
     setLikes: (state, action: PayloadAction<SetLikeType>) => {
-      const { wallID, likes } = action.payload;
+      const { wallID, likes, liked } = action.payload;
       const post = state.posts.find((p) => p.wallID === wallID);
       if (post) {
         post.likes = likes;
+        post.liked = liked;
       }
     },
   },

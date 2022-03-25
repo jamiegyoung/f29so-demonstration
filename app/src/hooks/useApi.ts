@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Route } from '../types';
+import { FetchOpts, Route } from '../types';
 import fetchApi from '../app/fetchApi';
 
 const useApi = (
   route: Route,
-): [Response | null, (...params: string[]) => Promise<void>] => {
+): [Response | null, (fetchOpts: FetchOpts) => Promise<void>] => {
   const [data, setData] = useState<Response | null>(null);
 
-  const fetchData = async (...params: string[]) => {
-    setData(await fetchApi(route, ...params));
+  const fetchData = async (fetchOpts?: FetchOpts) => {
+    setData(await fetchApi(route, fetchOpts));
   };
 
   return [data, fetchData];

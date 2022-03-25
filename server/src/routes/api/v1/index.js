@@ -6,7 +6,7 @@ import {
   getWallPixels,
   createWall,
   getFeed,
-  addLike,
+  toggleLikes,
   getLikes,
   getUser,
   getContributions,
@@ -51,27 +51,40 @@ router.get('/create-wall/:ownerID/', async (req, res) => {
   res.end('done');
 });
 
-router.get('/get-feed/:userID/:page', (req, res) => {
-  const { userID, page } = req.params;
-  if (userID && page) {
-    const feed = getFeed(userID);
+router.get('/get-feed/:page', (req, res) => {
+  debug(req.user);
+  if (!req.user) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('User is not logged in');
+    return;
+  }
+  const { id } = req.user;
+  if (id) {
+    const feed = getFeed(id);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(feed));
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
+  res.end('User is not logged in');
 });
 
-router.get('/add-like/:wallID/:userID', (req, res) => {
-  const { wallID, userID } = req.params;
+router.get('/toggle-like/:wallID', (req, res) => {
+  const { wallID } = req.params;
+
+  const userID = req.user.id;
   if (wallID && userID) {
-    addLike(wallID, userID);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    debug('yoo');
+    const toggleRes = toggleLikes(wallID, userID);
     const likes = getLikes(wallID);
-    res.end(JSON.stringify(likes.length));
+    debug('toggleRes', toggleRes);
+    debug('likes', likes);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ likes: likes.length, liked: toggleRes }));
     return;
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
+  res.end('Invalid request');
 });
 
 router.get('/user', (req, res) => {
