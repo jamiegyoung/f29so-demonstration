@@ -33,27 +33,32 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: config.google.clientId,
-//       clientSecret: config.google.clientSecret,
-//       callbackURL: config.google.callbackURL,
-//     },
-//     function verify(issuer, profile, cb) {
-//       debug('verifying google login');
-//       const userID = getIdFromCredentials(issuer, profile.id);
-//       if (userID) {
-//         const user = getUser(userID);
-//         debug('user found');
-//         return cb(null, user);
-//       }
-//       debug('user not found');
-//       debug('new user added with id: ' + userID);
-//       return cb(null, newUser);
-//     },
-//   ),
-// );
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: config.google.clientId,
+      clientSecret: config.google.clientSecret,
+      callbackURL: config.google.callbackURL,
+    },
+    function verify(issuer, profile, cb) {
+      const userID = getIdFromCredentials(issuer, profile.id);
+      if (userID) {
+        debug('user credentials found', userID);
+        const user = getUser(userID);
+        if (user) {
+          debug('user found');
+          return cb(null, { ...user, isNew: false });
+        }
+        debug('user credentials found but user not found');
+        return cb(null, { id: userID, isNew: true });
+      }
+      debug('user credentials not found');
+      const newUserID = addCredentials(issuer, profile.id);
+      debug('new credentials added with id: ' + newUserID.id);
+      return cb(null, { id: newUserID, isNew: true });
+    },
+  ),
+);
 
 passport.use(
   new FacebookStrategy(
@@ -95,7 +100,6 @@ function isUser(req, res, next) {
   }
   debug('user is not new');
   res.redirect('/');
-  next();
 }
 
 router.get(

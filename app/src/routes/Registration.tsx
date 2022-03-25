@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { Formik, Form, FormikHelpers, Field, ErrorMessage } from 'formik';
-import getServerURI from '../app/serverURI';
+import fetchApi from '../app/fetchApi';
 import Logo from '../components/Logo';
+import { registration } from '../types';
 import Styles from './Registration.module.css';
 
 interface Values {
@@ -47,20 +48,12 @@ function Registration() {
             values: Values,
             { setSubmitting, setErrors }: FormikHelpers<Values>,
           ) => {
-            const res = await fetch(
-              `${getServerURI()}/registration/check-username/${
-                values.username
-              }`,
-              {
-                method: 'GET',
-                headers: {
-                  Accept: 'application/json',
-                },
-              },
-            );
+            const res = await fetchApi(registration.routes.checkUsername, {
+              params: [values.username],
+            });
             if (res.status !== 200) {
               setErrors({
-                username: 'cannot access server, please try again in a minute',
+                username: await res.text(),
               });
               return;
             }
@@ -69,23 +62,16 @@ function Registration() {
               setErrors({ username: 'username unavailable' });
               return;
             }
-            const submissionRes = await fetch(
-              `${getServerURI()}/registration/submit`,
-              {
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  username: values.username,
-                  email: values.email,
-                }),
+            const submissionRes = await fetchApi(registration.routes.submit, {
+              body: {
+                username: values.username,
+                email: values.email,
               },
-            );
+            });
+
             if (submissionRes.status !== 200) {
               setErrors({
-                username: 'cannot access server, please try again in a minute',
+                email: await submissionRes.text(),
               });
               return;
             }

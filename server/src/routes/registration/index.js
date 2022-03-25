@@ -3,7 +3,6 @@ import rateLimit from 'express-rate-limit';
 import Debug from 'debug';
 import {
   addUser,
-  getUser,
   getUserByEmail,
   getUserByUsername,
 } from '../../db.js';
@@ -86,14 +85,14 @@ router.post('/submit', apiLimiter, (req, res) => {
 
   const usernameConflict = getUserByUsername(req.body.username);
   if (usernameConflict) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.writeHead(409, { 'Content-Type': 'text/plain' });
     res.end('Username is already taken');
     return;
   }
 
   const emailConflict = getUserByEmail(req.body.email);
   if (emailConflict) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.writeHead(409, { 'Content-Type': 'text/plain' });
     res.end('Email is already taken');
     return;
   }
@@ -114,6 +113,7 @@ router.post('/submit', apiLimiter, (req, res) => {
   if (!user) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Failed to register user');
+    return;
   }
 
   if (!hasSessionPassportUser(req, res)) {
