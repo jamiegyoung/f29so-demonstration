@@ -17,7 +17,7 @@ const fetchApi: (
 
   const uri = () =>
     fetchOpts.params
-      ? `${getServerURI()}/${route.uri}${fetchOpts.params.join('/')}`
+      ? `${getServerURI()}/${route.uri}/${fetchOpts.params.join('/')}`
       : `${getServerURI()}/${route.uri}`;
 
   if (!route.body) return fetch(uri(), route.opts);
@@ -28,7 +28,7 @@ const fetchApi: (
     }
     return { ...route.opts, body: fetchOpts.body };
   };
-
+  
   return fetch(uri(), opts());
 };
 
