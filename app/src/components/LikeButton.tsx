@@ -48,6 +48,10 @@ function LikeButton({ wallID }: { wallID: number }) {
           viewBox="0 0 24 24"
           width="36px"
           fill="#FFFFFF"
+          style={{
+            transition: 'all .8s cubic-bezier(0.25, 1.68, 0.55, 1)',
+            transform: post?.liked ? 'rotate(360deg)' : 'rotate(0deg)',
+          }}
         >
           <path d="M0 0h24v24H0V0zm0 0h24v24H0V0z" fill="none" />
           {post?.liked ? (
