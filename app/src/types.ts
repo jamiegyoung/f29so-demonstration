@@ -17,29 +17,25 @@ export interface Pixel extends LocalPixel {
   history: History[];
 }
 
-export type Wall = {
-  wallID: number;
-  ownerID: number;
-  edits: number;
-  lastEdit: number;
-  likes: number;
-  width: number;
-  height: number;
-  pixels: Pixel[];
-};
-
-
-export type FeedPost = {
+export interface BasicWall {
   wallID: number;
   ownerID: number;
   ownerUsername: string;
   edits: number;
+  lastEdit: number;
   likes: number;
   liked: boolean;
-  lastEdit: string;
-  preview: Buffer;
-};
+}
 
+export interface Wall extends BasicWall {
+  width: number;
+  height: number;
+  pixels: Pixel[];
+}
+
+export interface FeedPost extends BasicWall {
+  preview: Buffer;
+}
 
 export type FetchStatus = 'success' | 'idle' | 'loading' | 'error';
 
@@ -118,7 +114,7 @@ export const v1: Api = {
     },
     createWall: {
       uri: `${ApiVersion.v1}/create-wall`,
-      params: true,
+      params: false,
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },

@@ -49,7 +49,7 @@ function WallPost({
         <Link className={Styles.userLink} to={`/profile/${ownerID}`}>
           [ {ownerUsername} ]
         </Link>
-        <p>last edited: {useDate(Number.parseInt(lastEdit, 10))}</p>
+        <p>last edited: {useDate(lastEdit)}</p>
         <p>edits: {edits}</p>
         <div className={Styles.bottomRightContainer}>
           <LikeButton wallID={wallID} />

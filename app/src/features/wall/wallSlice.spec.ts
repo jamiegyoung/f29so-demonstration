@@ -21,6 +21,8 @@ describe('wall reducer', () => {
     wall: {
       wallID: 3,
       ownerID: 0,
+      ownerUsername: '',
+      liked: false,
       width: 32,
       likes: 0,
       height: 32,

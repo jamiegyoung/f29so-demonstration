@@ -104,7 +104,9 @@ function WallEditor() {
           margin: 0,
         }}
       >
-        {statusText} WALL {wallSelector.id || 'unknown'}
+        {statusText === 'Loading'
+          ? 'Loading...'
+          : `${statusText} ${wallSelector.wall?.ownerUsername}'s WALL`}
       </h1>
       <div>
         <Wall />

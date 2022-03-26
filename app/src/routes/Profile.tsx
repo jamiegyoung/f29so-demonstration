@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProfileImage from '../components/ProfileImage';
 import ProfileTabs from '../components/ProfileTabs';
 import ProfileWalls from '../components/ProfileWalls';
@@ -12,10 +12,12 @@ function Profile() {
   const params = useParams();
   const [otherRes, otherFetch] = useApi(v1.routes.user);
   const [selfRes, selfFetch] = useApi(v1.routes.selfUser);
+  const [wallCreationRes, wallCreationFetch] = useApi(v1.routes.createWall);
   const [user, setUser] = useState<User | undefined>();
   const [selected, setSelected] = useState<ProfileTabSelection>(
     ProfileTabSelection.WALLS,
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (params.userID !== undefined) {
@@ -24,6 +26,18 @@ function Profile() {
     }
     selfFetch();
   }, []);
+
+  useEffect(() => {
+    if (wallCreationRes?.status !== 200) {
+      console.log('error creating wall');
+      return;
+    }
+    const handleData = async () => {
+      const data = await wallCreationRes.json();
+      navigate(`/wall/${data.wallID}`);
+    };
+    handleData();
+  }, [wallCreationRes]);
 
   useEffect(() => {
     const res = selfRes || otherRes;
@@ -47,6 +61,13 @@ function Profile() {
           <p>contributions: {user?.contributionCount}</p>
         </div>
       </div>
+      <button
+        onClick={() => wallCreationFetch()}
+        className={Styles.createWallButton}
+        type="button"
+      >
+        Create Wall
+      </button>
       <ProfileTabs setSelected={setSelected} selected={selected} />
       {selected === ProfileTabSelection.WALLS ? <ProfileWalls /> : null}
       {selected === ProfileTabSelection.FOLLOWING ? <div>poogger2s</div> : null}

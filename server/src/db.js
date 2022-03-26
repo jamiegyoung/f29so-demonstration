@@ -96,7 +96,7 @@ const getUsername = (ownerID) => {
   if (usernameRes) {
     return usernameRes.username;
   }
-  return 'Anonymous';
+  return 'anonymous';
 };
 
 export const getUserWalls = (userID) => {
@@ -236,7 +236,8 @@ export const getWallMetadata = (wallID) => {
   const getMetadata = db.prepare(
     'SELECT ownerID,width,height,wallID,edits,likes FROM Wall WHERE wallID=?;',
   );
-  return getMetadata.get(wallID);
+  const ownerUsername = getUsername(getMetadata.get(wallID).ownerID);
+  return { ...getMetadata.get(wallID), ownerUsername };
 };
 
 export const getLikes = (wallID) => {
@@ -407,7 +408,7 @@ export const createWall = async (ownerID, width, height) => {
 
   insertAllPixels(pixelArray);
   updatePreview(wallID, await genPreviewBuffer(width, height, pixelArray));
-  // Should return something to show if successful
+  return wallID;
 };
 
 export const getPixelHistory = (pixelID) => {
@@ -460,8 +461,6 @@ export const updatePixel = (pixel) => {
 
 /**
  * Set specific pixels on a wall
- *
- * TODO: Add history stuff
  * @param {number} wallID Wall ID
  * @param {number} x
  * @param {number} y

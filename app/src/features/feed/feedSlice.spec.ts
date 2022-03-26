@@ -10,7 +10,7 @@ describe('feed reducer', () => {
         edits: 42,
         likes: 64,
         ownerUsername: 'bob',
-        lastEdit: '2020-01-01T00:00:00.000Z',
+        lastEdit: 0,
         preview: Buffer.from('abc'),
         liked: true,
       },

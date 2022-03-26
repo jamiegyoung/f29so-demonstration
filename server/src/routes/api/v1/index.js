@@ -58,9 +58,9 @@ router.get('/create-wall/', async (req, res) => {
     return;
   }
 
-  await createWall(req.user.id, 32, 32);
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('done');
+  const wallID = await createWall(req.user.id, 32, 32);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ wallID }));
 });
 
 router.get('/get-feed/:page', (req, res) => {
@@ -91,7 +91,7 @@ router.get('/get-user-walls', (req, res) => {
   const { id } = req.user;
   if (id) {
     const walls = getUserWalls(id);
-    debug('walls:')
+    debug('walls:');
     debug(walls);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(walls));
