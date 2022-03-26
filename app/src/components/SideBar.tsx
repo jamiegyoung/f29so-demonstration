@@ -13,7 +13,7 @@ function SideBar() {
           to={`/${key}`}
           key={key}
           className={`${
-            key === pathname.slice(1) || (key === 'home' && pathname === '/')
+            key === pathname.slice(1).split('/')[0] || (key === 'home' && pathname === '/')
               ? styles.selected
               : ''
           } ${styles.selection}`}
