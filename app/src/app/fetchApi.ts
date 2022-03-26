@@ -5,7 +5,7 @@ const fetchApi: (
   route: Route,
   fetchOpts?: FetchOpts | undefined,
 ) => Promise<Response> = (route: Route, fetchOpts?: FetchOpts) => {
-  if (!fetchOpts) return fetch(`${getServerURI()}${route.uri}`, route.opts);
+  if (!fetchOpts) return fetch(`${getServerURI()}/${route.uri}`, route.opts);
 
   if (route.params && !fetchOpts.params) {
     throw new Error(`Params are required for this route ${route.uri}`);
