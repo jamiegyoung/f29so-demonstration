@@ -24,6 +24,7 @@ function Feed() {
           key={post.wallID}
           wallID={post.wallID}
           ownerID={post.ownerID}
+          ownerUsername={post.ownerUsername}
           edits={post.edits}
           likes={post.likes}
           lastEdit={post.lastEdit}

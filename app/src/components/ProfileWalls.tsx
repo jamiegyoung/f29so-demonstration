@@ -38,6 +38,7 @@ function ProfileWalls() {
             key={wall.wallID}
             wallID={wall.wallID}
             ownerID={wall.ownerID}
+            ownerUsername={wall.ownerUsername}
             edits={wall.edits}
             likes={wall.likes}
             lastEdit={wall.lastEdit}

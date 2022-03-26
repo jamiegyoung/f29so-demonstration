@@ -32,6 +32,7 @@ export type Wall = {
 export type FeedPost = {
   wallID: number;
   ownerID: number;
+  ownerUsername: string;
   edits: number;
   likes: number;
   liked: boolean;

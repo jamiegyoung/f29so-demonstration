@@ -9,6 +9,7 @@ describe('feed reducer', () => {
         ownerID: 3,
         edits: 42,
         likes: 64,
+        ownerUsername: 'bob',
         lastEdit: '2020-01-01T00:00:00.000Z',
         preview: Buffer.from('abc'),
         liked: true,
@@ -25,7 +26,7 @@ describe('feed reducer', () => {
   });
   it('should be able to clear the feed', () => {
     expect(feedReducer(initialState, clearFeed())).toEqual({
-    posts: [],
+      posts: [],
       status: 'idle',
     });
   });

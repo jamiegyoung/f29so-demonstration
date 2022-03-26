@@ -1,33 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Buffer } from 'buffer';
-import { FeedPost, v1 } from '../types';
+import { FeedPost } from '../types';
 import Styles from './WallPost.module.css';
 import LikeButton from './LikeButton';
 import useDate from '../hooks/useDate';
-import useApi from '../hooks/useApi';
 
-function WallPost({ wallID, ownerID, edits, lastEdit, preview }: FeedPost) {
+function WallPost({
+  wallID,
+  ownerID,
+  edits,
+  lastEdit,
+  preview,
+  ownerUsername,
+}: FeedPost) {
   const [image, setImage] = useState<string | undefined>(undefined);
-  const [owner, setOwner] = useState<string | undefined>(undefined);
-
-  const [res, fetch] = useApi(v1.routes.user);
-
-  useEffect(() => {
-    fetch({ params: [ownerID.toString(10)] });
-  }, []);
-
-  useEffect(() => {
-    if (res === undefined || res === null) return;
-    if (res.status !== 200) return;
-    const handleRes = async () => {
-      const data = await res.json();
-      console.log(data);
-      
-      setOwner(data.username);
-    };
-    handleRes();
-  }, [res]);
 
   useEffect(() => {
     if (preview) {
@@ -59,7 +46,9 @@ function WallPost({ wallID, ownerID, edits, lastEdit, preview }: FeedPost) {
         </Link>
       </div>
       <div className={Styles.wallPostData}>
-        <Link className={Styles.userLink} to={`/profile/${ownerID}`}>[ {owner} ]</Link>
+        <Link className={Styles.userLink} to={`/profile/${ownerID}`}>
+          [ {ownerUsername} ]
+        </Link>
         <p>last edited: {useDate(Number.parseInt(lastEdit, 10))}</p>
         <p>edits: {edits}</p>
         <div className={Styles.bottomRightContainer}>

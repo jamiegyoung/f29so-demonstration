@@ -89,6 +89,16 @@ export const init = () => {
   db.exec(createTables);
 };
 
+const getUsername = (ownerID) => {
+  const usernameRes = db
+    .prepare('SELECT username FROM Users WHERE id=?')
+    .get(ownerID);
+  if (usernameRes) {
+    return usernameRes.username;
+  }
+  return 'Anonymous';
+};
+
 export const getUserWalls = (userID) => {
   debug('Getting userwall for user', userID);
   const qr = db.prepare(
@@ -101,7 +111,7 @@ export const getUserWalls = (userID) => {
   const getUserLikes = db.transaction(() =>
     res.map((w) => {
       const liked = getDBLiked.get(w.wallID, userID);
-      return { ...w, liked: !!liked };
+      return { ...w, liked: !!liked, ownerUsername: getUsername(w.ownerID) };
     }),
   );
 
@@ -188,7 +198,12 @@ export const addUser = (id, username, email) => {
     'INSERT INTO Users (id, username, email, joined) VALUES (?, ?, ?, ?)',
   );
   // Remove ms from the timestamp as it will take up a lot of space
-  const res = stmt.run(id, username.toLowerCase(), email, Math.floor(Date.now() / 1000));
+  const res = stmt.run(
+    id,
+    username.toLowerCase(),
+    email,
+    Math.floor(Date.now() / 1000),
+  );
   if (res.changes !== 1) {
     return { error: 'Failed to add user' };
   }
@@ -517,7 +532,7 @@ export const getFeed = (userID) => {
   const getUserLikes = db.transaction(() =>
     res.map((w) => {
       const liked = getDBLiked.get(w.wallID, userID);
-      return { ...w, liked: !!liked };
+      return { ...w, liked: !!liked, ownerUsername: getUsername(w.ownerID) };
     }),
   );
 
