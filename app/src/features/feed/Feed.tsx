@@ -10,13 +10,10 @@ function Feed() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log('yo');
-    console.log(feedData);
     feedData?.posts.map((post: FeedPost) => post);
   }, [feedData]);
 
   useEffect(() => {
-    console.log('dispatching feed');
     dispatch(fetchUserFeed({ page: 0 }));
   }, []);
 
@@ -26,7 +23,7 @@ function Feed() {
         <WallPost
           key={post.wallID}
           wallID={post.wallID}
-          owner={post.owner}
+          ownerID={post.ownerID}
           edits={post.edits}
           likes={post.likes}
           lastEdit={post.lastEdit}

@@ -1,3 +1,10 @@
+.userLink {
+  color: white;
+  font-size: 1.6rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .wallPost {
   width: calc(100% - 80px);
   border-radius: 10px;

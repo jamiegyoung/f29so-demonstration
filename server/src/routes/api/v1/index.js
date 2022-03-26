@@ -12,6 +12,7 @@ import {
   getContributions,
   getContributionCount,
   getFollowing,
+  getUserWalls,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -78,6 +79,34 @@ router.get('/get-feed/:page', (req, res) => {
   }
   res.writeHead(400, { 'Content-Type': 'text/plain' });
   res.end('User is not logged in');
+});
+
+router.get('/get-user-walls', (req, res) => {
+  debug('GET /api/v1/get-user-walls');
+  if (!req.user) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('User is not logged in');
+    return;
+  }
+  const { id } = req.user;
+  if (id) {
+    const walls = getUserWalls(id);
+    debug('walls:')
+    debug(walls);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(walls));
+    return;
+  }
+  res.writeHead(400, { 'Content-Type': 'text/plain' });
+  res.end('User is not logged in');
+});
+
+router.get('/get-user-walls/:userID', (req, res) => {
+  debug('GET /api/v1/get-user-walls/:userID');
+  const { userID } = req.params;
+  const walls = getUserWalls(userID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(walls));
 });
 
 router.get('/toggle-like/:wallID', (req, res) => {

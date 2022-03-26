@@ -1,21 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Buffer } from 'buffer';
-import { FeedPost } from '../types';
-import styles from './WallPost.module.css';
+import { FeedPost, v1 } from '../types';
+import Styles from './WallPost.module.css';
 import LikeButton from './LikeButton';
 import useDate from '../hooks/useDate';
+import useApi from '../hooks/useApi';
 
-function WallPost({
-  wallID,
-  // owner,
-  edits,
-  // likes,
-  lastEdit,
-  preview,
-}: FeedPost) {
+function WallPost({ wallID, ownerID, edits, lastEdit, preview }: FeedPost) {
   const [image, setImage] = useState<string | undefined>(undefined);
-  const randomNames = ['jamie', 'crispin', 'stan', 'connor', 'ralf', 'nimer'];
+  const [owner, setOwner] = useState<string | undefined>(undefined);
+
+  const [res, fetch] = useApi(v1.routes.user);
+
+  useEffect(() => {
+    fetch({ params: [ownerID.toString(10)] });
+  }, []);
+
+  useEffect(() => {
+    if (res === undefined || res === null) return;
+    if (res.status !== 200) return;
+    const handleRes = async () => {
+      const data = await res.json();
+      console.log(data);
+      
+      setOwner(data.username);
+    };
+    handleRes();
+  }, [res]);
 
   useEffect(() => {
     if (preview) {
@@ -24,16 +36,16 @@ function WallPost({
   }, [preview]);
 
   return (
-    <div className={styles.wallPost}>
-      <div className={styles.leftContainer}>
+    <div className={Styles.wallPost}>
+      <div className={Styles.leftContainer}>
         <img
           src={`data:image/png;base64,${image || ''}`}
           alt="wall preview"
-          className={styles.wallPreview}
+          className={Styles.wallPreview}
         />
-        <Link className={styles.contributeButton} to={`/wall/${wallID}`}>
+        <Link className={Styles.contributeButton} to={`/wall/${wallID}`}>
           <svg
-            className={styles.buttonIcon}
+            className={Styles.buttonIcon}
             xmlns="http://www.w3.org/2000/svg"
             height="32px"
             viewBox="0 0 24 24"
@@ -46,15 +58,13 @@ function WallPost({
           contribute
         </Link>
       </div>
-      <div className={styles.wallPostData}>
-        <h1>
-          [ {randomNames[Math.floor(Math.random() * randomNames.length)]} ]
-        </h1>
+      <div className={Styles.wallPostData}>
+        <Link className={Styles.userLink} to={`/profile/${ownerID}`}>[ {owner} ]</Link>
         <p>last edited: {useDate(Number.parseInt(lastEdit, 10))}</p>
         <p>edits: {edits}</p>
-        <div className={styles.bottomRightContainer}>
+        <div className={Styles.bottomRightContainer}>
           <LikeButton wallID={wallID} />
-          <button className={styles.moreInfoButton} type="button">
+          <button className={Styles.moreInfoButton} type="button">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="36px"

@@ -69,7 +69,18 @@ export default (io, sessionMiddleware) => {
         socket.disconnect();
         return;
       }
-      const userID = socket.request.session.passport.user;
+      const { user } = socket.request.session.passport;
+      if (!user) {
+        socket.disconnect();
+        return;
+      }
+
+      if (!user.id) {
+        socket.disconnect();
+        return;
+      }
+      
+      const userID = user.id;
 
       const wallID = socket.handshake.query.wall;
 

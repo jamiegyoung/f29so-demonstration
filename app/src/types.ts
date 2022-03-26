@@ -19,11 +19,26 @@ export interface Pixel extends LocalPixel {
 
 export type Wall = {
   wallID: number;
-  owner: string;
+  ownerID: number;
+  edits: number;
+  lastEdit: number;
+  likes: number;
   width: number;
   height: number;
   pixels: Pixel[];
 };
+
+
+export type FeedPost = {
+  wallID: number;
+  ownerID: number;
+  edits: number;
+  likes: number;
+  liked: boolean;
+  lastEdit: string;
+  preview: Buffer;
+};
+
 
 export type FetchStatus = 'success' | 'idle' | 'loading' | 'error';
 
@@ -142,17 +157,19 @@ export const v1: Api = {
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    getUserWalls: {
+      uri: `${ApiVersion.v1}/get-user-walls`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    selfGetUserWalls: {
+      uri: `${ApiVersion.v1}/get-user-walls`,
+      params: false,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
-};
-
-export type FeedPost = {
-  wallID: number;
-  owner: number;
-  edits: number;
-  likes: number;
-  liked: boolean;
-  lastEdit: string;
-  preview: Buffer;
 };
 
 export type FeedState = {
@@ -178,3 +195,9 @@ export type UserState = {
   status: FetchStatus;
   user: User | null;
 };
+
+export enum ProfileTabSelection {
+  WALLS = 'WALLS',
+  FOLLOWING = 'FOLLOWING',
+  LIKES = 'LIKES',
+}

@@ -12,7 +12,6 @@ import {
   setWallStatus,
 } from '../features/wall/wallSlice';
 import PixelEditor from './PixelEditor';
-import getServerURI from '../app/serverURI';
 import useSocket from '../hooks/useSocket';
 import { Pixel, Wall as WallType } from '../types';
 
@@ -38,19 +37,15 @@ function WallEditor() {
   }, [params]);
 
   useEffect(() => {
-    // // deliberately throttle loading to see spinner
-    // // TODO: remove after demonstration
-    // setTimeout(() => {
     if (!wallSelector.id) return;
     setSocket({
-      uri: `${getServerURI()}/walls`,
+      uri: `/walls`,
       opts: {
         query: {
           wall: wallSelector.id,
         },
       },
     });
-    // }, 3000);
   }, [setSocket, wallSelector.id]);
 
   useEffect(() => {

@@ -1,11 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import Debug from 'debug';
-import {
-  addUser,
-  getUserByEmail,
-  getUserByUsername,
-} from '../../db.js';
+import { addUser, getUserByEmail, getUserByUsername } from '../../db.js';
 
 const debug = Debug('registration');
 const router = express.Router();
@@ -71,45 +67,49 @@ router.post('/submit', apiLimiter, (req, res) => {
     return;
   }
 
-  if (req.body.username.length > 15) {
+  const username = req.body.username.toLowerCase();
+
+  if (username.length > 15) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Username is too long');
     return;
   }
 
-  if (!/^[a-zA-Z0-9_]+$/.test(req.body.username)) {
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Username contains invalid characters');
     return;
   }
 
-  const usernameConflict = getUserByUsername(req.body.username);
+  const usernameConflict = getUserByUsername(username);
   if (usernameConflict) {
     res.writeHead(409, { 'Content-Type': 'text/plain' });
     res.end('Username is already taken');
     return;
   }
 
-  const emailConflict = getUserByEmail(req.body.email);
+  const email = req.body.email.toLowerCase();
+
+  const emailConflict = getUserByEmail(email);
   if (emailConflict) {
     res.writeHead(409, { 'Content-Type': 'text/plain' });
     res.end('Email is already taken');
     return;
   }
 
-  if (req.body.email.length > 320) {
+  if (email.length > 320) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Email is too long');
     return;
   }
 
-  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(req.body.email)) {
+  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid email');
     return;
   }
 
-  const user = addUser(req.user.id, req.body.username, req.body.email);
+  const user = addUser(req.user.id, username, email);
   if (!user) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Failed to register user');
@@ -134,7 +134,7 @@ const usernameCheckLimiter = rateLimit({
 router.get('/check-username/:username', usernameCheckLimiter, (req, res) => {
   debug('checking username');
   const { username } = req.params;
-  const user = getUserByUsername(username);
+  const user = getUserByUsername(username.toLowerCase());
   if (user) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ username, available: false }));

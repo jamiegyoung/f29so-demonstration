@@ -89,15 +89,39 @@ export const init = () => {
   db.exec(createTables);
 };
 
-export const getFollowing = (id) => {
-  db.prepare('SELECT followingID FROM Follows WHERE userID = ?').all(id);
+export const getUserWalls = (userID) => {
+  debug('Getting userwall for user', userID);
+  const qr = db.prepare(
+    'SELECT wallID,ownerID,edits,likes,lastEdit,preview FROM Wall WHERE ownerID = ? ORDER BY lastEdit DESC',
+  );
+  const res = qr.all(userID);
+  const getDBLiked = db.prepare(
+    'SELECT * FROM Likes WHERE wallID=? AND userID=?',
+  );
+  const getUserLikes = db.transaction(() =>
+    res.map((w) => {
+      const liked = getDBLiked.get(w.wallID, userID);
+      return { ...w, liked: !!liked };
+    }),
+  );
+
+  return getUserLikes();
 };
 
+export const getFollowing = (id) =>
+  db.prepare('SELECT followingID FROM Follows WHERE userID = ?').all(id);
+
 export const getUser = (id) =>
-  db.prepare('SELECT id, username, joined, avatar FROM Users WHERE id = ?').get(id);
+  db
+    .prepare('SELECT id, username, joined, avatar FROM Users WHERE id = ?')
+    .get(id);
 
 export const getUserByUsername = (username) =>
-  db.prepare('SELECT id, username, joined, avatar FROM Users WHERE username = ?').get(username);
+  db
+    .prepare(
+      'SELECT id, username, joined, avatar FROM Users WHERE username = ?',
+    )
+    .get(username);
 
 export const getUserByEmail = (email) =>
   db.prepare('SELECT * FROM Users WHERE email = ?').get(email);
@@ -164,7 +188,7 @@ export const addUser = (id, username, email) => {
     'INSERT INTO Users (id, username, email, joined) VALUES (?, ?, ?, ?)',
   );
   // Remove ms from the timestamp as it will take up a lot of space
-  const res = stmt.run(id, username, email, Math.floor(Date.now() / 1000));
+  const res = stmt.run(id, username.toLowerCase(), email, Math.floor(Date.now() / 1000));
   if (res.changes !== 1) {
     return { error: 'Failed to add user' };
   }
@@ -484,7 +508,7 @@ export const setWallPreview = (wallID, previewBuffer) => {
 export const getFeed = (userID) => {
   debug('Getting feed for user', userID);
   const qr = db.prepare(
-    'SELECT wallID,ownerID,edits,likes,lastEdit,preview FROM Wall',
+    'SELECT wallID,ownerID,edits,likes,lastEdit,preview FROM Wall order by lastEdit desc;',
   );
   const res = qr.all();
   const getDBLiked = db.prepare(

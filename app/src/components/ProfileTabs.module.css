@@ -1,0 +1,43 @@
+.tabContainer {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.button {
+  background-color: transparent;
+  border: none;
+  color: #aaaaaa;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.button:hover {
+  color: white;
+}
+
+.button.selected {
+  color: white;
+}
+
+.button > .bottomBorder {
+  width: 0;
+  height: 2px;
+  margin-top: 5px;
+  border-bottom: 2px solid white;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  left: 50%;
+}
+
+.button > .bottomBorder.selected {
+  width: 1px;
+}

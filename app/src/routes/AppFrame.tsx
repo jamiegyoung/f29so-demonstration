@@ -30,6 +30,7 @@ function AppFrame() {
     dispatch(fetchUser());
   }, []);
 
+  // TODO: enable before production
   // useEffect(() => {
   //   if (userData.status === 'error') navigate('/login', { replace: true });
   // }, [userData]);

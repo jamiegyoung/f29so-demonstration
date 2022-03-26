@@ -3,6 +3,7 @@ import { HexColorInput, HexColorPicker } from 'react-colorful';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { clearEditingPixel } from '../features/wall/wallSlice';
 import useContrastingColor from '../hooks/useContrastingColor';
+import useDate from '../hooks/useDate';
 import { History, Pixel } from '../types';
 import styles from './PixelEditor.module.css';
 import StyledButton from './StyledButton';
@@ -127,7 +128,7 @@ function PixelEditor({ onApply }: PixelEditorProps) {
                 }}
               >
                 <p>[ {pixel.username} ]</p>
-                <p>Edited {new Date(pixel.timestamp).toLocaleString()}</p>
+                <p>Edited {useDate(pixel.timestamp)}</p>
                 <p>Color: {pixel.color}</p>
               </div>
             ))}

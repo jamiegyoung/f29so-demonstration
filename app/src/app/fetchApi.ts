@@ -1,12 +1,13 @@
 import { Route, FetchOpts } from '../types';
-import getServerURI from './serverURI';
 
 const fetchApi: (
   route: Route,
   fetchOpts?: FetchOpts | undefined,
 ) => Promise<Response> = (route: Route, fetchOpts?: FetchOpts) => {
-  if (!fetchOpts) return fetch(`${getServerURI()}/${route.uri}`, route.opts);
-
+  if (fetchOpts === undefined) return fetch(`/${route.uri}`, route.opts);
+  if (!route) {
+    throw new Error('Route is not defined');
+  }
   if (route.params && !fetchOpts.params) {
     throw new Error(`Params are required for this route ${route.uri}`);
   }
@@ -17,8 +18,8 @@ const fetchApi: (
 
   const uri = () =>
     fetchOpts.params
-      ? `${getServerURI()}/${route.uri}/${fetchOpts.params.join('/')}`
-      : `${getServerURI()}/${route.uri}`;
+      ? `/${route.uri}/${fetchOpts.params.join('/')}`
+      : `/${route.uri}`;
 
   if (!route.body) return fetch(uri(), route.opts);
 

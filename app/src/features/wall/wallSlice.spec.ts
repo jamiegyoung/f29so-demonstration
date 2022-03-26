@@ -20,9 +20,12 @@ describe('wall reducer', () => {
     id: 1,
     wall: {
       wallID: 3,
-      owner: "bob's wall",
+      ownerID: 0,
       width: 32,
+      likes: 0,
       height: 32,
+      edits: 0,
+      lastEdit: 0,
       pixels: [
         {
           pixelID: 0,
