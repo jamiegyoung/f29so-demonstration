@@ -29,15 +29,15 @@
 }
 
 .button > .bottomBorder {
-  width: 0;
   height: 2px;
   margin-top: 5px;
   border-bottom: 2px solid white;
   transition: all 0.3s ease-in-out;
   position: relative;
   left: 50%;
+  width: 1px;
 }
 
 .button > .bottomBorder.selected {
-  width: 1px;
+  visibility: visible;
 }

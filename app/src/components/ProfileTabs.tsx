@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { ProfileTabSelection } from '../types';
 import Styles from './ProfileTabs.module.css';
 
@@ -8,9 +7,6 @@ type ProfileTabsProps = {
 };
 
 function ProfileTabs({ setSelected, selected }: ProfileTabsProps) {
-  useEffect(() => {
-    console.log(selected);
-  }, [selected]);
   return (
     <div className={Styles.tabContainer}>
       {(
@@ -33,7 +29,7 @@ function ProfileTabs({ setSelected, selected }: ProfileTabsProps) {
                 selected === ProfileTabSelection[tab] ? Styles.selected : '',
               ].join(' ')}
               style={{
-                transform: `scaleX(${ProfileTabSelection[tab].length * 18})`,
+                transform: `scaleX(${ProfileTabSelection[tab].length * (selected === ProfileTabSelection[tab] ? 18 : 0)})`,
               }}
             />
           </button>
