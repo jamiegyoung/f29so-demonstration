@@ -65,7 +65,7 @@ function Profile() {
         params: [paramUserId.toString(10)],
       });
       if (res.status !== 200) return;
-      window.location.reload();
+      window.location.href = '/';
       return;
     }
     setConfirmBan(true);
@@ -128,9 +128,7 @@ function Profile() {
           {selected === ProfileTabSelection.WALLS ? (
             <ProfileWalls userID={otherUser?.id} />
           ) : null}
-          {selected === ProfileTabSelection.FOLLOWING ? (
-            <div>poogger2s</div>
-          ) : null}
+          {selected === ProfileTabSelection.FOLLOWING ? <div>TODO</div> : null}
         </div>
       ) : (
         <div className={Styles.spinnerContainer}>

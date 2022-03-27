@@ -414,9 +414,9 @@ export const deleteUser = (userID) => {
     deleteWall(wall.wallID);
   });
   const delFollowsStmt = db.prepare('DELETE FROM Follows WHERE userID=?;');
-  const delUserStmt = db.prepare('DELETE FROM User WHERE userID=?;');
+  const delUserStmt = db.prepare('DELETE FROM Users WHERE id=?;');
   const delCredentialsStmt = db.prepare(
-    'DELETE FROM Credentials WHERE userID=?;',
+    'DELETE FROM Credentials WHERE id=?;',
   );
   const delLikesStmt = db.prepare('DELETE FROM Likes WHERE userID=?;');
   const delUserSettingsStmt = db.prepare(

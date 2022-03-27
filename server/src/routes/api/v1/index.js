@@ -46,14 +46,10 @@ const apiLimiter = rateLimit({
 router.use(apiLimiter);
 
 router.get('/ban-user/:userID', idUserCheck, (req, res) => {
-  if (!req.user.id) {
-    res.writeHead(401, { 'Content-Type': 'text/plain' });
-    res.end('Unauthorized');
-    return;
-  }
   const isAdmin = getIsAdmin(req.user.id);
+  debug('test', isAdmin);
 
-  if (!isAdmin || req.user.id !== req.params.userID) {
+  if (!isAdmin || req.user.id === req.params.userID) {
     res.writeHead(401, { 'Content-Type': 'text/plain' });
     res.end('Unauthorized');
     return;
