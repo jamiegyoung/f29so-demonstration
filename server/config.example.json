@@ -1,0 +1,13 @@
+{
+  "sessionSecret": "xxxxxxx",
+  "google": {
+    "clientId": "xxxxxx",
+    "clientSecret": "xxxxx",
+    "callbackURL": "http://localhost:7379/auth/redirect/google"
+  },
+  "facebook": {
+    "clientId": "xxxxxx",
+    "clientSecret": "xxxxxxx",
+    "callbackURL": "http://localhost:7379/auth/redirect/facebook"
+  }
+}
