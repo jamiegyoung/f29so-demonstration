@@ -14,6 +14,29 @@
   font-family: 'Roboto', sans-serif;
   margin-left: 20px;
   cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.likeButtonContainer > button:hover {
+  animation: likeButtonHoverAnimation 0.2s ease-out forwards;
+}
+
+@keyframes likeButtonHoverAnimation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  33% {
+    transform: rotate(10deg);
+  }
+
+  66% {
+    transform: rotate(-10deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .likeButtonContainer > p {

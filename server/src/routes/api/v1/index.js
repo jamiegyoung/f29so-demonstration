@@ -5,6 +5,7 @@ import {
   getWallMetadata,
   getWallPixels,
   createWall,
+  deleteWall,
   getFeed,
   toggleLikes,
   getLikes,
@@ -13,10 +14,26 @@ import {
   getContributionCount,
   getFollowing,
   getUserWalls,
+  getIsAdmin,
+  reportWall,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
 const router = express.Router();
+
+const idUserCheck = (req, res, next) => {
+  if (!req.user) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+  if (!req.user.id) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+  next();
+};
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -46,59 +63,65 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/', async (req, res) => {
-  if (!req.user) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User has no credentials');
-    return;
-  }
-  if (!req.user.id) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User has no id');
-    return;
-  }
-
+router.get('/create-wall/', idUserCheck, async (req, res) => {
   const wallID = await createWall(req.user.id, 32, 32);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ wallID }));
 });
 
-router.get('/get-feed/:page', (req, res) => {
-  debug(req.user);
-  if (!req.user) {
+router.get('/delete-wall/:wallID', idUserCheck, (req, res) => {
+  if (!req.params.wallID) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User is not logged in');
+    res.end('No wall ID provided');
     return;
   }
-  const { id } = req.user;
-  if (id) {
-    const feed = getFeed(id);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(feed));
+  const isAdmin = getIsAdmin(req.user.id);
+  const { ownerID } = getWallMetadata(req.params.wallID);
+  debug('wall ownerID: ', ownerID, 'userID: ', req.user.id);
+  if (ownerID !== req.user.id && !isAdmin) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
     return;
   }
-  res.writeHead(400, { 'Content-Type': 'text/plain' });
-  res.end('User is not logged in');
+  const { wallID } = req.params;
+  deleteWall(wallID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ wallID }));
 });
 
-router.get('/get-user-walls', (req, res) => {
-  debug('GET /api/v1/get-user-walls');
-  if (!req.user) {
+router.get('/report-wall/:wallID', idUserCheck, (req, res) => {
+  if (!req.params.wallID) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
-    res.end('User is not logged in');
+    res.end('No wall ID provided');
     return;
   }
-  const { id } = req.user;
-  if (id) {
-    const walls = getUserWalls(id);
-    debug('walls:');
-    debug(walls);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(walls));
+
+  const { ownerID } = getWallMetadata(req.params.wallID);
+  debug('wall ownerID: ', ownerID, 'userID: ', req.user.id);
+
+  if (ownerID === req.user.id) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Cannot report your own wall');
     return;
   }
-  res.writeHead(400, { 'Content-Type': 'text/plain' });
-  res.end('User is not logged in');
+
+  const { wallID } = req.params;
+  reportWall(wallID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ wallID }));
+});
+
+router.get('/get-feed/:page', idUserCheck, (req, res) => {
+  const feed = getFeed(req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(feed));
+});
+
+router.get('/get-user-walls', idUserCheck, (req, res) => {
+  debug('GET /api/v1/get-user-walls');
+  const walls = getUserWalls(req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(walls));
 });
 
 router.get('/get-user-walls/:userID', (req, res) => {
@@ -127,31 +150,28 @@ router.get('/toggle-like/:wallID', (req, res) => {
   res.end('Invalid request');
 });
 
-router.get('/user', (req, res) => {
-  if (req.user) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
-        ...req.user,
-        contributionCount: getContributionCount(req.user.id),
-      }),
-    );
-    return;
-  }
-  res.writeHead(400, { 'Content-Type': 'text/plain' });
+router.get('/user', idUserCheck, (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(
+    JSON.stringify({
+      ...req.user,
+      contributionCount: getContributionCount(req.user.id),
+    }),
+  );
 });
 
 router.get('/user/:userID', (req, res) => {
   debug('GET /api/v1/user/:userID');
   const { userID } = req.params;
-  if (userID) {
-    const user = getUser(userID);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    const contributionCount = getContributionCount(userID);
-    res.end(JSON.stringify({ ...user, contributionCount }));
+  if (!userID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
     return;
   }
-  res.writeHead(400, { 'Content-Type': 'text/plain' });
+
+  const user = getUser(userID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  const contributionCount = getContributionCount(userID);
+  res.end(JSON.stringify({ ...user, contributionCount }));
 });
 
 router.get('/contributions/:userID', (req, res) => {

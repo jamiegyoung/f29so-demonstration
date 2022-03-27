@@ -166,6 +166,18 @@ export const v1: Api = {
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    deleteWall: {
+      uri: `${ApiVersion.v1}/delete-wall`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    reportWall: {
+      uri: `${ApiVersion.v1}/report-wall`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 
@@ -186,6 +198,7 @@ export type User = {
   joined: number;
   avatar: string;
   contributionCount: number;
+  admin: boolean;
 };
 
 export type UserState = {

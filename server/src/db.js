@@ -64,7 +64,14 @@ export const init = () => {
     email TEXT NOT NULL,
     joined INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int)),
     avatar BLOB,
+    admin INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY(id) REFERENCES Credentials(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS Reports (
+    reportID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    wallID INTEGER NOT NULL,
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
   );
 
   CREATE TABLE IF NOT EXISTS Follows (
@@ -89,7 +96,16 @@ export const init = () => {
   db.exec(createTables);
 };
 
-const getUsername = (ownerID) => {
+export const reportWall = (wallID) => {
+  debug(`Reporting wall ${wallID}`);
+  const report = db.prepare('INSERT INTO Reports (wallID) VALUES(?)');
+  report.run(wallID);
+};
+
+export const getIsAdmin = (id) =>
+  db.prepare('SELECT admin FROM Users WHERE id = ?').get(id).admin === 1;
+
+export const getUsername = (ownerID) => {
   const usernameRes = db
     .prepare('SELECT username FROM Users WHERE id=?')
     .get(ownerID);
@@ -123,13 +139,15 @@ export const getFollowing = (id) =>
 
 export const getUser = (id) =>
   db
-    .prepare('SELECT id, username, joined, avatar FROM Users WHERE id = ?')
+    .prepare(
+      'SELECT id, username, joined, avatar, admin FROM Users WHERE id = ?',
+    )
     .get(id);
 
 export const getUserByUsername = (username) =>
   db
     .prepare(
-      'SELECT id, username, joined, avatar FROM Users WHERE username = ?',
+      'SELECT id, username, joined, avatar, admin FROM Users WHERE username = ?',
     )
     .get(username);
 
@@ -358,6 +376,36 @@ export const updatePreview = (wallID, buffer) => {
   debug('Updating preview for wall', wallID);
   const qr = db.prepare('UPDATE Wall SET preview=? WHERE WallID=?');
   qr.run(buffer, wallID);
+};
+
+export const deleteWall = (wallID) => {
+  debug('deleteing wall', wallID);
+  // get all pixels
+  const pixels = getWallPixels(wallID);
+  // delete all history
+  const deleteHistory = db.prepare('DELETE FROM History WHERE historyID=?;');
+  // delete all pixel history
+  const deletePixelHistory = db.prepare(
+    'DELETE FROM PixelHistory WHERE pixelID=?;',
+  );
+  // delete all pixels
+  const deletePixel = db.prepare('DELETE FROM WallPixel WHERE wallID=?;');
+  // delete the wall
+
+  const delWall = db.prepare('DELETE FROM Wall WHERE wallID=?;');
+
+  const finalize = db.transaction(async () => {
+    await pixels.forEach((p) => {
+      p.history.forEach((h) => {
+        deleteHistory.run(h.historyID);
+      });
+      deletePixelHistory.run(p.pixelID);
+    });
+    deletePixel.run(wallID);
+    delWall.run(wallID);
+  });
+
+  finalize();
 };
 
 /**
