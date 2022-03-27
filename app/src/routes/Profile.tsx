@@ -25,7 +25,7 @@ function Profile() {
       return;
     }
     selfFetch();
-  }, []);
+  }, [params]);
 
   useEffect(() => {
     if (wallCreationRes?.status !== 200) {
