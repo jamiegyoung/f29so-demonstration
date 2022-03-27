@@ -22,6 +22,7 @@
   flex-direction: column;
   margin-left: 20px;
   font-size: 1.1rem;
+  width: 100%;
 }
 
 .wallPostData > h1 {
@@ -87,18 +88,4 @@
   font-size: 1.5rem;
   padding: 12px 0 12px 35px;
   margin: auto 0 0 0;
-}
-
-.moreInfoButton {
-  background-color: transparent;
-  border: none;
-  color: white;
-  font-size: 2.5rem;
-  font-weight: bolder;
-  margin: 0 0 0 20px;
-  font-family: 'Roboto', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 }

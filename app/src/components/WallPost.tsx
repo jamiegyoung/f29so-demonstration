@@ -5,6 +5,7 @@ import { FeedPost } from '../types';
 import Styles from './WallPost.module.css';
 import LikeButton from './LikeButton';
 import useDate from '../hooks/useDate';
+import WallPostActionDropdown from './WallPostActionDropdown';
 
 function WallPost({
   wallID,
@@ -53,18 +54,7 @@ function WallPost({
         <p>edits: {edits}</p>
         <div className={Styles.bottomRightContainer}>
           <LikeButton wallID={wallID} />
-          <button className={Styles.moreInfoButton} type="button">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="36px"
-              viewBox="0 0 24 24"
-              width="36px"
-              fill="#FFFFFF"
-            >
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-            </svg>
-          </button>
+          <WallPostActionDropdown wallID={wallID} ownerID={ownerID} />
         </div>
       </div>
     </div>
