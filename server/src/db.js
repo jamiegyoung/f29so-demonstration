@@ -77,14 +77,14 @@ export const init = () => {
   CREATE TABLE IF NOT EXISTS Follows (
     userID INTEGER NOT NULL,
     followingID INTEGER NOT NULL,
-    FOREIGN KEY(userID) REFERENCES Users(id),
-    FOREIGN KEY(followingID) REFERENCES Users(id)
+    FOREIGN KEY(userID) REFERENCES Credentials(id),
+    FOREIGN KEY(followingID) REFERENCES Credentials(id)
   );
 
   CREATE TABLE IF NOT EXISTS UserSettings (
     userID INTEGER NOT NULL,
     privacyLevel INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY(userID) REFERENCES Users(id)
+    FOREIGN KEY(userID) REFERENCES Credentials(id)
   );
 
   CREATE TABLE IF NOT EXISTS Reports (
@@ -406,6 +406,31 @@ export const deleteWall = (wallID) => {
   });
 
   finalize();
+};
+
+export const deleteUser = (userID) => {
+  const userWalls = getUserWalls(userID);
+  userWalls.forEach((wall) => {
+    deleteWall(wall.wallID);
+  });
+  const delFollowsStmt = db.prepare('DELETE FROM Follows WHERE userID=?;');
+  const delUserStmt = db.prepare('DELETE FROM User WHERE userID=?;');
+  const delCredentialsStmt = db.prepare(
+    'DELETE FROM Credentials WHERE userID=?;',
+  );
+  const delLikesStmt = db.prepare('DELETE FROM Likes WHERE userID=?;');
+  const delUserSettingsStmt = db.prepare(
+    'DELETE FROM UserSettings WHERE userID=?;',
+  );
+  const delUser = db.transaction(() => {
+    delFollowsStmt.run(userID);
+    delLikesStmt.run(userID);
+    delUserSettingsStmt.run(userID);
+    delUserStmt.run(userID);
+    delCredentialsStmt.run(userID);
+  });
+
+  delUser();
 };
 
 /**

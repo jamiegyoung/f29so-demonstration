@@ -15,9 +15,9 @@ export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (payload?: FetchUserPayload) => {
     if (payload)
-      return fetchApi(v1.routes.user, {params: [payload.id.toString(10)]}).then((res) =>
-        res.json(),
-      );
+      return fetchApi(v1.routes.user, {
+        params: [payload.id.toString(10)],
+      }).then((res) => res.json());
     return fetchApi(v1.routes.selfUser).then(async (res) => res.json());
   },
 );
@@ -34,7 +34,7 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchUser.fulfilled, (state, action) => {
       if (action.payload) {
-        state.user = action.payload;
+        state.user = { ...action.payload, admin: action.payload.admin === 1 };
         state.status = 'success';
       }
     });

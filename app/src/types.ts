@@ -160,12 +160,6 @@ export const v1: Api = {
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
-    selfGetUserWalls: {
-      uri: `${ApiVersion.v1}/get-user-walls`,
-      params: false,
-      body: false,
-      opts: { method: 'GET', headers: { Accept: 'application/json' } },
-    },
     deleteWall: {
       uri: `${ApiVersion.v1}/delete-wall`,
       params: true,
@@ -174,6 +168,12 @@ export const v1: Api = {
     },
     reportWall: {
       uri: `${ApiVersion.v1}/report-wall`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    banUser: {
+      uri: `${ApiVersion.v1}/ban-user`,
       params: true,
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },

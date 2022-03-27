@@ -6,7 +6,6 @@
 }
 
 .createWallButton {
-  margin-bottom: 50px;
   padding: 10px 20px 10px 20px;
   text-decoration: none;
   font-size: 1.4rem;
@@ -22,6 +21,7 @@
   position: relative;
   letter-spacing: -0.02rem;
   transition: all 0.2s ease-out;
+  margin-right: auto;
 }
 
 .createWallButton:hover {
@@ -37,4 +37,36 @@
 
 .profileImage {
   margin-right: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
+
+}
+
+.banButton {
+  background-color: rgb(190, 0, 0);
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  margin-left: auto;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.banButton:hover {
+  background-color: rgb(255, 0, 0);
+  transform: scale(1.05);
+}
+
+.spinnerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }

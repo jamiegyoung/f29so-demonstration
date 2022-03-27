@@ -1,35 +1,26 @@
 // import Styles from './ProfileWalls.module.css';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import useApi from '../hooks/useApi';
+import fetchApi from '../app/fetchApi';
 import { FeedPost, v1 } from '../types';
 import WallPost from './WallPost';
 
-function ProfileWalls() {
-  const params = useParams();
-
-  const [selfRes, selfFetch] = useApi(v1.routes.selfGetUserWalls);
-  const [otherRes, otherFetch] = useApi(v1.routes.userGetUserWalls);
+function ProfileWalls({ userID }: { userID: number | undefined }) {
   const [walls, setWalls] = useState<FeedPost[]>([]);
 
   useEffect(() => {
-    if (params.userID !== undefined) {
-      otherFetch({ params: [params.userID] });
-      return;
-    }
-    selfFetch();
-  }, []);
-
-  useEffect(() => {
-    const res = selfRes || otherRes;
-    if (res === undefined || res === null) return;
-    if (res.status !== 200) return;
-    const handleRes = async () => {
-      setWalls(await res.json());
+    const handleFetch = async () => {
+      if (!userID) return;
+      const res = await fetchApi(v1.routes.getUserWalls, {
+        params: [userID.toString(10)],
+      });
+      if (res.status !== 200) return;
+      const data = await res.json();
+      setWalls(data);
     };
-    handleRes();
-  }, [selfRes, otherRes]);
+    handleFetch();
+  }, [userID]);
+
   return (
     <div>
       {walls.length > 0 ? (

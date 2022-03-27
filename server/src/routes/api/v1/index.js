@@ -16,6 +16,7 @@ import {
   getUserWalls,
   getIsAdmin,
   reportWall,
+  deleteUser,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -43,6 +44,32 @@ const apiLimiter = rateLimit({
 
 // Every api request will be rate limited
 router.use(apiLimiter);
+
+router.get('/ban-user/:userID', idUserCheck, (req, res) => {
+  if (!req.user.id) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+  const isAdmin = getIsAdmin(req.user.id);
+
+  if (!isAdmin || req.user.id !== req.params.userID) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+  const isOtherAdmin = getIsAdmin(req.params.userID);
+  
+  if (isOtherAdmin) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+
+  deleteUser(req.params.userID);
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('OK');
+});
 
 router.get('/get-wall/:wallID', (req, res) => {
   debug('GET /api/v1/get-wall/:wallID');

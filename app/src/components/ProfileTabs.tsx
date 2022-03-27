@@ -15,6 +15,7 @@ function ProfileTabs({ setSelected, selected }: ProfileTabsProps) {
         >
       ).map((tab) => (
           <button
+            key={tab}
             type="button"
             onClick={() => setSelected(ProfileTabSelection[tab])}
             className={[
