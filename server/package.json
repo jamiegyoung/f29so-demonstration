@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon*,-engine*,-socket.io*,-send && set NODE_ENV=development&& nodemon server.js"
+    "start": "set DEBUG_COLORS=TRUE&& set DEBUG=*,-express*,-nodemon*,-engine*,-socket.io*,-send && set NODE_ENV=development&& nodemon --experimental-json-modules server.js"
   },
   "author": "Blast1113",
   "license": "ISC",
