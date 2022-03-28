@@ -8,13 +8,13 @@ import ProfileWalls from '../components/ProfileWalls';
 import Spinner from '../components/Spinner';
 import useApi from '../hooks/useApi';
 import useDate from '../hooks/useDate';
-import { User, v1, ProfileTabSelection } from '../types';
+import { v1, ProfileTabSelection, OtherUser } from '../types';
 import Styles from './Profile.module.css';
 
 function Profile() {
   const params = useParams();
   const [wallCreationRes, wallCreationFetch] = useApi(v1.routes.createWall);
-  const [otherUser, setOtherUser] = useState<User | undefined>();
+  const [otherUser, setOtherUser] = useState<OtherUser | undefined>();
   const actualUser = useAppSelector((state) => state.user.user);
   const [paramUserId, setParamUserId] = useState<number | undefined>();
   const [selected, setSelected] = useState<ProfileTabSelection>(
@@ -34,7 +34,9 @@ function Profile() {
           params: [params.userID],
         });
         if (res.status !== 200) return;
-        setOtherUser(await res.json());
+        const data = await res.json();
+        setOtherUser(data);
+        console.log(data);
       };
       handleFetchOther();
       return;
@@ -95,6 +97,16 @@ function Profile() {
               <p>contributions: {otherUser?.contributionCount}</p>
             </div>
           </div>
+          {otherUser?.isFollower ? (
+            <p
+              style={{
+                color: '#555',
+                fontSize: '0.8rem',
+              }}
+            >
+              {otherUser.username} is following you
+            </p>
+          ) : null}
           <div className={Styles.buttonContainer}>
             {actualUser?.id === otherUser?.id ? (
               <button
@@ -103,6 +115,34 @@ function Profile() {
                 type="button"
               >
                 Create Wall
+              </button>
+            ) : null}
+            {!otherUser?.isFollowing ? (
+              <button
+                onClick={() => {
+                  fetchApi(v1.routes.follow, {
+                    params: [otherUser?.id.toString(10)],
+                  });
+                  setOtherUser({ ...otherUser, isFollowing: true });
+                }}
+                className={Styles.createWallButton}
+                type="button"
+              >
+                Follow
+              </button>
+            ) : null}
+            {otherUser?.isFollowing ? (
+              <button
+                onClick={() => {
+                  fetchApi(v1.routes.unfollow, {
+                    params: [otherUser?.id.toString(10)],
+                  });
+                  setOtherUser({ ...otherUser, isFollowing: false });
+                }}
+                className={Styles.createWallButton}
+                type="button"
+              >
+                Unfollow
               </button>
             ) : null}
             {paramUserId &&

@@ -18,6 +18,14 @@ import {
   reportWall,
   deleteUser,
   getReportedWalls,
+  getIsFollower,
+  getIsFollowing,
+  getFollowersCount,
+  getFollowingCount,
+  getWallCount,
+  getUserLikeCount,
+  addFollow,
+  removeFollow,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -76,7 +84,7 @@ router.delete('/delete-user', idUserCheck, (req, res) => {
   res.end('OK');
 });
 
-router.get('/get-wall/:wallID', (req, res) => {
+router.get('/get-wall/:wallID', idUserCheck, (req, res) => {
   debug('GET /api/v1/get-wall/:wallID');
   const { wallID } = req.params;
 
@@ -95,7 +103,7 @@ router.get('/get-wall/:wallID', (req, res) => {
   res.end(JSON.stringify(data));
 });
 
-router.get('/create-wall/', idUserCheck, async (req, res) => {
+router.get('/create-wall', idUserCheck, async (req, res) => {
   const wallID = await createWall(req.user.id, 32, 32);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ wallID }));
@@ -156,7 +164,7 @@ router.get('/get-user-walls', idUserCheck, (req, res) => {
   res.end(JSON.stringify(walls));
 });
 
-router.get('/get-user-walls/:userID', (req, res) => {
+router.get('/get-user-walls/:userID', idUserCheck, (req, res) => {
   debug('GET /api/v1/get-user-walls/:userID');
   const { userID } = req.params;
   const walls = getUserWalls(userID);
@@ -164,12 +172,11 @@ router.get('/get-user-walls/:userID', (req, res) => {
   res.end(JSON.stringify(walls));
 });
 
-router.get('/toggle-like/:wallID', (req, res) => {
+router.get('/toggle-like/:wallID', idUserCheck, (req, res) => {
   const { wallID } = req.params;
 
   const userID = req.user.id;
   if (wallID && userID) {
-    debug('yoo');
     const toggleRes = toggleLikes(wallID, userID);
     const likes = getLikes(wallID);
     debug('toggleRes', toggleRes);
@@ -184,29 +191,68 @@ router.get('/toggle-like/:wallID', (req, res) => {
 
 router.get('/user', idUserCheck, (req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
+  const contributionCount = getContributionCount(req.params.id);
+  const followingCount = getFollowingCount(req.params.id);
+  const followerCount = getFollowersCount(req.params.id);
+  const wallCount = getWallCount(req.params.id);
+  const likeCount = getUserLikeCount(req.params.id);
   res.end(
     JSON.stringify({
       ...req.user,
-      contributionCount: getContributionCount(req.user.id),
+      contributionCount,
+      followingCount,
+      followerCount,
+      wallCount,
+      likeCount,
     }),
   );
 });
 
-router.get('/user/:userID', (req, res) => {
+router.get('/user/:userID', idUserCheck, (req, res) => {
   debug('GET /api/v1/user/:userID');
   const { userID } = req.params;
   if (!userID) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     return;
   }
-
   const user = getUser(userID);
-  res.writeHead(200, { 'Content-Type': 'application/json' });
   const contributionCount = getContributionCount(userID);
-  res.end(JSON.stringify({ ...user, contributionCount }));
+  const followingCount = getFollowingCount(userID);
+  const followerCount = getFollowersCount(userID);
+  const wallCount = getWallCount(userID);
+  const likeCount = getUserLikeCount(userID);
+  if (req.user && userID === req.user.id) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        ...user,
+        contributionCount,
+        followingCount,
+        followerCount,
+        wallCount,
+        likeCount,
+      }),
+    );
+    return;
+  }
+  const isFollowing = getIsFollowing(userID, req.user.id);
+  const isFollower = getIsFollower(userID, req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(
+    JSON.stringify({
+      ...user,
+      contributionCount,
+      followingCount,
+      followerCount,
+      wallCount,
+      likeCount,
+      isFollowing,
+      isFollower,
+    }),
+  );
 });
 
-router.get('/contributions/:userID', (req, res) => {
+router.get('/contributions/:userID', idUserCheck, (req, res) => {
   debug('GET /api/v1/contributions/:userID');
   const { userID } = req.params;
   if (!userID) {
@@ -219,7 +265,7 @@ router.get('/contributions/:userID', (req, res) => {
   res.end(JSON.stringify(contributions));
 });
 
-router.get('/following/:userID', (req, res) => {
+router.get('/following/:userID', idUserCheck, (req, res) => {
   debug('GET /api/v1/following/:userID');
   const { userID } = req.params;
   if (!userID) {
@@ -260,6 +306,44 @@ router.get('/reported-walls', idUserCheck, (req, res) => {
   const walls = getReportedWalls(req.user.id);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(walls));
+});
+
+router.get('/follow/:userID', idUserCheck, (req, res) => {
+  debug('GET /api/v1/follow/:userID');
+  const { userID } = req.params;
+  if (!userID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No user ID provided');
+    return;
+  }
+  const isFollowing = getIsFollowing(userID, req.user.id);
+  if (isFollowing) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Already following');
+    return;
+  }
+  addFollow(userID, req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ userID }));
+});
+
+router.get('/unfollow/:userID', idUserCheck, (req, res) => {
+  debug('GET /api/v1/unfollow/:userID');
+  const { userID } = req.params;
+  if (!userID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No user ID provided');
+    return;
+  }
+  const isFollowing = getIsFollowing(userID, req.user.id);
+  if (!isFollowing) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Not following');
+    return;
+  }
+  removeFollow(userID, req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ userID }));
 });
 
 export default router;

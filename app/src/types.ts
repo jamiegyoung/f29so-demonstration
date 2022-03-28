@@ -196,6 +196,18 @@ export const v1: Api = {
       body: false,
       opts: { method: 'DELETE', headers: { Accept: 'application/json' } },
     },
+    follow: {
+      uri: `${ApiVersion.v1}/follow`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    unfollow: {
+      uri: `${ApiVersion.v1}/unfollow`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 
@@ -210,14 +222,23 @@ export type SetLikeType = {
   liked: boolean;
 };
 
-export type User = {
+export interface User {
   id: number;
   username: string;
   joined: number;
   avatar: string;
   contributionCount: number;
   admin: boolean;
-};
+  followingCount: number;
+  followerCount: number;
+  wallCount: number;
+  likeCount: number;
+}
+
+export interface OtherUser extends User {
+  isFollowing: boolean;
+  isFollower: boolean;
+}
 
 export type UserState = {
   status: FetchStatus;

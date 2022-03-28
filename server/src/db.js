@@ -96,6 +96,60 @@ export const init = () => {
   db.exec(createTables);
 };
 
+export const removeFollow = (followingID, userID) => {
+  debug('Removing follow');
+  const stmt = db.prepare(
+    `DELETE FROM Follows WHERE userID = ? AND followingID = ?`,
+  );
+  stmt.run(userID, followingID);
+};
+
+export const addFollow = (followingID, userID) => {
+  debug('Adding follow');
+  const insert = db.prepare(
+    `INSERT INTO Follows (userID, followingID) VALUES (?, ?)`,
+  );
+  insert.run(userID, followingID);
+};
+
+export const getIsFollowing = (followingID, userID) => {
+  const query = db.prepare(
+    'SELECT * FROM Follows WHERE userID = ? AND followingID = ?',
+  );
+  const result = query.get(userID, followingID);
+  return result !== undefined;
+};
+
+export const getIsFollower = (followerID, userID) => {
+  const query = db.prepare(
+    'SELECT * FROM Follows WHERE userID = ? AND followingID = ?',
+  );
+  const result = query.get(followerID, userID);
+  return result !== undefined;
+};
+
+export const getFollowingCount = (userID) => {
+  const query = db.prepare('SELECT COUNT(*) FROM Follows WHERE userID = ?');
+  return query.get(userID).count;
+};
+
+export const getFollowersCount = (userID) => {
+  const query = db.prepare(
+    'SELECT COUNT(*) FROM Follows WHERE followingID = ?',
+  );
+  return query.get(userID).count;
+};
+
+export const getWallCount = (userID) => {
+  const query = db.prepare('SELECT COUNT(*) FROM Wall WHERE ownerID = ?');
+  return query.get(userID).count;
+};
+
+export const getUserLikeCount = (userID) => {
+  const query = db.prepare('SELECT COUNT(*) FROM Likes WHERE userID = ?');
+  return query.get(userID).count;
+};
+
 export const removeReport = (wallID) => {
   debug(`Removing report for wall ${wallID}`);
   const rmstmt = db.prepare('DELETE FROM Reports WHERE wallID = ?');
