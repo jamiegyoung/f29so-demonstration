@@ -2,6 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import Debug from 'debug';
 import { addUser, getUserByEmail, getUserByUsername } from '../../db.js';
+import { validate as validateEmail } from 'email-validator';
 
 const debug = Debug('registration');
 const router = express.Router();
@@ -103,7 +104,7 @@ router.post('/submit', apiLimiter, (req, res) => {
     return;
   }
 
-  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+  if (!validateEmail(email)) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid email');
     return;
