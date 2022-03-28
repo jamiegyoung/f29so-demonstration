@@ -391,7 +391,7 @@ export const deleteWall = (wallID) => {
   // delete all pixels
   const deletePixel = db.prepare('DELETE FROM WallPixel WHERE wallID=?;');
   // delete the wall
-
+  const deleteLikes = db.prepare('DELETE FROM Likes WHERE wallID=?;');
   const delWall = db.prepare('DELETE FROM Wall WHERE wallID=?;');
 
   const finalize = db.transaction(async () => {
@@ -402,6 +402,7 @@ export const deleteWall = (wallID) => {
       deletePixelHistory.run(p.pixelID);
     });
     deletePixel.run(wallID);
+    deleteLikes.run(wallID);
     delWall.run(wallID);
   });
 
