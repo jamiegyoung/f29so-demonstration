@@ -89,6 +89,7 @@ const loggedIn = (req, res, next) => {
     }
   }
   debug('user is not logged in');
+  req.session.destroy()
   res.redirect('/login');
 };
 

@@ -39,13 +39,7 @@ function Profile() {
       handleFetchOther();
       return;
     }
-
-    const handleFetchSelf = async () => {
-      const res = await fetchApi(v1.routes.selfUser);
-      if (res.status !== 200) return;
-      setOtherUser(await res.json());
-    };
-    handleFetchSelf();
+    navigate(`/profile/${actualUser?.id}`, { replace: true });
   }, [params]);
 
   useEffect(() => {
@@ -122,7 +116,9 @@ function Profile() {
                 className={Styles.banButton}
                 onClick={() => handleBanClick()}
               >
-                {confirmBan ? `Are you sure? ${timeoutTime || ''}` : 'Delete User'}
+                {confirmBan
+                  ? `Are you sure? ${timeoutTime || ''}`
+                  : 'Delete User'}
               </button>
             ) : null}
           </div>

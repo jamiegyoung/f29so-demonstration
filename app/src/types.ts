@@ -184,6 +184,18 @@ export const v1: Api = {
       body: false,
       opts: { method: 'DELETE', headers: { Accept: 'application/json' } },
     },
+    reportedWalls: {
+      uri: `${ApiVersion.v1}/reported-walls`,
+      params: false,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
+    removeReport: {
+      uri: `${ApiVersion.v1}/remove-report`,
+      params: true,
+      body: false,
+      opts: { method: 'DELETE', headers: { Accept: 'application/json' } },
+    },
   },
 };
 

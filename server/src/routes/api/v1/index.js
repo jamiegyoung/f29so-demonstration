@@ -17,6 +17,7 @@ import {
   getIsAdmin,
   reportWall,
   deleteUser,
+  getReportedWalls,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');
@@ -208,18 +209,57 @@ router.get('/user/:userID', (req, res) => {
 router.get('/contributions/:userID', (req, res) => {
   debug('GET /api/v1/contributions/:userID');
   const { userID } = req.params;
-  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
+  if (!userID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No user ID provided');
+    return;
+  }
   const contributions = getContributions(userID);
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  return res.end(JSON.stringify(contributions));
+  res.end(JSON.stringify(contributions));
 });
 
 router.get('/following/:userID', (req, res) => {
   debug('GET /api/v1/following/:userID');
   const { userID } = req.params;
-  if (!userID) return res.writeHead(400, { 'Content-Type': 'text/plain' });
+  if (!userID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No user ID provided');
+    return;
+  }
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  return res.end(JSON.stringify(getFollowing(userID)));
+  res.end(JSON.stringify(getFollowing(userID)));
+});
+
+router.delete('/remove-report/:wallID', idUserCheck, (req, res) => {
+  debug('GET /api/v1/remove-report/:wallID');
+  const { wallID } = req.params;
+  if (!wallID) {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('No wall ID provided');
+    return;
+  }
+  if (!getIsAdmin(req.user.id)) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+  removeReport(wallID);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ wallID }));
+});
+
+router.get('/reported-walls', idUserCheck, (req, res) => {
+  debug('GET /api/v1/reported-walls');
+  if (!getIsAdmin(req.user.id)) {
+    res.writeHead(401, { 'Content-Type': 'text/plain' });
+    res.end('Unauthorized');
+    return;
+  }
+
+  const walls = getReportedWalls(req.user.id);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(walls));
 });
 
 export default router;

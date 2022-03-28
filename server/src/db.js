@@ -96,6 +96,24 @@ export const init = () => {
   db.exec(createTables);
 };
 
+export const removeReport = (wallID) => {
+  debug(`Removing report for wall ${wallID}`);
+  const rmstmt = db.prepare('DELETE FROM Reports WHERE wallID = ?');
+  rmstmt.run(wallID);
+};
+
+export const getReportedWalls = () => {
+  const wallIds = db.prepare('SELECT * FROM Reports').all();
+  return wallIds
+    .map((wallId) => {
+      const wall = db
+        .prepare('SELECT * FROM Wall WHERE wallID = ?')
+        .get(wallId.wallID);
+      return wall;
+    })
+    .filter((wall) => wall);
+};
+
 export const reportWall = (wallID) => {
   debug(`Reporting wall ${wallID}`);
   const report = db.prepare('INSERT INTO Reports (wallID) VALUES(?)');
@@ -393,7 +411,7 @@ export const deleteWall = (wallID) => {
   // delete the wall
   const deleteLikes = db.prepare('DELETE FROM Likes WHERE wallID=?;');
   const delWall = db.prepare('DELETE FROM Wall WHERE wallID=?;');
-
+  const delReports = db.prepare('DELETE FROM Reports WHERE wallID=?;');
   const finalize = db.transaction(async () => {
     await pixels.forEach((p) => {
       p.history.forEach((h) => {
@@ -403,6 +421,7 @@ export const deleteWall = (wallID) => {
     });
     deletePixel.run(wallID);
     deleteLikes.run(wallID);
+    delReports.run(wallID);
     delWall.run(wallID);
   });
 
@@ -416,9 +435,7 @@ export const deleteUser = (userID) => {
   });
   const delFollowsStmt = db.prepare('DELETE FROM Follows WHERE userID=?;');
   const delUserStmt = db.prepare('DELETE FROM Users WHERE id=?;');
-  const delCredentialsStmt = db.prepare(
-    'DELETE FROM Credentials WHERE id=?;',
-  );
+  const delCredentialsStmt = db.prepare('DELETE FROM Credentials WHERE id=?;');
   const delLikesStmt = db.prepare('DELETE FROM Likes WHERE userID=?;');
   const delUserSettingsStmt = db.prepare(
     'DELETE FROM UserSettings WHERE userID=?;',
