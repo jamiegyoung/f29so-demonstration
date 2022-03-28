@@ -20,6 +20,7 @@ import {
   // updatePreview,
   getWallPixels,
   setWallPreview,
+  getUser,
 } from './src/db.js';
 
 import api from './src/routes/api/index.js';
@@ -82,8 +83,10 @@ initializePassport(app);
 const loggedIn = (req, res, next) => {
   debug('checking if user is logged in');
   if (req.user) {
-    debug('user is logged in');
-    return next();
+    if (getUser(req.user.id)) {
+      debug('user is logged in');
+      return next();
+    }
   }
   debug('user is not logged in');
   res.redirect('/login');

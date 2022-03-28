@@ -102,13 +102,15 @@ function Profile() {
             </div>
           </div>
           <div className={Styles.buttonContainer}>
-            <button
-              onClick={() => wallCreationFetch()}
-              className={Styles.createWallButton}
-              type="button"
-            >
-              Create Wall
-            </button>
+            {actualUser?.id === otherUser?.id ? (
+              <button
+                onClick={() => wallCreationFetch()}
+                className={Styles.createWallButton}
+                type="button"
+              >
+                Create Wall
+              </button>
+            ) : null}
             {paramUserId &&
             actualUser &&
             paramUserId !== actualUser.id &&
