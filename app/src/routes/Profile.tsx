@@ -122,7 +122,7 @@ function Profile() {
                 className={Styles.banButton}
                 onClick={() => handleBanClick()}
               >
-                {confirmBan ? `Are you sure? ${timeoutTime || ''}` : 'Ban'}
+                {confirmBan ? `Are you sure? ${timeoutTime || ''}` : 'Delete User'}
               </button>
             ) : null}
           </div>

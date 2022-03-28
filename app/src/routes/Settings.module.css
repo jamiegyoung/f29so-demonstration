@@ -1,0 +1,18 @@
+.button {
+  border: none;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: .1s ease-out;
+  box-shadow: 0 10px 20px rgba(255, 0, 0, 0.19), 0 6px 6px rgba(255, 0, 0, 0.23);
+}
+
+.danger {
+  background-color: #f80000;
+  color: #fff;
+}
+
+.danger:hover {
+  background-color: #961212;
+}

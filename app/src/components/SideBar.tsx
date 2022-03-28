@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import styles from './SideBar.module.css';
 
-const sideBarSelection = ['home', 'profile', 'trending', 'following'];
+const sideBarSelection = ['home', 'profile', 'trending', 'following', 'settings'];
 
 function SideBar() {
   const { pathname } = useLocation();

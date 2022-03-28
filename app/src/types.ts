@@ -172,11 +172,17 @@ export const v1: Api = {
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
-    banUser: {
-      uri: `${ApiVersion.v1}/ban-user`,
+    deleteUser: {
+      uri: `${ApiVersion.v1}/delete-user`,
       params: true,
       body: false,
-      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+      opts: { method: 'DELETE', headers: { Accept: 'application/json' } },
+    },
+    selfDeleteUser: {
+      uri: `${ApiVersion.v1}/delete-user`,
+      params: false,
+      body: false,
+      opts: { method: 'DELETE', headers: { Accept: 'application/json' } },
     },
   },
 };

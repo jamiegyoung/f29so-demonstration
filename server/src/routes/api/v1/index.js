@@ -45,7 +45,7 @@ const apiLimiter = rateLimit({
 // Every api request will be rate limited
 router.use(apiLimiter);
 
-router.get('/ban-user/:userID', idUserCheck, (req, res) => {
+router.delete('/delete-user/:userID', idUserCheck, (req, res) => {
   const isAdmin = getIsAdmin(req.user.id);
   debug('test', isAdmin);
 
@@ -55,7 +55,7 @@ router.get('/ban-user/:userID', idUserCheck, (req, res) => {
     return;
   }
   const isOtherAdmin = getIsAdmin(req.params.userID);
-  
+
   if (isOtherAdmin) {
     res.writeHead(401, { 'Content-Type': 'text/plain' });
     res.end('Unauthorized');
@@ -63,6 +63,14 @@ router.get('/ban-user/:userID', idUserCheck, (req, res) => {
   }
 
   deleteUser(req.params.userID);
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('OK');
+});
+
+router.delete('/delete-user', idUserCheck, (req, res) => {
+  debug('deleting self user');
+  deleteUser(req.user.id);
+  req.session.destroy();
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('OK');
 });

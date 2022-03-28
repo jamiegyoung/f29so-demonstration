@@ -9,6 +9,7 @@ import WallEditor from '../components/WallEditor';
 import styles from './AppFrame.module.css';
 import Home from './Home';
 import Profile from './Profile';
+import Settings from './Settings';
 
 const AppRoutes = () =>
   useRoutes([
@@ -19,6 +20,7 @@ const AppRoutes = () =>
     { path: '/profile', element: <Profile /> },
     { path: '/trending', element: <div>Trending</div> },
     { path: '/saved', element: <div>Saved</div> },
+    { path: '/settings', element: <Settings /> },
   ]);
 
 function AppFrame() {
