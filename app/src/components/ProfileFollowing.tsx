@@ -35,7 +35,7 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
 
     handleFetch();
     getActualUserFollowing();
-  }, []);
+  }, [user]);
 
   return (
     <div>
