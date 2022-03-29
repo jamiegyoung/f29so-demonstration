@@ -191,11 +191,12 @@ router.get('/toggle-like/:wallID', idUserCheck, (req, res) => {
 
 router.get('/user', idUserCheck, (req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  const contributionCount = getContributionCount(req.params.id);
-  const followingCount = getFollowingCount(req.params.id);
-  const followerCount = getFollowersCount(req.params.id);
-  const wallCount = getWallCount(req.params.id);
-  const likeCount = getUserLikeCount(req.params.id);
+  debug('GET /api/v1/user');
+  const contributionCount = getContributionCount(req.user.id);
+  const followingCount = getFollowingCount(req.user.id);
+  const followerCount = getFollowersCount(req.user.id);
+  const wallCount = getWallCount(req.user.id);
+  const likeCount = getUserLikeCount(req.user.id);
   res.end(
     JSON.stringify({
       ...req.user,
