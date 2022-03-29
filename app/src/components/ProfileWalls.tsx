@@ -1,30 +1,27 @@
 // import Styles from './ProfileWalls.module.css';
 
-import { useEffect, useState } from 'react';
-import fetchApi from '../app/fetchApi';
-import { FeedPost, v1 } from '../types';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { fetchUserWallFeed } from '../features/feed/feedSlice';
+import { FeedPost } from '../types';
 import WallPost from './WallPost';
 
-function ProfileWalls({ userID }: { userID: number | undefined }) {
-  const [walls, setWalls] = useState<FeedPost[]>([]);
+function ProfileWalls({ userID }: { userID: number }) {
+  const feedData = useAppSelector((state) => state.feed);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const handleFetch = async () => {
-      if (!userID) return;
-      const res = await fetchApi(v1.routes.getUserWalls, {
-        params: [userID.toString(10)],
-      });
-      if (res.status !== 200) return;
-      const data = await res.json();
-      setWalls(data);
-    };
-    handleFetch();
-  }, [userID]);
+    feedData?.posts.map((post: FeedPost) => post);
+  }, [feedData]);
+
+  useEffect(() => {
+    dispatch(fetchUserWallFeed({ userID }));
+  }, []);
 
   return (
     <div>
-      {walls.length > 0 ? (
-        walls.map((wall) => (
+      {feedData?.posts.length > 0 ? (
+        feedData.posts.map((wall) => (
           <WallPost
             key={wall.wallID}
             wallID={wall.wallID}

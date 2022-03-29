@@ -19,6 +19,14 @@ export const fetchUserFeed = createAsyncThunk(
     ),
 );
 
+export const fetchUserWallFeed = createAsyncThunk(
+  'feed/fetchUserWallFeed',
+  async ({ userID }: { userID: number }) =>
+    fetchApi(v1.routes.getUserWalls, { params: [userID.toString(10)] }).then(
+      (res) => res.json(),
+    ),
+);
+
 export const feedSlice = createSlice({
   name: 'feed',
   initialState,
@@ -47,6 +55,18 @@ export const feedSlice = createSlice({
       state.status = 'loading';
     });
     builder.addCase(fetchUserFeed.rejected, (state) => {
+      state.status = 'error';
+    });
+    builder.addCase(fetchUserWallFeed.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.posts = action.payload;
+        state.status = 'success';
+      }
+    });
+    builder.addCase(fetchUserWallFeed.pending, (state) => {
+      state.status = 'loading';
+    });
+    builder.addCase(fetchUserWallFeed.rejected, (state) => {
       state.status = 'error';
     });
   },
