@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import copy from 'copy-to-clipboard';
 import { useAppSelector } from '../app/hooks';
 import useApi from '../hooks/useApi';
 import { v1 } from '../types';
@@ -57,6 +58,13 @@ function WallPostActionDropdown({
       condition: user?.admin || user?.id === ownerID,
       action: () => {
         deleteApiFetch({ params: [wallID.toString(10)] });
+      },
+    },
+    {
+      label: 'copy link',
+      condition: true,
+      action: () => {
+        copy(`${window.location.origin}/wall/${wallID}`);
       },
     },
   ];
