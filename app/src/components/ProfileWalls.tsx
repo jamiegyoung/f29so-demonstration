@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { fetchUserWallFeed } from '../features/feed/feedSlice';
+import { clearFeed, fetchUserWallFeed } from '../features/feed/feedSlice';
 import { FeedPost } from '../types';
 import WallPost from './WallPost';
 
@@ -15,8 +15,9 @@ function ProfileWalls({ userID }: { userID: number }) {
   }, [feedData]);
 
   useEffect(() => {
+    dispatch(clearFeed());
     dispatch(fetchUserWallFeed({ userID }));
-  }, []);
+  }, [userID]);
 
   return (
     <div>
