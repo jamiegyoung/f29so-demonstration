@@ -1,0 +1,20 @@
+.followingContainer {
+  background-color: #121212;
+  border: 2px solid #474747;
+  padding: 5px 5px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profilePhoto {
+  margin-right: 20px;
+}
+
+.followingButton {
+  font-size: 1rem;
+  margin-right: 10px;
+  height: 40px;
+  margin-left: auto;
+}

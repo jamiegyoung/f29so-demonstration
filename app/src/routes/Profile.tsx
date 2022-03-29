@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import fetchApi from '../app/fetchApi';
 import { useAppSelector } from '../app/hooks';
+import FollowButton from '../components/FollowButton';
 import ProfileFollowing from '../components/ProfileFollowing';
 import ProfileImage from '../components/ProfileImage';
 import ProfileTabs from '../components/ProfileTabs';
 import ProfileWalls from '../components/ProfileWalls';
 import Spinner from '../components/Spinner';
+import UnfollowButton from '../components/UnfollowButton';
 import useApi from '../hooks/useApi';
 import useDate from '../hooks/useDate';
 import { v1, ProfileTabSelection, OtherUser } from '../types';
@@ -118,32 +120,20 @@ function Profile() {
               </button>
             ) : null}
             {otherUser?.id !== actualUser?.id && !otherUser?.isFollowing ? (
-              <button
+              <FollowButton
                 onClick={() => {
-                  fetchApi(v1.routes.follow, {
-                    params: [otherUser?.id.toString(10)],
-                  });
                   setOtherUser({ ...otherUser, isFollowing: true });
                 }}
-                className={Styles.createWallButton}
-                type="button"
-              >
-                Follow
-              </button>
+                userID={otherUser?.id}
+              />
             ) : null}
             {otherUser?.id !== actualUser?.id && otherUser?.isFollowing ? (
-              <button
+              <UnfollowButton
                 onClick={() => {
-                  fetchApi(v1.routes.unfollow, {
-                    params: [otherUser?.id.toString(10)],
-                  });
                   setOtherUser({ ...otherUser, isFollowing: false });
                 }}
-                className={Styles.createWallButton}
-                type="button"
-              >
-                Unfollow
-              </button>
+                userID={otherUser?.id}
+              />
             ) : null}
             {paramUserId &&
             actualUser &&
@@ -167,7 +157,7 @@ function Profile() {
             <ProfileWalls userID={otherUser?.id} />
           ) : null}
           {selected === ProfileTabSelection.FOLLOWING ? (
-            <ProfileFollowing user={otherUser}/>
+            <ProfileFollowing user={otherUser} />
           ) : null}
         </div>
       ) : (

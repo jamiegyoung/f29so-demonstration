@@ -267,7 +267,7 @@ router.get('/contributions/:userID', idUserCheck, (req, res) => {
   res.end(JSON.stringify(contributions));
 });
 
-router.get('/following/:userID', idUserCheck, (req, res) => {
+router.get('/get-following/:userID', idUserCheck, (req, res) => {
   debug('GET /api/v1/following/:userID');
   const { userID } = req.params;
   if (!userID) {
@@ -276,7 +276,9 @@ router.get('/following/:userID', idUserCheck, (req, res) => {
     return;
   }
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(getFollowing(userID)));
+  const following = getFollowing(userID);
+  debug('following', following);
+  res.end(JSON.stringify(following));
 });
 
 router.delete('/remove-report/:wallID', idUserCheck, (req, res) => {
@@ -347,5 +349,6 @@ router.get('/unfollow/:userID', idUserCheck, (req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ userID }));
 });
+
 
 export default router;

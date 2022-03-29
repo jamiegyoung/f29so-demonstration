@@ -1,0 +1,23 @@
+.button {
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: bold;
+  background-color: rgb(241, 241, 241);
+  color: black;
+  border-radius: 10px;
+  border: 1px solid #242424;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.1s ease-out;
+  cursor: pointer;
+  position: relative;
+  letter-spacing: -0.02rem;
+  transition: all 0.2s ease-out;
+  margin-right: auto;
+}
+
+.createWallButton:hover {
+  background-color: rgb(255, 255, 255);
+  transform: scale(1.05);
+}

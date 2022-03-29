@@ -215,8 +215,24 @@ export const getUserWalls = (userID) => {
   return getUserLikes();
 };
 
-export const getFollowing = (id) =>
-  db.prepare('SELECT followingID FROM Follows WHERE userID = ?').all(id);
+export const getFollowing = (id) => {
+  const followingIDs = db
+    .prepare('SELECT followingID FROM Follows WHERE userID = ?')
+    .all(id);
+  const getFollowingUsers = db.transaction(() =>
+    followingIDs.reduce((prev, followingID) => {
+      debug('Getting following user', followingID);
+      debug('prev', prev);
+      const user = db
+        .prepare(
+          'SELECT id,username,joined,avatar,admin FROM Users WHERE id = ?',
+        )
+        .get(followingID.followingID);
+      return [...prev, user];
+    }, []),
+  );
+  return getFollowingUsers();
+};
 
 export const getUser = (id) =>
   db
