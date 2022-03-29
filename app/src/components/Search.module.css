@@ -12,10 +12,15 @@
   font-size: 1.3rem;
 }
 
-/* hide when on mobile */
-@media (max-width: 768px) {
-  .searchBar {
-    display: none;
+@media (max-width: 480px) {
+  .searchBar input {
+    width: 200px;
+  }
+}
+
+@media (max-width: 380px) {
+  .searchBar input {
+    width: 120px;
   }
 }
 

@@ -6,6 +6,7 @@
 }
 
 .wallPost {
+  min-width: 220px;
   width: calc(100% - 80px);
   border-radius: 10px;
   border: solid 2px #2e2e2e;
@@ -42,6 +43,9 @@
   width: 100%;
   /* max-width: 128px; */
 }
+
+
+
 
 .contributeButton {
   padding: 10px 20px 10px 35px;
@@ -88,6 +92,29 @@
   font-size: 1.5rem;
   padding: 12px 0 12px 35px;
   margin: auto 0 0 0;
+}
+
+@media (max-width: 400px) {
+  .bottomRightContainer {
+    padding: 12px 0;
+  }
+
+
+  .contributeButton {
+    font-size: 1rem;
+  }
+
+  .userLink {
+    font-size: 1.2rem;
+  }
+
+  .wallPostData > p {
+    font-size: 1rem;
+  }
+
+  .bottomRightContainer {
+    width: 100px;
+  }
 }
 
 .bottomRightContainer > button {

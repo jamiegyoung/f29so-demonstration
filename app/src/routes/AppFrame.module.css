@@ -1,5 +1,6 @@
 .mainStrip {
-  width: 550px;
+  max-width: 550px;
+  width: 100%;
   border-left: 1px solid #242424;
   border-right: 1px solid #242424;
   padding: 20px;

@@ -11,6 +11,7 @@ import Home from './Home';
 import Profile from './Profile';
 import Settings from './Settings';
 import Reports from './Reports';
+import useWindowDimensions from '../hooks/useWindowDimensions';
 
 const AppRoutes = () =>
   useRoutes([
@@ -22,7 +23,7 @@ const AppRoutes = () =>
     { path: '/trending', element: <div>Trending</div> },
     { path: '/saved', element: <div>Saved</div> },
     { path: '/settings', element: <Settings /> },
-    { path: '/reports', element: <Reports />}
+    { path: '/reports', element: <Reports /> },
   ]);
 
 function AppFrame() {
@@ -38,7 +39,7 @@ function AppFrame() {
   // useEffect(() => {
   //   if (userData.status === 'error') navigate('/login', { replace: true });
   // }, [userData]);
-
+  const { width } = useWindowDimensions();
   return (
     <div>
       <NavBar
@@ -48,7 +49,7 @@ function AppFrame() {
       />
       <div className={styles.container}>
         <div className={styles.mainStrip}>
-          <SideBar />
+          {width > 1000 ? <SideBar /> : null}
           <AppRoutes />
         </div>
       </div>

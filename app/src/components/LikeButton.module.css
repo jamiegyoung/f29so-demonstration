@@ -17,6 +17,12 @@
   transition: all 0.2s ease-out;
 }
 
+@media (max-width: 400px) {
+  .likeButtonContainer > button {
+    margin: 0;
+  }
+}
+
 .likeButtonContainer > button:hover {
   animation: likeButtonHoverAnimation 0.2s ease-out forwards;
 }

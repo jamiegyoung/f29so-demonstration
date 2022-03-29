@@ -25,11 +25,11 @@ function SignupLoginOverlay() {
           }}
         >
           <img src={fb} alt="facebook" width={24} height={24} />
-          Continue with Facebook
+          <p>Continue with Facebook</p>
         </button>
-        <p>Or</p>
-        <input type="email" placeholder="Enter your email" />
-        <button type="button">Continue with your email</button>
+        {/* <p>Or</p> */}
+        {/* <input type="email" placeholder="Enter your email" />
+        <button type="button">Continue with your email</button> */}
       </div>
     </div>
   );

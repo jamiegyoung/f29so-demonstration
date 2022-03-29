@@ -1,7 +1,6 @@
 .container {
   text-align: end;
   margin-right: 20px;
-  left: 100px;
   position: absolute;
   left: -11rem;
   display: flex;
@@ -25,3 +24,9 @@
 .selected {
   color: #ff5c00 !important;
 }
+
+@media (max-width: 1000px) {
+  .container {
+    right: 0px
+  }
+} 
