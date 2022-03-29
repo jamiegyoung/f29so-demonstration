@@ -42,7 +42,7 @@ function AppFrame() {
   return (
     <div>
       <NavBar
-        userName={userData.user?.username}
+        username={userData.user?.username}
         contributions={userData.user?.contributionCount}
         joined={userData.user?.joined}
       />

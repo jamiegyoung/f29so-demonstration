@@ -26,6 +26,7 @@ import {
   getUserLikeCount,
   addFollow,
   removeFollow,
+  removeReport,
 } from '../../../db.js';
 
 const debug = Debug('api/v1');

@@ -6,13 +6,7 @@ import Styles from './WallPost.module.css';
 import useDate from '../hooks/useDate';
 import fetchApi from '../app/fetchApi';
 
-function ReportPost({
-  wallID,
-  ownerID,
-  edits,
-  lastEdit,
-  preview,
-}: FeedPost) {
+function ReportPost({ wallID, ownerID, edits, lastEdit, preview }: FeedPost) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -49,31 +43,39 @@ function ReportPost({
         <p>edits: {edits}</p>
         <div className={Styles.bottomRightContainer}>
           <button
-            onClick={() => {
-              fetchApi(v1.routes.removeReport, {
+            onClick={async () => {
+              const res = await fetchApi(v1.routes.removeReport, {
                 params: [wallID.toString(10)],
               });
-              window.location.reload();
+              if (res.status === 200) {
+                window.location.reload();
+              }
             }}
             type="button"
           >
             Remove from reports
           </button>
           <button
-            onClick={() => {
-              fetchApi(v1.routes.deleteWall, { params: [wallID.toString(10)] });
-              window.location.reload();
+            onClick={async () => {
+              const res = await fetchApi(v1.routes.deleteWall, {
+                params: [wallID.toString(10)],
+              });
+              if (res.status === 200) {
+                window.location.reload();
+              }
             }}
             type="button"
           >
             Delete WALL
           </button>
           <button
-            onClick={() => {
-              fetchApi(v1.routes.deleteUser, {
+            onClick={async () => {
+              const res = await fetchApi(v1.routes.deleteUser, {
                 params: [ownerID.toString(10)],
               });
-              window.location.reload();
+              if (res.status === 200) {
+                window.location.reload();
+              }
             }}
             style={{ backgroundColor: 'red', color: 'white' }}
             type="button"

@@ -6,12 +6,12 @@ import ProfileImage from './ProfileImage';
 import useDate from '../hooks/useDate';
 
 type NavBarProps = {
-  userName: string | undefined;
+  username: string | undefined;
   contributions: number | undefined;
   joined: number | undefined;
 };
 
-function NavBar({ userName, joined, contributions }: NavBarProps) {
+function NavBar({ username, joined, contributions }: NavBarProps) {
   return (
     <div className={styles.bar}>
       <Link to="/" className={`${styles.logoFormat} no-select`}>
@@ -24,7 +24,7 @@ function NavBar({ userName, joined, contributions }: NavBarProps) {
           <ProfileImage size={50} />
           <div className={`${styles.profileInfoContainer} no-select`}>
             <p style={{ color: '#EDEEF0', fontWeight: '500' }}>
-              [ {userName} ]
+              [ {username} ]
             </p>
             <p>joined {joined ? useDate(joined) : ''}</p>
             <p>contributions: {contributions}</p>
