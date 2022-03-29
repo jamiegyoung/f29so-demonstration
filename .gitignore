@@ -105,5 +105,5 @@ dist
 
 # Other stuff
 **/*.db
-**/public
+server/public
 **/private
