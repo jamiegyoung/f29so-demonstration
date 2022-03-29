@@ -10,9 +10,11 @@ export default function genPreviewBuffer(width, height, pixels) {
     previewArr[px.y][px.x] = px.color;
   });
 
-  const image = new Jimp(width, height, 0xffc0cbff, (err) => {
-    if (err) throw err;
-  });
+  const image = new Jimp(width, height, 0xffc0cbff, () => null);
+
+  if (image === null) {
+    return null;
+  }
 
   pixels.forEach((px) => {
     const rgb = hexRgb(px.color);
@@ -23,5 +25,9 @@ export default function genPreviewBuffer(width, height, pixels) {
     );
   });
 
-  return image.getBufferAsync(Jimp.MIME_PNG);
+  try {
+    return image.getBufferAsync(Jimp.MIME_PNG);
+  } catch (error) {
+    return null;
+  }
 }

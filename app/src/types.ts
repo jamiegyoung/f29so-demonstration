@@ -80,7 +80,7 @@ export interface Api {
 }
 
 export const registration: Api = {
-  version: ApiVersion.v1,
+  version: ApiVersion.registration,
   routes: {
     checkUsername: {
       uri: `${ApiVersion.registration}/check-username`,

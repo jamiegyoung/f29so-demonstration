@@ -351,7 +351,13 @@ export const getWallMetadata = (wallID) => {
   const getMetadata = db.prepare(
     'SELECT ownerID,width,height,wallID,edits,likes FROM Wall WHERE wallID=?;',
   );
-  const ownerUsername = getUsername(getMetadata.get(wallID).ownerID);
+  const metadataRes = getMetadata.get(wallID);
+
+  if (!metadataRes) {
+    return false;
+  }
+
+  const ownerUsername = getUsername(metadataRes.ownerID);
   return { ...getMetadata.get(wallID), ownerUsername };
 };
 
@@ -583,7 +589,10 @@ export const createWall = async (ownerID, width, height) => {
   });
 
   insertAllPixels(pixelArray);
-  updatePreview(wallID, await genPreviewBuffer(width, height, pixelArray));
+  const buffer = await genPreviewBuffer(width, height, pixelArray);
+  if (buffer) {
+    updatePreview(wallID, buffer);
+  }
   return wallID;
 };
 
@@ -623,15 +632,19 @@ export const updatePixel = (pixel) => {
   );
 
   filteredOldHistory.forEach((history) => {
-    const { lastInsertRowid: historyID } = insertPixelHistory.run(
-      pixel.pixelID,
-    );
-    insertHistory.run(
-      historyID,
-      history.userID,
-      history.timestamp,
-      history.color,
-    );
+    try {
+      const { lastInsertRowid: historyID } = insertPixelHistory.run(
+        pixel.pixelID,
+      );
+      insertHistory.run(
+        historyID,
+        history.userID,
+        history.timestamp,
+        history.color,
+      );
+    } catch (e) {
+      console.error(e);
+    }
   });
 };
 

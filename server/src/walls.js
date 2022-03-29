@@ -27,10 +27,18 @@ const addConnectedWall = (userID, wallID) => {
 const updateWallPreview = async (wallID) => {
   const metadata = getWallMetadata(wallID);
   const pixels = getWallPixels(wallID);
-  updatePreview(
-    wallID,
-    await genPreviewBuffer(metadata.width, metadata.height, pixels),
-  );
+  try {
+    const buffer = await genPreviewBuffer(
+      metadata.width,
+      metadata.height,
+      pixels,
+    );
+    if (buffer) {
+      updatePreview(wallID, buffer);
+    }
+  } catch (error) {
+    debug('error generating preview', error);
+  }
 };
 
 const addWallChange = (wallID, pixel) => {
@@ -79,7 +87,7 @@ export default (io, sessionMiddleware) => {
         socket.disconnect();
         return;
       }
-      
+
       const userID = user.id;
 
       const wallID = socket.handshake.query.wall;

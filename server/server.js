@@ -131,7 +131,9 @@ async function genWallPreviews() {
       metadata.height,
       pixels,
     );
-    setWallPreview(metadata.wallID, buffer);
+    if (buffer) {
+      setWallPreview(metadata.wallID, buffer);
+    }
   }
 }
 
