@@ -78,9 +78,9 @@ router.delete('/delete-user/:userID', idUserCheck, (req, res) => {
 });
 
 router.delete('/delete-user', idUserCheck, (req, res) => {
-  debug('deleting self user');
+  debug('deleting self user', req.user.id);
   deleteUser(req.user.id);
-  req.session.destroy();
+  req.logout();
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('OK');
 });

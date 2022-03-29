@@ -82,6 +82,12 @@ router.post('/submit', apiLimiter, (req, res) => {
     return;
   }
 
+  if (username === 'banned user' || username === 'admin') {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Username is reserved');
+    return;
+  }
+
   const usernameConflict = getUserByUsername(username);
   if (usernameConflict) {
     res.writeHead(409, { 'Content-Type': 'text/plain' });

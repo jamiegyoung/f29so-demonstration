@@ -120,5 +120,10 @@ router.get(
   isUser,
 );
 
+router.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/login');
+});
+
 export default router;
 export { initializePassport };

@@ -28,13 +28,13 @@ export const init = () => {
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
     color TEXT,
-    FOREIGN KEY (wallID) REFERENCES Wall(wallID)
+    FOREIGN KEY (wallID) REFERENCES Wall(wallID) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS PixelHistory (
     historyID INTEGER NOT NULL PRIMARY KEY,
     pixelID INTEGER NOT NULL,
-    FOREIGN KEY (pixelID) REFERENCES WallPixel(pixelID)
+    FOREIGN KEY (pixelID) REFERENCES WallPixel(pixelID) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS History (
@@ -42,14 +42,15 @@ export const init = () => {
     userID INTEGER NOT NULL,
     timestamp INTEGER NOT NULL,
     color TEXT,
-    FOREIGN KEY (historyID) REFERENCES PixelHistory(historyID)
+    FOREIGN KEY (historyID) REFERENCES PixelHistory(historyID) ON DELETE CASCADE,
+    FOREIGN KEY (userID) REFERENCES Credentials(id)  ON DELETE CASCADE
     );
 
   CREATE TABLE IF NOT EXISTS Likes (
     wallID INTEGER NOT NULL,
     userID INTEGER NOT NULL,
-    FOREIGN KEY(wallID) REFERENCES Wall(wallID),
-    FOREIGN KEY(userID) REFERENCES Credentials(id)
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID) ON DELETE CASCADE,
+    FOREIGN KEY(userID) REFERENCES Credentials(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS Credentials (
@@ -65,32 +66,32 @@ export const init = () => {
     joined INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as int)),
     avatar BLOB,
     admin INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY(id) REFERENCES Credentials(id)
+    FOREIGN KEY(id) REFERENCES Credentials(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS Reports (
     reportID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     wallID INTEGER NOT NULL,
-    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS Follows (
     userID INTEGER NOT NULL,
     followingID INTEGER NOT NULL,
-    FOREIGN KEY(userID) REFERENCES Credentials(id),
-    FOREIGN KEY(followingID) REFERENCES Credentials(id)
+    FOREIGN KEY(userID) REFERENCES Credentials(id) ON DELETE CASCADE,
+    FOREIGN KEY(followingID) REFERENCES Credentials(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS UserSettings (
     userID INTEGER NOT NULL,
     privacyLevel INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY(userID) REFERENCES Credentials(id)
+    FOREIGN KEY(userID) REFERENCES Credentials(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS Reports (
     wallID INTEGER NOT NULL,
     reason TEXT NOT NULL,
-    FOREIGN KEY(wallID) REFERENCES Wall(wallID)
+    FOREIGN KEY(wallID) REFERENCES Wall(wallID) ON DELETE CASCADE
   );
 `;
   db.exec(createTables);
@@ -174,8 +175,16 @@ export const reportWall = (wallID) => {
   report.run(wallID);
 };
 
-export const getIsAdmin = (id) =>
-  db.prepare('SELECT admin FROM Users WHERE id = ?').get(id).admin === 1;
+export const getIsAdmin = (id) => {
+  const user = db.prepare('SELECT admin FROM Users WHERE id = ?').get(id);
+  if (!user) {
+    return false;
+  }
+  if (user.admin === 1) {
+    return true;
+  }
+  return false;
+};
 
 export const getUsername = (ownerID) => {
   const usernameRes = db
@@ -184,7 +193,7 @@ export const getUsername = (ownerID) => {
   if (usernameRes) {
     return usernameRes.username;
   }
-  return 'anonymous';
+  return 'banned user';
 };
 
 export const getUserWalls = (userID) => {
@@ -430,7 +439,7 @@ export const getWallPixels = (wallID) => {
           const user = getUser(h.userID);
           return {
             ...h,
-            username: user ? user.username : 'Anonymous',
+            username: user ? user.username : 'banned user',
           };
         });
       const newPx = px;
@@ -453,53 +462,59 @@ export const updatePreview = (wallID, buffer) => {
 export const deleteWall = (wallID) => {
   debug('deleteing wall', wallID);
   // get all pixels
-  const pixels = getWallPixels(wallID);
-  // delete all history
-  const deleteHistory = db.prepare('DELETE FROM History WHERE historyID=?;');
-  // delete all pixel history
-  const deletePixelHistory = db.prepare(
-    'DELETE FROM PixelHistory WHERE pixelID=?;',
-  );
-  // delete all pixels
-  const deletePixel = db.prepare('DELETE FROM WallPixel WHERE wallID=?;');
-  // delete the wall
-  const deleteLikes = db.prepare('DELETE FROM Likes WHERE wallID=?;');
-  const delWall = db.prepare('DELETE FROM Wall WHERE wallID=?;');
-  const delReports = db.prepare('DELETE FROM Reports WHERE wallID=?;');
-  const finalize = db.transaction(async () => {
-    await pixels.forEach((p) => {
-      p.history.forEach((h) => {
-        deleteHistory.run(h.historyID);
-      });
-      deletePixelHistory.run(p.pixelID);
-    });
-    deletePixel.run(wallID);
-    deleteLikes.run(wallID);
-    delReports.run(wallID);
-    delWall.run(wallID);
-  });
+  // const pixels = getWallPixels(wallID);
+  // // delete all history
+  // const deleteHistory = db.prepare('DELETE FROM History WHERE historyID=?;');
+  // // delete all pixel history
+  // const deletePixelHistory = db.prepare(
+  //   'DELETE FROM PixelHistory WHERE pixelID=?;',
+  // );
+  // // delete all pixels
+  // const deletePixel = db.prepare('DELETE FROM WallPixel WHERE wallID=?;');
+  // // delete the wall
+  // const deleteLikes = db.prepare('DELETE FROM Likes WHERE wallID=?;');
+  db.prepare('DELETE FROM Wall WHERE wallID=?;').run(wallID);
+  // const delReports = db.prepare('DELETE FROM Reports WHERE wallID=?;');
+  // const finalize = db.transaction(async () => {
+  //   await pixels.forEach((p) => {
+  //     p.history.forEach((h) => {
+  //       deleteHistory.run(h.historyID);
+  //     });
+  //     deletePixelHistory.run(p.pixelID);
+  //   });
+  //   deletePixel.run(wallID);
+  //   deleteLikes.run(wallID);
+  //   delReports.run(wallID);
+  //   delWall.run(wallID);
+  // });
 
-  finalize();
+  // finalize();
 };
 
 export const deleteUser = (userID) => {
+  debug('deleting user', userID);
   const userWalls = getUserWalls(userID);
-  userWalls.forEach((wall) => {
-    deleteWall(wall.wallID);
-  });
-  const delFollowsStmt = db.prepare('DELETE FROM Follows WHERE userID=?;');
-  const delUserStmt = db.prepare('DELETE FROM Users WHERE id=?;');
-  const delCredentialsStmt = db.prepare('DELETE FROM Credentials WHERE id=?;');
-  const delLikesStmt = db.prepare('DELETE FROM Likes WHERE userID=?;');
-  const delUserSettingsStmt = db.prepare(
+  const deleteReport = db.prepare('DELETE FROM Reports WHERE wallID=?;');
+  const historyStmt = db.prepare('DELETE FROM History WHERE userID=?;');
+  const likesStmt = db.prepare('DELETE FROM Likes WHERE userID=?;');
+  const followsStmt = db.prepare('DELETE FROM Follows WHERE userID=?;');
+  const userSettingsStmt = db.prepare(
     'DELETE FROM UserSettings WHERE userID=?;',
   );
+  const credtmt = db.prepare('DELETE FROM Credentials WHERE id=?;');
+  const userStmt = db.prepare('DELETE FROM Users WHERE id=?;');
+  const wallStmt = db.prepare('DELETE FROM Wall WHERE ownerID=?;');
   const delUser = db.transaction(() => {
-    delFollowsStmt.run(userID);
-    delLikesStmt.run(userID);
-    delUserSettingsStmt.run(userID);
-    delUserStmt.run(userID);
-    delCredentialsStmt.run(userID);
+    userWalls.forEach((wall) => {
+      deleteReport.run(wall.wallID);
+    });
+    historyStmt.run(userID);
+    likesStmt.run(userID);
+    followsStmt.run(userID);
+    userSettingsStmt.run(userID);
+    wallStmt.run(userID);
+    userStmt.run(userID);
+    credtmt.run(userID);
   });
 
   delUser();

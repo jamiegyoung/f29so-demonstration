@@ -4,15 +4,30 @@
   font-size: 1.2rem;
   padding: 10px 20px;
   cursor: pointer;
-  transition: .1s ease-out;
-  box-shadow: 0 10px 20px rgba(255, 0, 0, 0.19), 0 6px 6px rgba(255, 0, 0, 0.23);
+  transition: 0.1s ease-out;
+  margin: 20px;
 }
 
 .danger {
+  box-shadow: 0 10px 20px rgba(255, 0, 0, 0.19), 0 6px 6px rgba(255, 0, 0, 0.23);
   background-color: #f80000;
   color: #fff;
 }
 
 .danger:hover {
   background-color: #961212;
+}
+
+.settingsContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.sectionHeader {
+  color: rgb(255, 255, 255);
+  text-align: start;
+  margin-right: auto;
+  border-bottom: 1px solid rgb(36, 36, 36);
+  width: 100%;
 }

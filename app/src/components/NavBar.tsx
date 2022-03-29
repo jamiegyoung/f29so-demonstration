@@ -23,9 +23,9 @@ function NavBar({ username, joined, contributions }: NavBarProps) {
         <div className={styles.profileContainer}>
           <ProfileImage size={50} />
           <div className={`${styles.profileInfoContainer} no-select`}>
-            <p style={{ color: '#EDEEF0', fontWeight: '500' }}>
+            <Link to="/profile" style={{ color: '#EDEEF0', fontWeight: '500', textDecoration: 'none' }}>
               [ {username} ]
-            </p>
+            </Link>
             <p>joined {joined ? useDate(joined) : ''}</p>
             <p>contributions: {contributions}</p>
           </div>
