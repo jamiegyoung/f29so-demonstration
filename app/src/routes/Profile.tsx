@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import fetchApi from '../app/fetchApi';
 import { useAppSelector } from '../app/hooks';
+import ProfileFollowing from '../components/ProfileFollowing';
 import ProfileImage from '../components/ProfileImage';
 import ProfileTabs from '../components/ProfileTabs';
 import ProfileWalls from '../components/ProfileWalls';
@@ -36,7 +37,6 @@ function Profile() {
         if (res.status !== 200) return;
         const data = await res.json();
         setOtherUser(data);
-        console.log(data);
       };
       handleFetchOther();
       return;
@@ -97,7 +97,7 @@ function Profile() {
               <p>contributions: {otherUser?.contributionCount}</p>
             </div>
           </div>
-          {otherUser?.isFollower ? (
+          {otherUser?.id !== actualUser?.id && otherUser?.isFollower ? (
             <p
               style={{
                 color: '#555',
@@ -117,7 +117,7 @@ function Profile() {
                 Create Wall
               </button>
             ) : null}
-            {!otherUser?.isFollowing ? (
+            {otherUser?.id !== actualUser?.id && !otherUser?.isFollowing ? (
               <button
                 onClick={() => {
                   fetchApi(v1.routes.follow, {
@@ -131,7 +131,7 @@ function Profile() {
                 Follow
               </button>
             ) : null}
-            {otherUser?.isFollowing ? (
+            {otherUser?.id !== actualUser?.id && otherUser?.isFollowing ? (
               <button
                 onClick={() => {
                   fetchApi(v1.routes.unfollow, {
@@ -166,7 +166,9 @@ function Profile() {
           {selected === ProfileTabSelection.WALLS ? (
             <ProfileWalls userID={otherUser?.id} />
           ) : null}
-          {selected === ProfileTabSelection.FOLLOWING ? <div>TODO</div> : null}
+          {selected === ProfileTabSelection.FOLLOWING ? (
+            <ProfileFollowing user={otherUser}/>
+          ) : null}
         </div>
       ) : (
         <div className={Styles.spinnerContainer}>

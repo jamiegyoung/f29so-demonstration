@@ -6,13 +6,12 @@ import Styles from './WallPost.module.css';
 import useDate from '../hooks/useDate';
 import fetchApi from '../app/fetchApi';
 
-function WallPost({
+function ReportPost({
   wallID,
   ownerID,
   edits,
   lastEdit,
   preview,
-  ownerUsername,
 }: FeedPost) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
@@ -46,7 +45,6 @@ function WallPost({
         </Link>
       </div>
       <div className={Styles.wallPostData}>
-        <h2 className={Styles.userLink}>[ {ownerUsername} ]</h2>
         <p>last edited: {useDate(lastEdit)}</p>
         <p>edits: {edits}</p>
         <div className={Styles.bottomRightContainer}>
@@ -88,4 +86,4 @@ function WallPost({
   );
 }
 
-export default WallPost;
+export default ReportPost;

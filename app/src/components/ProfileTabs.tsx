@@ -14,26 +14,29 @@ function ProfileTabs({ setSelected, selected }: ProfileTabsProps) {
           keyof typeof ProfileTabSelection
         >
       ).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setSelected(ProfileTabSelection[tab])}
+        <button
+          key={tab}
+          type="button"
+          onClick={() => setSelected(ProfileTabSelection[tab])}
+          className={[
+            Styles.button,
+            selected === ProfileTabSelection[tab] ? Styles.selected : '',
+          ].join(' ')}
+        >
+          {ProfileTabSelection[tab]}
+          <div
             className={[
-              Styles.button,
+              Styles.bottomBorder,
               selected === ProfileTabSelection[tab] ? Styles.selected : '',
             ].join(' ')}
-          >
-            {ProfileTabSelection[tab]}
-            <div
-              className={[
-                Styles.bottomBorder,
-                selected === ProfileTabSelection[tab] ? Styles.selected : '',
-              ].join(' ')}
-              style={{
-                transform: `scaleX(${ProfileTabSelection[tab].length * (selected === ProfileTabSelection[tab] ? 18 : 0)})`,
-              }}
-            />
-          </button>
+            style={{
+              transform: `scaleX(${
+                ProfileTabSelection[tab].length *
+                (selected === ProfileTabSelection[tab] ? 18 : 0)
+              })`,
+            }}
+          />
+        </button>
       ))}
     </div>
   );

@@ -208,6 +208,12 @@ export const v1: Api = {
       body: false,
       opts: { method: 'GET', headers: { Accept: 'application/json' } },
     },
+    getFollowers: {
+      uri: `${ApiVersion.v1}/get-followers`,
+      params: true,
+      body: false,
+      opts: { method: 'GET', headers: { Accept: 'application/json' } },
+    },
   },
 };
 

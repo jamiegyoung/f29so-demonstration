@@ -128,7 +128,7 @@ function PixelEditor({ onApply }: PixelEditorProps) {
                 }}
               >
                 <p>[ {pixel.username} ]</p>
-                <p>Edited {useDate(pixel.timestamp)}</p>
+                <p>Edited {new Date(pixel.timestamp).toLocaleTimeString()}</p>
                 <p>Color: {pixel.color}</p>
               </div>
             ))}

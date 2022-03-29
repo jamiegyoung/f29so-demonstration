@@ -2,6 +2,7 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:7379",
   "dependencies": {
     "@fontsource/roboto": "^4.5.2",
     "@reduxjs/toolkit": "^1.7.1",
