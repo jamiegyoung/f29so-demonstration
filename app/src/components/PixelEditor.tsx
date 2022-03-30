@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
+import { Link } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { clearEditingPixel } from '../features/wall/wallSlice';
 import useContrastingColor from '../hooks/useContrastingColor';
@@ -126,8 +127,18 @@ function PixelEditor({ onApply }: PixelEditorProps) {
                   borderColor: pixel.color,
                 }}
               >
-                <p>[ {pixel.username} ]</p>
-                <p>Edited {new Date(pixel.timestamp).toLocaleDateString().replaceAll('/', '-')}</p>
+                <Link
+                  style={{ textDecoration: 'none', color: 'white' }}
+                  to={`/profile/${pixel.userID}`}
+                >
+                  [ {pixel.username} ]
+                </Link>
+                <p>
+                  Edited{' '}
+                  {new Date(pixel.timestamp)
+                    .toLocaleDateString()
+                    .replaceAll('/', '-')}
+                </p>
                 <p>Color: {pixel.color}</p>
               </div>
             ))}
