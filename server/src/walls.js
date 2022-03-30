@@ -151,7 +151,11 @@ export default (io, sessionMiddleware) => {
       socket.on('disconnect', () => {
         debug(`${userID} disconnected from wall ${wallID}`);
         // Remove the socket from the wall's connected sockets
-        connectedSockets[wallID] = connectedSockets[wallID].filter(
+        const wallSockets = connectedSockets[wallID];
+        if (!wallSockets) {
+          return;
+        }
+        connectedSockets[wallID] = wallSockets.filter(
           (id) => id !== userID,
         );
         // Delete the wall room if no one is connected
