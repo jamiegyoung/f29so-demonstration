@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import fetchApi from '../app/fetchApi';
 import { OtherUser, v1 } from '../types';
 import ProfileImage from './ProfileImage';
@@ -42,7 +43,12 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
       {following.map((follower) => (
         <div key={follower.id} className={Styles.followingContainer}>
           <ProfileImage size={50} className={Styles.profilePhoto} />
-          <p>[ {follower.username} ]</p>
+          <Link
+            style={{ color: 'white', textDecoration: 'none' }}
+            to={`/profile/${follower.id}`}
+          >
+            [ {follower.username} ]
+          </Link>
           {/* eslint-disable-next-line no-nested-ternary */}
           {currentUser?.id !== follower.id ? (
             actualFollowing.find((u) => u.id === follower.id) ? (

@@ -24,6 +24,32 @@
   align-items: flex-start;
 }
 
+@media (max-width: 650px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .historyContainer {
+    justify-content: center;
+    align-items: center;
+    max-height: none;
+    min-height: 100%;
+  }
+
+  .historyContainer > h1 {
+    margin-top: 10px;
+  }
+
+  .historyContainer { 
+    justify-content: flex-start;
+  }
+}
+ 
 .historyContainer {
   display: flex;
   flex-direction: column;
@@ -59,7 +85,7 @@
   max-width: 300px;
   width: 33vw;
   min-width: 200px;
-  max-height: 400px;
+  height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;

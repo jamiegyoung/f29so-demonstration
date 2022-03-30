@@ -40,6 +40,7 @@
   visibility: hidden;
   transition: all 0.5s ease-out;
   transform: translateX(300px);
+  overflow-x: hidden;
 }
 
 .menu.open {

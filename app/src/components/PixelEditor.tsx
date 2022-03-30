@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { clearEditingPixel } from '../features/wall/wallSlice';
 import useContrastingColor from '../hooks/useContrastingColor';
+import useWindowDimensions from '../hooks/useWindowDimensions';
 import { History, Pixel } from '../types';
 import styles from './PixelEditor.module.css';
 import StyledButton from './StyledButton';
@@ -49,6 +50,8 @@ function PixelEditor({ onApply }: PixelEditorProps) {
       applyChange();
     }
   }
+
+  const { width } = useWindowDimensions();
 
   return (
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
@@ -118,7 +121,7 @@ function PixelEditor({ onApply }: PixelEditorProps) {
         </div>
         {sortedHistory.length > 0 ? (
           <div className={styles.historyContainer}>
-            <h1>History</h1>
+            <h1>{width < 650 ? '↓ History ↓' : 'History'}</h1>
             {sortedHistory.map((pixel) => (
               <div
                 key={`${pixel.historyID}:${pixel.timestamp}:${pixel.color}:${pixel.userID}`}

@@ -14,6 +14,7 @@ const adminSideBarSelection = ['reports'];
 function SideBar() {
   const { pathname } = useLocation();
   const user = useAppSelector((state) => state.user.user);
+  
   return (
     <div className={`${styles.container} no-select`}>
       {sideBarSelection.map((key) => (
