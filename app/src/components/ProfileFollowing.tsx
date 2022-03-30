@@ -40,39 +40,43 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
 
   return (
     <div>
-      {following.map((follower) => (
-        <div key={follower.id} className={Styles.followingContainer}>
-          <ProfileImage size={50} className={Styles.profilePhoto} />
-          <Link
-            style={{ color: 'white', textDecoration: 'none' }}
-            to={`/profile/${follower.id}`}
-          >
-            [ {follower.username} ]
-          </Link>
-          {/* eslint-disable-next-line no-nested-ternary */}
-          {currentUser?.id !== follower.id ? (
-            actualFollowing.find((u) => u.id === follower.id) ? (
-              <UnfollowButton
-                userID={follower.id}
-                classList={Styles.followingButton}
-                onClick={() => {
-                  setActualFollowing(
-                    actualFollowing.filter((u) => u.id !== follower.id),
-                  );
-                }}
-              />
-            ) : (
-              <FollowButton
-                userID={follower.id}
-                classList={Styles.followingButton}
-                onClick={() => {
-                  setActualFollowing([...actualFollowing, follower]);
-                }}
-              />
-            )
-          ) : null}
-        </div>
-      ))}
+      {following.length > 0 ? (
+        following.map((follower) => (
+          <div key={follower.id} className={Styles.followingContainer}>
+            <ProfileImage size={50} className={Styles.profilePhoto} />
+            <Link
+              style={{ color: 'white', textDecoration: 'none' }}
+              to={`/profile/${follower.id}`}
+            >
+              [ {follower.username} ]
+            </Link>
+            {/* eslint-disable-next-line no-nested-ternary */}
+            {currentUser?.id !== follower.id ? (
+              actualFollowing.find((u) => u.id === follower.id) ? (
+                <UnfollowButton
+                  userID={follower.id}
+                  classList={Styles.followingButton}
+                  onClick={() => {
+                    setActualFollowing(
+                      actualFollowing.filter((u) => u.id !== follower.id),
+                    );
+                  }}
+                />
+              ) : (
+                <FollowButton
+                  userID={follower.id}
+                  classList={Styles.followingButton}
+                  onClick={() => {
+                    setActualFollowing([...actualFollowing, follower]);
+                  }}
+                />
+              )
+            ) : null}
+          </div>
+        ))
+      ) : (
+        <p>Looks like this person is not following anyone!</p>
+      )}
     </div>
   );
 }

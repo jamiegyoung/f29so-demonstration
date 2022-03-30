@@ -159,6 +159,9 @@ function Profile() {
           {selected === ProfileTabSelection.FOLLOWING ? (
             <ProfileFollowing user={otherUser} />
           ) : null}
+          {selected === ProfileTabSelection.LIKES ? (
+            <p>The likes tab is being worked on, come back later!</p>
+          ) : null}
         </div>
       ) : (
         <div className={Styles.spinnerContainer}>

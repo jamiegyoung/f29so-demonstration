@@ -20,8 +20,11 @@ const AppRoutes = () =>
     { path: '/wall/:wallID', element: <WallEditor /> },
     { path: '/profile/:userID', element: <Profile /> },
     { path: '/profile', element: <Profile /> },
-    { path: '/trending', element: <div>Trending</div> },
-    { path: '/saved', element: <div>Saved</div> },
+    { path: '/trending', element: <div>Trending will be coming soon!</div> },
+    {
+      path: '/following',
+      element: <div>Following posts will be coming soon!</div>,
+    },
     { path: '/settings', element: <Settings /> },
     { path: '/reports', element: <Reports /> },
   ]);
