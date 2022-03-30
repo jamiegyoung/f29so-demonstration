@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import styles from './Feed.module.css';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { fetchUserFeed } from './feedSlice';
+import { clearFeed, fetchUserFeed } from './feedSlice';
 import { FeedPost } from '../../types';
 import WallPost from '../../components/WallPost';
 
@@ -14,6 +14,7 @@ function Feed() {
   }, [feedData]);
 
   useEffect(() => {
+    dispatch(clearFeed());
     dispatch(fetchUserFeed({ page: 0 }));
   }, []);
 
