@@ -23,23 +23,24 @@ function ProfileWalls({ userID }: { userID: number }) {
   return (
     <div>
       {feedData.status === 'loading' ? <Spinner /> : null}
-      {feedData.status === 'success' && feedData?.posts.length > 0 ? (
-        feedData.posts.map((wall) => (
-          <WallPost
-            key={wall.wallID}
-            wallID={wall.wallID}
-            ownerID={wall.ownerID}
-            ownerUsername={wall.ownerUsername}
-            edits={wall.edits}
-            likes={wall.likes}
-            lastEdit={wall.lastEdit}
-            liked={wall.liked}
-            preview={wall.preview}
-          />
-        ))
-      ) : (
+      {feedData?.status === 'success' && feedData?.posts.length > 0
+        ? feedData.posts.map((wall) => (
+            <WallPost
+              key={wall.wallID}
+              wallID={wall.wallID}
+              ownerID={wall.ownerID}
+              ownerUsername={wall.ownerUsername}
+              edits={wall.edits}
+              likes={wall.likes}
+              lastEdit={wall.lastEdit}
+              liked={wall.liked}
+              preview={wall.preview}
+            />
+          ))
+        : null}
+      {feedData.status === 'success' && feedData.posts.length === 0 ? (
         <p>Looks like there&apos;s nothing here!</p>
-      )}
+      ) : null}
       {feedData.status === 'error' ? (
         <p>There was an error fetching these WALLS. Please try again later.</p>
       ) : null}

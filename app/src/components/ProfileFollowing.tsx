@@ -48,50 +48,51 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
 
   return (
     <div>
-      {!hasErrored && !isLoading && following.length > 0 ? (
-        following.map((follower) => (
-          <div key={follower.id} className={Styles.followingContainer}>
-            <ProfileImage size={50} className={Styles.profilePhoto} />
-            <Link
-              style={{ color: 'white', textDecoration: 'none' }}
-              to={`/profile/${follower.id}`}
-            >
-              [ {follower.username} ]
-            </Link>
-            {/* eslint-disable-next-line no-nested-ternary */}
-            {currentUser?.id !== follower.id ? (
-              actualFollowing.find((u) => u.id === follower.id) ? (
-                <UnfollowButton
-                  userID={follower.id}
-                  classList={Styles.followingButton}
-                  onClick={() => {
-                    setActualFollowing(
-                      actualFollowing.filter((u) => u.id !== follower.id),
-                    );
-                  }}
-                />
-              ) : (
-                <FollowButton
-                  userID={follower.id}
-                  classList={Styles.followingButton}
-                  onClick={() => {
-                    setActualFollowing([...actualFollowing, follower]);
-                  }}
-                />
-              )
-            ) : null}
-            {isLoading ? <Spinner /> : null}
-            {hasErrored ? (
-              <p>
-                There was an error fetching who this user is following. Please
-                try again later.
-              </p>
-            ) : null}
-          </div>
-        ))
-      ) : (
+      {!hasErrored && !isLoading && following.length > 0
+        ? following.map((follower) => (
+            <div key={follower.id} className={Styles.followingContainer}>
+              <ProfileImage size={50} className={Styles.profilePhoto} />
+              <Link
+                style={{ color: 'white', textDecoration: 'none' }}
+                to={`/profile/${follower.id}`}
+              >
+                [ {follower.username} ]
+              </Link>
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {currentUser?.id !== follower.id ? (
+                actualFollowing.find((u) => u.id === follower.id) ? (
+                  <UnfollowButton
+                    userID={follower.id}
+                    classList={Styles.followingButton}
+                    onClick={() => {
+                      setActualFollowing(
+                        actualFollowing.filter((u) => u.id !== follower.id),
+                      );
+                    }}
+                  />
+                ) : (
+                  <FollowButton
+                    userID={follower.id}
+                    classList={Styles.followingButton}
+                    onClick={() => {
+                      setActualFollowing([...actualFollowing, follower]);
+                    }}
+                  />
+                )
+              ) : null}
+            </div>
+          ))
+        : null}
+      {!isLoading && !hasErrored && following.length === 0 ? (
         <p>Looks like this person is not following anyone!</p>
-      )}
+      ) : null}
+      {isLoading ? <Spinner /> : null}
+      {hasErrored ? (
+        <p>
+          There was an error fetching who this user is following. Please try
+          again later.
+        </p>
+      ) : null}
     </div>
   );
 }
