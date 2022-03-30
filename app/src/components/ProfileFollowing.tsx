@@ -7,11 +7,14 @@ import Styles from './ProfileFollowing.module.css';
 import { useAppSelector } from '../app/hooks';
 import UnfollowButton from './UnfollowButton';
 import FollowButton from './FollowButton';
+import Spinner from './Spinner';
 
 function ProfileFollowing({ user }: { user: OtherUser }) {
   const [following, setFollowing] = useState<OtherUser[]>([]);
   const currentUser = useAppSelector((state) => state.user.user);
   const [actualFollowing, setActualFollowing] = useState<OtherUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasErrored, setHasErrored] = useState(false);
 
   useEffect(() => {
     const handleFetch = async () => {
@@ -19,9 +22,14 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
       const res = await fetchApi(v1.routes.getFollowing, {
         params: [user.id.toString(10)],
       });
-      if (res.status !== 200) return;
+      if (res.status !== 200) {
+        setIsLoading(false);
+        setHasErrored(true);
+        return;
+      }
       const data = await res.json();
       setFollowing(data);
+      setIsLoading(false);
     };
 
     const getActualUserFollowing = async () => {
@@ -40,7 +48,7 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
 
   return (
     <div>
-      {following.length > 0 ? (
+      {!hasErrored && !isLoading && following.length > 0 ? (
         following.map((follower) => (
           <div key={follower.id} className={Styles.followingContainer}>
             <ProfileImage size={50} className={Styles.profilePhoto} />
@@ -71,6 +79,13 @@ function ProfileFollowing({ user }: { user: OtherUser }) {
                   }}
                 />
               )
+            ) : null}
+            {isLoading ? <Spinner /> : null}
+            {hasErrored ? (
+              <p>
+                There was an error fetching who this user is following. Please
+                try again later.
+              </p>
             ) : null}
           </div>
         ))
